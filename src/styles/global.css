@@ -1,0 +1,109 @@
+@import './tokens.css';
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body, #root { height: 100%; width: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: #fff;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-soft {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-soft:hover { opacity: 0.85; }
+
+.btn-ghost {
+  background: #fff;
+  color: var(--sub);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-ghost:hover { background: var(--canvas); }
+
+.chip-option {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.chip-option:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.input-pill {
+  background: #fff;
+  border: 1.2px solid var(--accent-edge);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-pill:focus {
+  border-color: var(--accent);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+@keyframes blockGrowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.block-new {
+  animation: blockGrowIn 0.3s ease-out;
+  background: #FBFAFF;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-block);
+}
+.block-new-fade {
+  transition: background 3s, border-color 3s;
+}
+.block-new-fade.faded {
+  background: #fff;
+  border-color: var(--line);
+}
+div:hover > .block-actions {
+  opacity: 1 !important;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+@keyframes ghostIn {
+  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.ghost-block {
+  animation: ghostIn 0.35s ease-out;
+}

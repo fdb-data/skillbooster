@@ -1,0 +1,42 @@
+appId: com.skillbooster.app
+productName: SkillBooster
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron/*'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+extraResources:
+  - from: resources
+    to: resources
+    filter:
+      - '**/*'
+asarUnpack:
+  - '**/*.node'
+  - node_modules/better-sqlite3/**
+win:
+  executableName: SkillBooster
+  target:
+    - nsis
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+mac:
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  notarize: false
+  target:
+    - dmg
+dmg:
+  artifactName: ${name}-${version}.${ext}
+publish:
+  provider: github
+  owner: fdb-data
+  repo: skillbooster
+  releaseType: release

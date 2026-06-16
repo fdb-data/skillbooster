@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+
+# Release / packaged executables (85MB+ exe, unpacked app)
+release/
+
+# Vite dev server port cache
+.vite-dev-port
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test / coverage
+coverage/
+
+# Tool-specific caches
+.arts/
+.claude/
+.codeartsdoer/
+
+# Product planning (internal, not for public repo)
+0.产品规划/
+SkillStudio-20260517-开发总结.md
+SkillStudio设计方案V3.0.MD
+CLAUDE.md
+
+

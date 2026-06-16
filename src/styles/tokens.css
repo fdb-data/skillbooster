@@ -1,0 +1,36 @@
+:root {
+  --accent: #4F46E5;
+  --accent-soft: #EEEDFC;
+  --accent-edge: #D7D5F2;
+  --ink: #1A1A2E;
+  --sub: #6B7280;
+  --tri: #A6ABB5;
+  --line: #ECECF1;
+  --canvas: #FAFAFC;
+
+  --evidence-institutional: #2E9E6B;
+  --evidence-validated: #3B82F6;
+  --evidence-sample: #E0A93B;
+  --evidence-exploratory: #E05D5D;
+
+  --border-flow: #3B82F6;
+  --border-rule: #2563EB;
+  --border-risk: #E05D5D;
+  --border-insight: #E08A2B;
+
+  --anchor-bg: #FFF6E6;
+  --anchor-border: #F3D89A;
+  --anchor-text: #C8862A;
+
+  --radius-card: 10px;
+  --radius-pill: 999px;
+  --radius-block: 8px;
+
+  --font-title: 24px;
+  --font-page: 13px;
+  --font-body: 11px;
+  --font-hint: 9px;
+
+  --ai-bubble: #F5F5F8;
+  --user-bubble: #EEEDFC;
+}

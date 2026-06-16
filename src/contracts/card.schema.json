@@ -1,0 +1,196 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExperienceCard",
+  "description": "经验卡片数据结构，包含五种知识类型",
+  "type": "object",
+  "properties": {
+    "flows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KnowledgeEntry"
+      },
+      "description": "流程知识"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KnowledgeEntry"
+      },
+      "description": "规则知识"
+    },
+    "insights": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KnowledgeEntry"
+      },
+      "description": "洞察知识"
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KnowledgeEntry"
+      },
+      "description": "概念"
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KnowledgeEntry"
+      },
+      "description": "关系"
+    },
+    "layout": {
+      "type": "object",
+      "description": "画布布局（可选）：节点位置与连线，旧数据无此字段时自动排版",
+      "properties": {
+        "positions": {
+          "type": "object",
+          "description": "条目 id -> 画布坐标",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ]
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "description": "条目 id"
+              },
+              "target": {
+                "type": "string",
+                "description": "条目 id"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "flow-order",
+                  "link"
+                ]
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "target",
+              "kind"
+            ]
+          }
+        }
+      },
+      "required": [
+        "positions",
+        "edges"
+      ]
+    }
+  },
+  "required": [
+    "flows",
+    "rules",
+    "insights",
+    "concepts",
+    "relations"
+  ],
+  "definitions": {
+    "KnowledgeEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "UUID"
+        },
+        "title": {
+          "type": "string",
+          "description": "条目标题"
+        },
+        "content": {
+          "type": "string",
+          "description": "条目内容"
+        },
+        "steps": {
+          "type": "array",
+          "description": "仅流程节点：结构化步骤，content 由其自动拼接",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "desc": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "desc"
+            ]
+          }
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否已验证"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "ai",
+            "user",
+            "doc"
+          ],
+          "description": "来源标记"
+        },
+        "evidenceLevel": {
+          "type": "string",
+          "enum": [
+            "institutional",
+            "validated",
+            "sample",
+            "exploratory"
+          ],
+          "description": "证据等级"
+        },
+        "provenance": {
+          "type": "string",
+          "description": "来源说明"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "verified",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  }
+}
