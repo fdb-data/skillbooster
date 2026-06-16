@@ -88,8 +88,9 @@ Electron 双进程 + AG-UI 事件流双通道
 ## 项目结构
 
 ```
-├── 0.design/               # 产品与技术设计文档
-├── docs/                   # 开发计划
+├── docs/
+│   ├── 0.design/           # 产品与技术设计文档
+│   └── 1.ui_design/        # UI 界面设计稿（drawio）
 ├── electron/main/          # 主进程：agent 循环、LLM 客户端、持久化、IPC
 ├── electron/preload/       # contextBridge 桥接层
 ├── src/
@@ -101,7 +102,7 @@ Electron 双进程 + AG-UI 事件流双通道
 └── tests/                  # vitest（主进程 + 渲染进程）
 ```
 
-详细设计见 [`0.design/`](./0.design/)：产品构想、功能设计、UI/UX、技术栈、系统架构、开发规范。
+详细设计见 [`docs/0.design/`](./docs/0.design/)：产品构想、功能设计、UI/UX、技术栈、系统架构、开发规范。
 
 ## Skill 包格式
 

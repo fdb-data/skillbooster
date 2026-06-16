@@ -1,0 +1,222 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="abtest2" name="A/B 评测界面布局 v2">
+    <mxGraphModel dx="900" dy="650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="leg" value="图例 — 请先读（上一版的问题就是把“说明”和“占位”当成 UI 文字显示了）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDF0;strokeColor=#D6B656;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=8;fontColor=#5A4A00;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1620" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_a" value="字面 UI 文案" style="rounded=0;html=1;fillColor=#FFFFFF;strokeColor=#333333;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="78" width="150" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_a2" value="→ 照原样显示在界面" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="218" y="78" width="170" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_b" value="«动态值»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=center;verticalAlign=middle;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="78" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_b2" value="→ 程序填充，不是要显示的文字" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="548" y="78" width="230" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_c" value="开发者说明" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF6CC;strokeColor=#D6B656;align=center;verticalAlign=middle;size=14;fontColor=#5A4A00;" vertex="1" parent="1">
+          <mxGeometry x="800" y="74" width="140" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_c2" value="→ 绝不显示在界面上" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="950" y="78" width="200" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_d" value="按钮" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C5CE7;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="78" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_d2" value="→ 可点击" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="78" width="160" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frameA" value="Tab 1 · 对比测试" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="1040" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="tabA1" value="对比测试" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C5CE7;fontColor=#6C5CE7;align=center;verticalAlign=middle;fontStyle=1;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="215" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="tabA2" value="验证报告" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEEEF3;strokeColor=#CCCCD6;fontColor=#999999;align=center;verticalAlign=middle;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="205" y="215" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrlA" value="受控条件：两侧 «模型名» · temp «0.7» · 唯一差异 = skill（SKILL.md）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEEEF3;strokeColor=#CCCCD6;align=left;verticalAlign=middle;spacingLeft=10;fontColor=#444444;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="262" width="1000" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="paneA" value="A · 不加载 Skill（裸模型）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=8;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="315" width="485" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="paneA_body" value="«模型 A 的实时流式输出»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontColor=#1A3D7A;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="72" y="347" width="461" height="191" as="geometry" />
+        </mxCell>
+        <mxCell id="paneB" value="B · 加载本 Skill ✓" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=8;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="560" y="315" width="500" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="paneB_body" value="«模型 B 的实时流式输出»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontColor=#1A3D7A;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="572" y="347" width="476" height="191" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subA1" value="单条输入" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEEEF3;strokeColor=#CCCCD6;fontColor=#999999;align=center;verticalAlign=middle;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="575" width="130" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="subA2" value="测试集验证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C5CE7;fontColor=#6C5CE7;align=center;verticalAlign=middle;fontStyle=1;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="195" y="575" width="140" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="tsPanel" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F7FB;strokeColor=#CCCCD6;verticalAlign=top;align=left;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="612" width="1000" height="255" as="geometry" />
+        </mxCell>
+        <mxCell id="ts_gen" value="✨ 一键生成 10 条" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C5CE7;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="72" y="622" width="190" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ts_add" value="+ 手动添加" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C5CE7;fontColor=#6C5CE7;align=center;verticalAlign=middle;arcSize=30;" vertex="1" parent="1">
+          <mxGeometry x="270" y="622" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ts_count" value="«N»/10" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=center;verticalAlign=middle;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="625" width="70" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ts_runall" value="▶ 全部跑" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C5CE7;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="622" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="row1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;verticalAlign=top;align=left;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="72" y="668" width="976" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="row1_instr" value="«生成的测试指令 1（单行显示，过长截断）»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="84" y="675" width="858" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="row1_dots" value="..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;fontColor=#555555;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="956" y="674" width="80" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="row2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;verticalAlign=top;align=left;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="72" y="716" width="976" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="row2_instr" value="«生成的测试指令 2»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="84" y="723" width="858" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="row2_dots" value="..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;fontColor=#555555;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="956" y="722" width="80" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="row_more" value="«… 其余 8 条，每条同样单行 + “...”编辑按钮 …»" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#888888;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="84" y="764" width="600" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="ts_emptyhint" value="（空状态：还没有测试指令时，引导点“一键生成 10 条”或“手动添加”——不要显示“这里将显示…”这类句子）" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#B0B0B0;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="84" y="822" width="940" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frameB" value="同一位置 · 底部“单条输入”子 tab 激活时" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="910" width="1040" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="subB1" value="单条输入" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C5CE7;fontColor=#6C5CE7;align=center;verticalAlign=middle;fontStyle=1;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="945" width="130" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="subB2" value="测试集验证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEEEF3;strokeColor=#CCCCD6;fontColor=#999999;align=center;verticalAlign=middle;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="195" y="945" width="140" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="b_input" value="输入一条测试指令…（支持多行；占位文字保持简短）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;align=left;verticalAlign=top;fontColor=#999999;fontStyle=2;spacingLeft=10;spacingTop=8;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="982" width="890" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="b_run" value="▶ 运行对比" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C5CE7;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="960" y="982" width="100" height="82" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frameC" value="Tab 2 · 验证报告（所有验证结果显示在这里）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1130" width="1040" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="tabC1" value="对比测试" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEEEF3;strokeColor=#CCCCD6;fontColor=#999999;align=center;verticalAlign=middle;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1165" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="tabC2" value="验证报告" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C5CE7;fontColor=#6C5CE7;align=center;verticalAlign=middle;fontStyle=1;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="205" y="1165" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="sum" value="汇总结果" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F7FB;strokeColor=#AAAAB8;verticalAlign=top;align=left;fontStyle=1;fontColor=#333333;spacingTop=8;spacingLeft=10;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1212" width="1000" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="sum_exp1" value="导出 JSON" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D9D6F2;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;" vertex="1" parent="1">
+          <mxGeometry x="830" y="1222" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sum_exp2" value="导出 MD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D9D6F2;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;" vertex="1" parent="1">
+          <mxGeometry x="940" y="1222" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sum_verdict" value="«总结论：有帮助 / 无明显差异 / 拖累了» — «一句话总评»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1262" width="730" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sum_tally" value="Skill 赢 «—» · 平 «—» · 负 «—»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1300" width="320" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sum_nums" value="Token：A «—» / B «—»（B 多 «—»，skill 激活时） · 延迟：A «—» / B «—» · 成本：«仅在配了定价时显示»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1332" width="900" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="detail" value="逐条结果（点条目可展开看该条的 A/B 输出）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F7FB;strokeColor=#AAAAB8;verticalAlign=top;align=left;fontStyle=1;fontColor=#333333;spacingTop=8;spacingLeft=10;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1375" width="1000" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="case_instr" value="«测试指令 1（截断）»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1410" width="560" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="case_overall" value="«总结论：有帮助/无差异/拖累»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=center;verticalAlign=middle;fontColor=#1A3D7A;arcSize=30;" vertex="1" parent="1">
+          <mxGeometry x="648" y="1410" width="392" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim1_n" value="专业判断" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="96" y="1448" width="110" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim1_v" value="«胜/平/负» · «一行证据»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="212" y="1448" width="826" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim2_n" value="操作性" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="96" y="1480" width="110" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim2_v" value="«胜/平/负» · «一行证据»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="212" y="1480" width="826" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim3_n" value="边界意识" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="96" y="1512" width="110" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim3_v" value="«胜/平/负» · «一行证据»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="212" y="1512" width="826" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim4_n" value="风险提示" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="96" y="1544" width="110" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim4_v" value="«胜/平/负» · «一行证据»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="212" y="1544" width="826" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim5_n" value="幻觉劣化" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#222222;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="96" y="1576" width="110" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cdim5_v" value="«胜/平/负» · «一行证据»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=middle;spacingLeft=8;fontColor=#1A3D7A;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="212" y="1576" width="826" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="case_more" value="«… 其余测试用例同样一条一行，可展开 …»" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#888888;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="96" y="1616" width="600" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="modal" value="弹窗 · 编辑测试指令（点行右侧“...”打开）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C5CE7;verticalAlign=top;align=left;fontStyle=1;spacingTop=6;spacingLeft=10;shadow=1;arcSize=4;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="560" width="560" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="modal_ta" value="«该条测试指令的完整内容（多行，可在此编辑）»" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#E6F0FF;strokeColor=#3366CC;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontColor=#1A3D7A;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="600" width="520" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="modal_cancel" value="取消" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#BBBBC8;fontColor=#555555;align=center;verticalAlign=middle;arcSize=30;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="775" width="100" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="modal_save" value="保存" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C5CE7;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;arcSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1545" y="775" width="100" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n1" value="顶部分成两个真实 tab：① 对比测试——做对比的地方（受控条件 + A/B 两栏实时输出 + 底部输入区）；② 验证报告——所有验证结果（汇总 + 逐条裁判结论）都显示在这个 tab。用标签页切换，不要把内容堆在一页里往下滚。" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF6CC;strokeColor=#D6B656;align=left;verticalAlign=top;size=18;spacingLeft=8;spacingTop=6;fontColor=#5A4A00;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="180" width="560" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" value="底部“测试集验证”子 tab：①“✨ 一键生成 10 条”——点击后由验证智能体/大模型根据本 skill 的内容，生成约 10 条有代表性的测试指令（生成的内容是动态值，不是写死的文字）。② 每条单行显示、过长截断。③ 行右侧“...”按钮 → 打开多行编辑弹窗（见下方弹窗）改完整内容。保留“+ 手动添加”和“▶ 全部跑”。" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF6CC;strokeColor=#D6B656;align=left;verticalAlign=top;size=18;spacingLeft=8;spacingTop=6;fontColor=#5A4A00;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="315" width="560" height="225" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" value="底部“单条输入”子 tab：一个加高、支持多行的输入框（比上一版那种矮单行框高很多），用于临时贴一条指令快速对比。placeholder 必须简短，例如“输入一条测试指令…”，绝不要把内容示例塞进 placeholder。" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF6CC;strokeColor=#D6B656;align=left;verticalAlign=top;size=18;spacingLeft=8;spacingTop=6;fontColor=#5A4A00;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="910" width="560" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="n4" value="验证报告 tab：上半“汇总结果”——胜/平/负计数、一句话总结论、token/延迟/成本数字、导出 JSON/MD（有结果前置灰禁用）。下半“逐条结果”——每条用例一行总结论，展开看该条 A/B 输出 + 五维度 胜/平/负 + 一行证据。未跑验证时显示空态或灰色占位短横线，不要显示“这里将显示…”这类句子。维度名是字面文字，胜负与证据是动态值。裁判对哪侧带 Skill 不知情（盲评）。" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF6CC;strokeColor=#D6B656;align=left;verticalAlign=top;size=18;spacingLeft=8;spacingTop=6;fontColor=#5A4A00;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="1130" width="560" height="225" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

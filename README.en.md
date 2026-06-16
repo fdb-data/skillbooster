@@ -88,8 +88,9 @@ Agent capability highlights: native function calling first, automatic fallback t
 ## Project structure
 
 ```
-├── 0.design/               # product and technical design docs
-├── docs/                   # development plan
+├── docs/
+│   ├── 0.design/           # product and technical design docs
+│   └── 1.ui_design/        # UI design mockups (drawio)
 ├── electron/main/          # main process: agent loop, LLM client, persistence, IPC
 ├── electron/preload/       # contextBridge bridge layer
 ├── src/
@@ -101,7 +102,7 @@ Agent capability highlights: native function calling first, automatic fallback t
 └── tests/                  # vitest (main process + renderer)
 ```
 
-See [`0.design/`](./0.design/) for detailed design: product vision, feature design, UI/UX, tech stack, system architecture, development conventions.
+See [`docs/0.design/`](./docs/0.design/) for detailed design: product vision, feature design, UI/UX, tech stack, system architecture, development conventions.
 
 ## Skill package format
 

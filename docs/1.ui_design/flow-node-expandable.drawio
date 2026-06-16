@@ -1,0 +1,190 @@
+<mxfile host="app.diagrams.net" agent="SkillForge" version="24.0.0">
+  <diagram id="flow-node-expandable" name="流程节点-可展开步骤">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===================== 标题 ===================== -->
+        <mxCell id="title" value="「流程」节点改造草图 · 可折叠步骤栏（收起态 → 点展开 → 展开态）" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#1B1F2B;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="只画这一种节点。蓝色 #3B82F6 为流程主色（沿用现有左边框 4px）。其它 rule/insight 节点保持不变。" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="900" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- ================  A. 收起态 (Collapsed)  =================== -->
+        <!-- ============================================================ -->
+        <mxCell id="aLabel" value="A · 收起态（默认）" style="text;html=1;align=left;fontSize=13;fontStyle=1;fontColor=#1B1F2B;" vertex="1" parent="1">
+          <mxGeometry x="70" y="100" width="260" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- 卡片外框 -->
+        <mxCell id="aCard" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#E3E6EC;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="130" width="260" height="118" as="geometry" />
+        </mxCell>
+        <!-- 左侧 4px 蓝条 -->
+        <mxCell id="aBar" value="" style="rounded=0;fillColor=#3B82F6;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="70" y="130" width="4" height="118" as="geometry" />
+        </mxCell>
+        <!-- 类型标签 -->
+        <mxCell id="aTag" value="流程" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#EAF1FE;strokeColor=none;fontColor=#3B82F6;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="86" y="144" width="32" height="16" as="geometry" />
+        </mxCell>
+        <!-- 证据点 -->
+        <mxCell id="aDot" value="" style="ellipse;fillColor=#2E9E6B;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="124" y="149" width="7" height="7" as="geometry" />
+        </mxCell>
+        <!-- 标题 -->
+        <mxCell id="aTitle" value="客户投诉处理流程" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#1B1F2B;" vertex="1" parent="1">
+          <mxGeometry x="138" y="143" width="180" height="18" as="geometry" />
+        </mxCell>
+        <!-- 摘要行 -->
+        <mxCell id="aMeta" value="先共情安抚，再定位问题，给方案并闭环回访……" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#8A8F9A;" vertex="1" parent="1">
+          <mxGeometry x="86" y="166" width="232" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- 展开栏（点击区） -->
+        <mxCell id="aExpand" value="▾  展开 5 个步骤" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#F4F8FF;strokeColor=#D6E4FB;fontColor=#3B82F6;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="86" y="192" width="232" height="26" as="geometry" />
+        </mxCell>
+        <!-- 底部 改/删 -->
+        <mxCell id="aFoot" value="待验证                                          ✎   🗑" style="text;html=1;align=left;verticalAlign=middle;fontSize=9;fontColor=#A6ABB5;" vertex="1" parent="1">
+          <mxGeometry x="86" y="224" width="232" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- 收起态标注 -->
+        <mxCell id="aNote1" value="① 摘要行＝步骤标题拼接预览，一眼知道有几步、大概干啥" style="text;html=1;align=left;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="70" y="262" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aNote2" value="② 展开栏整条可点；带计数「展开 N 个步骤」" style="text;html=1;align=left;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="70" y="288" width="260" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- 大箭头 -->
+        <mxCell id="arrow" value="点击展开栏" style="endArrow=classic;html=1;strokeColor=#3B82F6;strokeWidth=2;fontColor=#3B82F6;fontSize=11;fontStyle=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="350" y="190" as="sourcePoint" />
+            <mxPoint x="470" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- ================  B. 展开态 (Expanded)  ==================== -->
+        <!-- ============================================================ -->
+        <mxCell id="bLabel" value="B · 展开态（点击展开栏后向下铺开）" style="text;html=1;align=left;fontSize=13;fontStyle=1;fontColor=#1B1F2B;" vertex="1" parent="1">
+          <mxGeometry x="490" y="100" width="320" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- 卡片外框 -->
+        <mxCell id="bCard" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#E3E6EC;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="130" width="280" height="384" as="geometry" />
+        </mxCell>
+        <!-- 左侧 4px 蓝条 -->
+        <mxCell id="bBar" value="" style="rounded=0;fillColor=#3B82F6;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="490" y="130" width="4" height="384" as="geometry" />
+        </mxCell>
+        <!-- 类型标签 -->
+        <mxCell id="bTag" value="流程" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#EAF1FE;strokeColor=none;fontColor=#3B82F6;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="506" y="144" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bDot" value="" style="ellipse;fillColor=#2E9E6B;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="544" y="149" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="bTitle" value="客户投诉处理流程" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#1B1F2B;" vertex="1" parent="1">
+          <mxGeometry x="558" y="143" width="200" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- 收起栏 -->
+        <mxCell id="bCollapse" value="▴  收起步骤" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#F4F8FF;strokeColor=#D6E4FB;fontColor=#3B82F6;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="506" y="170" width="248" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤竖向连接线 -->
+        <mxCell id="bStepLine" value="" style="rounded=0;fillColor=#D6E4FB;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="521" y="214" width="2" height="216" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤 1 -->
+        <mxCell id="bN1" value="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3B82F6;strokeColor=none;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="514" y="210" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bS1" value="共情安抚&#10;&lt;span style='color:#8A8F9A;font-size:9px'&gt;先认同情绪、致歉，稳住客户&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1B1F2B;spacingLeft=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="208" width="210" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤 2 -->
+        <mxCell id="bN2" value="2" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3B82F6;strokeColor=none;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="514" y="250" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bS2" value="定位问题&#10;&lt;span style='color:#8A8F9A;font-size:9px'&gt;复述+提问，确认真实诉求&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1B1F2B;spacingLeft=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="248" width="210" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤 3 -->
+        <mxCell id="bN3" value="3" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3B82F6;strokeColor=none;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="514" y="290" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bS3" value="给出方案&#10;&lt;span style='color:#8A8F9A;font-size:9px'&gt;提供 1-2 个可执行解决办法&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1B1F2B;spacingLeft=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="288" width="210" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤 4 -->
+        <mxCell id="bN4" value="4" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3B82F6;strokeColor=none;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="514" y="330" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bS4" value="确认达成&#10;&lt;span style='color:#8A8F9A;font-size:9px'&gt;让客户确认是否接受&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1B1F2B;spacingLeft=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="328" width="210" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤 5 -->
+        <mxCell id="bN5" value="5" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3B82F6;strokeColor=none;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="514" y="370" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bS5" value="闭环回访&#10;&lt;span style='color:#8A8F9A;font-size:9px'&gt;事后跟进，确认彻底解决&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1B1F2B;spacingLeft=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="368" width="210" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- 步骤行 hover 时出现的 改/删/拖 (示意在步骤3上) -->
+        <mxCell id="bRowAct" value="⋮⋮  ✎  🗑" style="text;html=1;align=right;fontSize=9;fontColor=#C2C6CE;" vertex="1" parent="1">
+          <mxGeometry x="690" y="290" width="60" height="14" as="geometry" />
+        </mxCell>
+
+        <!-- 添加步骤 -->
+        <mxCell id="bAdd" value="+ 添加步骤" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;dashed=1;fillColor=none;strokeColor=#C9D4E6;fontColor=#8A93A6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="412" width="100" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- 分隔线 -->
+        <mxCell id="bDivider" value="" style="line;strokeColor=#EFF1F5;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="506" y="448" width="248" height="8" as="geometry" />
+        </mxCell>
+        <!-- 底部 改/删 -->
+        <mxCell id="bFoot" value="待验证                                                 ✎   🗑" style="text;html=1;align=left;verticalAlign=middle;fontSize=9;fontColor=#A6ABB5;" vertex="1" parent="1">
+          <mxGeometry x="506" y="460" width="248" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== 展开态标注 ===================== -->
+        <mxCell id="bNote" value="交互要点" style="text;html=1;align=left;fontSize=12;fontStyle=1;fontColor=#1B1F2B;" vertex="1" parent="1">
+          <mxGeometry x="820" y="130" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="bNoteBody" value="• 展开/收起仅是节点内部 UI 状态，不写库&#10;&#10;• 每个步骤 = 编号圆点 + 步骤标题 + 一行说明，&#10;&#160;&#160;竖线把步骤串成一条「顺序流」&#10;&#10;• 步骤行 hover 出现 ⋮⋮ 拖拽手柄（调顺序）、&#10;&#160;&#160;✎ 改、🗑 删&#10;&#10;• 「+ 添加步骤」在末尾追加一步&#10;&#10;• 节点高度随步骤数自适应；展开时把下方&#10;&#160;&#160;其它节点顺势下推（不重叠）&#10;&#10;• 收起态摘要行＝各步骤标题用「，」拼接" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#404552;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="820" y="156" width="320" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== 数据结构提示 ===================== -->
+        <mxCell id="dataBox" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#FBFAF4;strokeColor=#E6DFC7;" vertex="1" parent="1">
+          <mxGeometry x="820" y="412" width="320" height="102" as="geometry" />
+        </mxCell>
+        <mxCell id="dataTitle" value="数据结构（待你确认）" style="text;html=1;align=left;fontSize=11;fontStyle=1;fontColor=#8A7A33;" vertex="1" parent="1">
+          <mxGeometry x="836" y="422" width="280" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="dataBody" value="流程节点的 content 升级为 steps[]：&#10;每步 { title, desc }。旧的纯文本 content&#10;首次展开时按行/句拆成步骤，向后兼容。&#10;（具体存法等你点头后再定，先不动代码）" style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontColor=#6E6535;spacing=2;" vertex="1" parent="1">
+          <mxGeometry x="836" y="442" width="296" height="66" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
