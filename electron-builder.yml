@@ -21,6 +21,9 @@ win:
   target:
     - nsis
 nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
