@@ -25,6 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Delete existing release (keep tag)
+        run: gh release delete ${{ github.ref_name }} --cleanup-tag=false --yes
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and publish release
         run: npm run package -- --publish always
         env:
