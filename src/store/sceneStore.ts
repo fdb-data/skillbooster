@@ -158,6 +158,8 @@ export function applyOpToCard(card: ExperienceCard, op: CanvasOp): ExperienceCar
       return { ...card, layout: { ...layout, edges: [...layout.edges, op.edge] } }
     case 'disconnect':
       return { ...card, layout: { ...layout, edges: layout.edges.filter(e => e.id !== op.edgeId) } }
+    case 'relayout':
+      return { ...card, layout: { ...layout, positions: op.positions } }
   }
 }
 

@@ -115,7 +115,7 @@ const Workbench: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', gap: 16, padding: '16px 16px 0' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', gap: 20, padding: '18px 18px 0' }}>
         {refsCollapsed ? (
           <div style={{ width: 28, flexShrink: 0 }}>
             <button onClick={() => setRefsCollapsed(false)} title={t('workbench.expandRefs')}
@@ -143,7 +143,7 @@ const Workbench: React.FC = () => {
           </div>
         )}
 
-        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, border: '1px solid var(--line)', borderRadius: 10, background: '#fff' }}>
+        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, border: '1px solid var(--line)', borderRadius: 10, background: '#F6F6FA' }}>
           <FlowCanvas sceneId={currentScene.id} canvas={currentScene.canvas} />
         </div>
 

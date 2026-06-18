@@ -70,6 +70,7 @@ export type CanvasOp =
   | { kind: 'move'; id: string; position: CanvasPosition }
   | { kind: 'connect'; edge: CanvasEdge }
   | { kind: 'disconnect'; edgeId: string }
+  | { kind: 'relayout'; positions: Record<string, CanvasPosition> }
 
 export interface Reference {
   id: string

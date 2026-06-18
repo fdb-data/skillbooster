@@ -18,6 +18,8 @@ import { useTranslation } from 'react-i18next'
 import { useSceneStore } from '../store/sceneStore'
 import type { ExperienceCard, KnowledgeEntry, KnowledgeType, KnowledgeKey, CanvasEdge, Proposal, CanvasPosition, FlowStep } from '../contracts/ipc-types'
 import { generateId } from '../utils/uuid'
+import { ArrowRight, Shield, Eye, CircleDot, Dot } from './Icons'
+import Modal from './Modal'
 
 /** 流程节点：把 entry 解析成结构化步骤。优先用 steps，旧数据按 content 行拆分（标题：说明） */
 function deriveSteps(entry: KnowledgeEntry): FlowStep[] {
@@ -36,12 +38,12 @@ function stepsToContent(steps: FlowStep[]): string {
   return steps.map(s => s.desc ? `${s.title}：${s.desc}` : s.title).join('\n')
 }
 
-const TYPE_CONFIG: Record<KnowledgeType, { labelKey: string; color: string; hintKey: string }> = {
-  flow: { labelKey: 'canvas.typeFlowLabel', color: '#3B82F6', hintKey: 'canvas.typeFlowHint' },
-  rule: { labelKey: 'canvas.typeRuleLabel', color: '#2563EB', hintKey: 'canvas.typeRuleHint' },
-  insight: { labelKey: 'canvas.typeInsightLabel', color: '#E08A2B', hintKey: 'canvas.typeInsightHint' },
-  concept: { labelKey: 'canvas.typeConceptLabel', color: '#8B5CF6', hintKey: 'canvas.typeConceptHint' },
-  relation: { labelKey: 'canvas.typeRelationLabel', color: '#10B981', hintKey: 'canvas.typeRelationHint' }
+const TYPE_CONFIG: Record<KnowledgeType, { labelKey: string; color: string; hintKey: string; icon: React.FC<{ size?: number; color?: string }> }> = {
+  flow: { labelKey: 'canvas.typeFlowLabel', color: '#3B82F6', hintKey: 'canvas.typeFlowHint', icon: ArrowRight },
+  rule: { labelKey: 'canvas.typeRuleLabel', color: '#DC2626', hintKey: 'canvas.typeRuleHint', icon: Shield },
+  insight: { labelKey: 'canvas.typeInsightLabel', color: '#E0A93B', hintKey: 'canvas.typeInsightHint', icon: Eye },
+  concept: { labelKey: 'canvas.typeConceptLabel', color: '#8B5CF6', hintKey: 'canvas.typeConceptHint', icon: CircleDot },
+  relation: { labelKey: 'canvas.typeRelationLabel', color: '#10B981', hintKey: 'canvas.typeRelationHint', icon: Dot }
 }
 
 // 渲染兼容全部类型（旧数据可能含 concept/relation）
@@ -69,13 +71,14 @@ interface KnowledgeNodeData {
   onSaveSteps: (id: string, steps: FlowStep[]) => void
   onCancelEdit: () => void
   onDelete: (id: string) => void
+  onOpenStep: (id: string, index: number) => void
   [key: string]: unknown
 }
 
 type KnowledgeFlowNode = Node<KnowledgeNodeData, 'knowledge'>
 
 /** 展开态步骤列表：增删改 + 上下移；任一结构变化即通过 onChange 回写（content 同步在外层） */
-const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: FlowStep[]) => void }> = ({ steps, color, onChange }) => {
+const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: FlowStep[]) => void; onOpenStep?: (index: number) => void }> = ({ steps, color, onChange, onOpenStep }) => {
   const { t } = useTranslation()
   const [editIndex, setEditIndex] = useState<number | null>(null) // === steps.length 表示新增
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
@@ -129,11 +132,14 @@ const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: 
         <React.Fragment key={i}>{editRow(i + 1)}</React.Fragment>
       ) : (
         <div key={i} onMouseEnter={() => setHoverIndex(i)} onMouseLeave={() => setHoverIndex(null)}
-          style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '3px 0', position: 'relative' }}>
+          onDoubleClick={onOpenStep ? (e => { e.stopPropagation(); onOpenStep(i) }) : undefined}
+          className={onOpenStep ? 'nodrag' : undefined}
+          title={onOpenStep ? t('canvas.dblToOpen') : undefined}
+          style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '3px 0', position: 'relative', cursor: onOpenStep ? 'pointer' : undefined }}>
           <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>{i + 1}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{s.title}</div>
-            {s.desc && <div style={{ fontSize: 9, color: 'var(--tri)', lineHeight: 1.4, marginTop: 1 }}>{s.desc}</div>}
+            {s.desc && <div style={{ fontSize: 10, color: 'var(--tri)', lineHeight: 1.5, marginTop: 2 }}>{s.desc}</div>}
           </div>
           {hoverIndex === i && (
             <div className="nodrag" style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
@@ -162,6 +168,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
   const { t } = useTranslation()
   const { entry, ktype, highlighted, editing } = data
   const config = TYPE_CONFIG[ktype]
+  const Icon = config.icon
   const [title, setTitle] = useState(entry.title)
   const [content, setContent] = useState(entry.content)
   const [evidence, setEvidence] = useState<KnowledgeEntry['evidenceLevel']>(entry.evidenceLevel)
@@ -182,8 +189,9 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
       className={highlighted ? 'block-new' : ''}
       style={{
         width: 240, background: highlighted ? '#FBFAFF' : '#fff',
-        border: '1px solid var(--line)', borderLeft: `4px solid ${config.color}`,
-        borderRadius: 8, padding: '8px 10px', fontSize: 11
+        border: '1px solid var(--line)', borderLeft: `6px solid ${config.color}`,
+        borderRadius: 10, padding: '11px 13px', fontSize: 11,
+        boxShadow: '0 1px 3px rgba(26,26,46,0.04), 0 6px 16px rgba(26,26,46,0.08)'
       }}>
       <Handle type="target" position={Position.Top} style={{ background: config.color, width: 7, height: 7 }} />
       {editing ? (
@@ -216,13 +224,14 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
         </div>
       ) : (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: 8, padding: '0 5px', background: `${config.color}1A`, color: config.color, borderRadius: 3, fontWeight: 600, flexShrink: 0 }}>{t(config.labelKey)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 5, background: config.color, flexShrink: 0 }}><Icon size={11} color="#fff" /></span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: config.color, letterSpacing: 0.3, flex: 1 }}>{t(config.labelKey)}</span>
             {entry.evidenceLevel && (
               <div title={entry.evidenceLevel} style={{ width: 7, height: 7, borderRadius: '50%', background: evidenceColor(entry.evidenceLevel), flexShrink: 0 }} />
             )}
-            <span style={{ fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.title}</span>
           </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.35, margin: '3px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{entry.title}</div>
           {isFlow ? (
             expanded ? (
               <div>
@@ -233,12 +242,12 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
                 {flowSteps.length === 0 && (
                   <div style={{ fontSize: 9, color: 'var(--tri)', textAlign: 'center', margin: '4px 0' }}>{t('canvas.noSteps')}</div>
                 )}
-                <FlowSteps steps={flowSteps} color={config.color} onChange={s => data.onSaveSteps(entry.id, s)} />
+                <FlowSteps steps={flowSteps} color={config.color} onChange={s => data.onSaveSteps(entry.id, s)} onOpenStep={i => data.onOpenStep(entry.id, i)} />
               </div>
             ) : (
               <div>
                 {flowSteps.length > 0 && (
-                  <p style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--sub)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ margin: '5px 0 0', fontSize: 11, color: 'var(--sub)', lineHeight: 1.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {flowSteps.map(s => s.title).join('，')}
                   </p>
                 )}
@@ -251,14 +260,14 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
           ) : (
             entry.content && (
               <p style={{
-                margin: '4px 0 0', fontSize: 10, color: 'var(--sub)', lineHeight: 1.5,
+                margin: '5px 0 0', fontSize: 11, color: 'var(--sub)', lineHeight: 1.6,
                 display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'
               }}>{entry.content}</p>
             )
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 5 }}>
-            {highlighted && <span style={{ fontSize: 8, padding: '0 4px', background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3 }}>{t('canvas.justGrown')}</span>}
-            {!entry.verified && !highlighted && <span style={{ fontSize: 8, padding: '0 4px', background: '#FFF6E6', color: '#C8862A', borderRadius: 3 }}>{t('canvas.toVerify')}</span>}
+            {highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3 }}>{t('canvas.justGrown')}</span>}
+            {!entry.verified && !highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: '#FFF6E6', color: '#C8862A', borderRadius: 3 }}>{t('canvas.toVerify')}</span>}
             <span style={{ flex: 1 }} />
             <button className="nodrag" onClick={() => data.onStartEdit(entry.id)}
               style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 10, padding: 0 }}>✎</button>
@@ -287,6 +296,7 @@ const GhostNode: React.FC<NodeProps<GhostFlowNode>> = ({ data }) => {
   const { t } = useTranslation()
   const { proposal, ktype } = data
   const config = TYPE_CONFIG[ktype]
+  const Icon = config.icon
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(proposal.title)
   const [content, setContent] = useState(proposal.content)
@@ -296,7 +306,8 @@ const GhostNode: React.FC<NodeProps<GhostFlowNode>> = ({ data }) => {
       className="ghost-block"
       style={{
         width: 240, background: 'rgba(255,255,255,0.82)',
-        border: `1.5px dashed ${config.color}`, borderRadius: 8, padding: '8px 10px', fontSize: 11
+        border: `1.5px dashed ${config.color}`, borderRadius: 10, padding: '11px 13px', fontSize: 11,
+        boxShadow: '0 2px 8px rgba(26,26,46,0.04)'
       }}>
       {editing ? (
         <div className="nodrag">
@@ -312,13 +323,14 @@ const GhostNode: React.FC<NodeProps<GhostFlowNode>> = ({ data }) => {
         </div>
       ) : (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: 8, padding: '0 5px', background: `${config.color}1A`, color: config.color, borderRadius: 3, fontWeight: 600, flexShrink: 0 }}>{t(config.labelKey)}·{t('canvas.proposalSuffix')}</span>
-            <span style={{ fontWeight: 600, color: 'var(--sub)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{proposal.title}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 5, background: config.color, flexShrink: 0 }}><Icon size={11} color="#fff" /></span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: config.color, letterSpacing: 0.3, flex: 1 }}>{t(config.labelKey)}·{t('canvas.proposalSuffix')}</span>
           </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sub)', lineHeight: 1.35, margin: '3px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{proposal.title}</div>
           {proposal.content && (
             <p style={{
-              margin: '4px 0 0', fontSize: 10, color: 'var(--tri)', lineHeight: 1.5,
+              margin: '5px 0 0', fontSize: 11, color: 'var(--tri)', lineHeight: 1.6,
               display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'
             }}>{proposal.content}</p>
           )}
@@ -340,9 +352,116 @@ type AppNode = KnowledgeFlowNode | GhostFlowNode
 
 const nodeTypes = { knowledge: KnowledgeNode, ghost: GhostNode }
 
+const modalLabelStyle: React.CSSProperties = { display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--sub)', margin: '16px 0 5px' }
+const modalInputStyle: React.CSSProperties = { width: '100%', padding: '8px 10px', border: '1px solid var(--accent-edge)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box', outline: 'none' }
+
+/** 双击节点弹出的查看/编辑模态 */
+const NodeEditModal: React.FC<{
+  entry: KnowledgeEntry
+  ktype: KnowledgeType
+  onSave: (id: string, patch: { title: string; content: string; evidenceLevel: KnowledgeEntry['evidenceLevel'] }) => void
+  onSaveSteps: (id: string, steps: FlowStep[]) => void
+  onDelete: (id: string) => void
+  onClose: () => void
+}> = ({ entry, ktype, onSave, onSaveSteps, onDelete, onClose }) => {
+  const { t } = useTranslation()
+  const config = TYPE_CONFIG[ktype]
+  const Icon = config.icon
+  const isFlow = ktype === 'flow'
+  const [title, setTitle] = useState(entry.title)
+  const [content, setContent] = useState(entry.content)
+  const [evidence, setEvidence] = useState<KnowledgeEntry['evidenceLevel']>(entry.evidenceLevel)
+
+  const save = () => {
+    onSave(entry.id, { title: title.trim() || entry.title, content: isFlow ? entry.content : content, evidenceLevel: evidence })
+    onClose()
+  }
+
+  return (
+    <Modal onClose={onClose} width={520}
+      title={<>
+        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 5, background: config.color, flexShrink: 0 }}><Icon size={12} color="#fff" /></span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: config.color }}>{t(config.labelKey)}</span>
+      </>}>
+      <label style={{ ...modalLabelStyle, marginTop: 0 }}>{t('canvas.fieldTitle')}</label>
+      <input value={title} autoFocus onChange={e => setTitle(e.target.value)} style={modalInputStyle} />
+      {isFlow ? (
+        <>
+          <label style={modalLabelStyle}>{t('canvas.fieldSteps')}</label>
+          <FlowSteps steps={deriveSteps(entry)} color={config.color} onChange={s => onSaveSteps(entry.id, s)} />
+        </>
+      ) : (
+        <>
+          <label style={modalLabelStyle}>{t('canvas.fieldContent')}</label>
+          <textarea value={content} onChange={e => setContent(e.target.value)} style={{ ...modalInputStyle, minHeight: 160, resize: 'vertical', lineHeight: 1.6 }} />
+        </>
+      )}
+      <label style={modalLabelStyle}>{t('canvas.fieldEvidence')}</label>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {EVIDENCE_OPTIONS.map(o => (
+          <button key={o.value} onClick={() => setEvidence(o.value)}
+            style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, cursor: 'pointer',
+              border: `1px solid ${evidence === o.value ? o.color : 'var(--line)'}`,
+              background: evidence === o.value ? o.color : '#fff',
+              color: evidence === o.value ? '#fff' : 'var(--sub)' }}>{t(o.labelKey)}</button>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginTop: 20, alignItems: 'center' }}>
+        <button onClick={save} className="btn-primary" style={{ padding: '7px 18px', fontSize: 12 }}>{t('common.save')}</button>
+        <button onClick={onClose} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12 }}>{t('common.cancel')}</button>
+        <span style={{ flex: 1 }} />
+        <button onClick={() => { onDelete(entry.id); onClose() }} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12, color: '#E05D5D' }}>{t('common.delete')}</button>
+      </div>
+    </Modal>
+  )
+}
+
+/** 双击流程步骤弹出的编辑模态 */
+const StepEditModal: React.FC<{
+  entry: KnowledgeEntry
+  index: number
+  color: string
+  icon: React.FC<{ size?: number; color?: string }>
+  label: string
+  onSaveSteps: (id: string, steps: FlowStep[]) => void
+  onClose: () => void
+}> = ({ entry, index, color, icon: Icon, label, onSaveSteps, onClose }) => {
+  const { t } = useTranslation()
+  const steps = deriveSteps(entry)
+  const cur = steps[index] ?? { title: '', desc: '' }
+  const [title, setTitle] = useState(cur.title)
+  const [desc, setDesc] = useState(cur.desc)
+
+  const save = () => {
+    const next = steps.map((s, i) => i === index ? { title: title.trim() || cur.title, desc: desc.trim() } : s)
+    onSaveSteps(entry.id, next)
+    onClose()
+  }
+  const remove = () => { onSaveSteps(entry.id, steps.filter((_, i) => i !== index)); onClose() }
+
+  return (
+    <Modal onClose={onClose} width={460}
+      title={<>
+        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 5, background: color, flexShrink: 0 }}><Icon size={12} color="#fff" /></span>
+        <span style={{ fontSize: 13, fontWeight: 700, color }}>{label} · {t('canvas.stepN', { n: index + 1 })}</span>
+      </>}>
+      <label style={{ ...modalLabelStyle, marginTop: 0 }}>{t('canvas.fieldTitle')}</label>
+      <input value={title} autoFocus onChange={e => setTitle(e.target.value)} style={modalInputStyle} />
+      <label style={modalLabelStyle}>{t('canvas.fieldContent')}</label>
+      <textarea value={desc} onChange={e => setDesc(e.target.value)} style={{ ...modalInputStyle, minHeight: 120, resize: 'vertical', lineHeight: 1.6 }} />
+      <div style={{ display: 'flex', gap: 8, marginTop: 20, alignItems: 'center' }}>
+        <button onClick={save} className="btn-primary" style={{ padding: '7px 18px', fontSize: 12 }}>{t('common.save')}</button>
+        <button onClick={onClose} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12 }}>{t('common.cancel')}</button>
+        <span style={{ flex: 1 }} />
+        <button onClick={remove} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12, color: '#E05D5D' }}>{t('common.delete')}</button>
+      </div>
+    </Modal>
+  )
+}
+
 /** 无布局数据的条目按类型分列自动排布 */
 function autoPosition(typeIndex: number, entryIndex: number): { x: number; y: number } {
-  return { x: 24 + typeIndex * 290, y: 56 + entryIndex * 150 }
+  return { x: 40 + typeIndex * 340, y: 64 + entryIndex * 210 }
 }
 
 const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = ({ sceneId, canvas }) => {
@@ -494,11 +613,42 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
     setEditingId(entry.id)
   }, [applyCanvasOp, sceneId, screenToFlowPosition, t])
 
+  // 整理布局：按类型分列重排所有节点，覆盖手动拖动的旧位置
+  const handleRelayout = useCallback(() => {
+    const positions: Record<string, CanvasPosition> = {}
+    KNOWLEDGE_TYPES.forEach((type, typeIndex) => {
+      canvas[`${type}s` as KnowledgeKey].forEach((entry, entryIndex) => {
+        positions[entry.id] = autoPosition(typeIndex, entryIndex)
+      })
+    })
+    applyCanvasOp(sceneId, { kind: 'relayout', positions })
+  }, [canvas, applyCanvasOp, sceneId])
+
   const totalEntries = KNOWLEDGE_TYPES.reduce((sum, t) => sum + canvas[`${t}s` as KnowledgeKey].length, 0)
   const filledDots = Math.min(5, Math.ceil(totalEntries / 3))
 
   return (
-    <div style={{ width: '100%', height: '100%' }} onDrop={onDrop} onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }} onDrop={onDrop} onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}>
+      {/* 元件栏：画布顶部横条，避免浮层遮挡节点 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderBottom: '1px solid var(--line)', background: '#fff', flexShrink: 0 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--sub)', letterSpacing: 0.5, flexShrink: 0 }}>{t('canvas.paletteTitle')}</span>
+        {PALETTE_TYPES.map(type => {
+          const c = TYPE_CONFIG[type]
+          const PIcon = c.icon
+          return (
+            <div key={type} draggable
+              onDragStart={e => { e.dataTransfer.setData('application/skillbooster-block', type); e.dataTransfer.effectAllowed = 'copy' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 10px', border: '1px solid var(--line)', borderLeft: `4px solid ${c.color}`, borderRadius: 6, cursor: 'grab', background: '#fff', userSelect: 'none' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 5, background: c.color, flexShrink: 0 }}><PIcon size={11} color="#fff" /></span>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{t(c.labelKey)}</div>
+                <div style={{ fontSize: 9, color: 'var(--tri)' }}>{t(c.hintKey)}</div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -520,29 +670,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
         <MiniMap position="bottom-left" pannable zoomable style={{ width: 120, height: 80 }}
           nodeColor={(n) => TYPE_CONFIG[(n.data as { ktype?: KnowledgeType })?.ktype as KnowledgeType]?.color ?? '#ddd'} />
 
-        {/* 元件栏：拖部件到画布组装经验 */}
-        <Panel position="top-left">
-          <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 10, padding: 8, width: 132, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--sub)', marginBottom: 6, letterSpacing: 0.5 }}>{t('canvas.paletteTitle')}</div>
-            {PALETTE_TYPES.map(type => {
-              const c = TYPE_CONFIG[type]
-              return (
-                <div key={type} draggable
-                  onDragStart={e => { e.dataTransfer.setData('application/skillbooster-block', type); e.dataTransfer.effectAllowed = 'copy' }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', marginBottom: 4,
-                    border: '1px solid var(--line)', borderLeft: `4px solid ${c.color}`, borderRadius: 6,
-                    cursor: 'grab', background: '#fff', userSelect: 'none'
-                  }}>
-                  <div>
-                    <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--ink)' }}>{t(c.labelKey)}</div>
-                    <div style={{ fontSize: 8, color: 'var(--tri)' }}>{t(c.hintKey)}</div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </Panel>
+        {/* 元件栏已移至画布顶部横条 */}
 
         {/* 顶部：Skill 进度 + undo/redo */}
         <Panel position="top-right">
@@ -553,6 +681,9 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
               ))}
             </div>
             <span style={{ fontSize: 9, color: 'var(--tri)' }}>{t('canvas.blocksCount', { count: totalEntries })}</span>
+            <button onClick={handleRelayout} title={t('canvas.relayout')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--sub)', padding: 0, lineHeight: 1 }}>▦</button>
+            <span style={{ width: 1, height: 12, background: 'var(--line)' }} />
             <button onClick={() => undoCanvas(sceneId)} disabled={!canUndo} title={t('canvas.undo')}
               style={{ background: 'none', border: 'none', cursor: canUndo ? 'pointer' : 'default', fontSize: 11, color: canUndo ? 'var(--ink)' : 'var(--line)', padding: 0 }}>↩</button>
             <button onClick={() => redoCanvas(sceneId)} disabled={!canRedo} title={t('canvas.redo')}
@@ -560,6 +691,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
           </div>
         </Panel>
       </ReactFlow>
+      </div>
     </div>
   )
 }

@@ -63,7 +63,7 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
               maxWidth: '85%', padding: '8px 12px',
               borderRadius: msg.role === 'user' ? '10px 10px 2px 10px' : '10px 10px 10px 2px',
               background: msg.role === 'user' ? 'var(--user-bubble)' : 'var(--ai-bubble)',
-              color: 'var(--ink)', fontSize: 11, lineHeight: 1.5,
+              color: 'var(--ink)', fontSize: 11, lineHeight: 1.65,
               whiteSpace: msg.role === 'user' ? 'pre-wrap' : 'normal'
             }}>
               {msg.role === 'user' ? msg.content : <Markdown text={msg.content} />}
@@ -104,7 +104,7 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
               maxWidth: '85%', padding: '8px 12px',
               borderRadius: '10px 10px 10px 2px',
               background: 'var(--ai-bubble)',
-              color: 'var(--ink)', fontSize: 11, lineHeight: 1.5
+              color: 'var(--ink)', fontSize: 11, lineHeight: 1.65
             }}>
               <Markdown text={streamingText} />
             </div>

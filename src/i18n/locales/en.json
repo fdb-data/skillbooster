@@ -246,6 +246,7 @@
     "newEntry": "New {{type}}",
     "paletteTitle": "Components · drag to canvas",
     "blocksCount": "{{count}} blocks",
+    "relayout": "Tidy layout",
     "undo": "Undo",
     "redo": "Redo",
     "expandSteps": "Expand {{count}} steps",

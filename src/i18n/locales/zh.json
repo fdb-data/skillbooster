@@ -246,6 +246,7 @@
     "newEntry": "新{{type}}",
     "paletteTitle": "元件栏 · 拖入画布",
     "blocksCount": "{{count}} 块",
+    "relayout": "整理布局",
     "undo": "撤销",
     "redo": "重做",
     "expandSteps": "展开 {{count}} 个步骤",
