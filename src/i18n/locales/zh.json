@@ -64,9 +64,7 @@
     "clickToFill": "点击填写…",
     "enterWorkbench": "进入萃取工作台",
     "enterWorkbenchHint": "请先填写场景名称、使用角色和触发时机",
-    "editProjectName": "修改项目名称",
-    "editIncludes": "编辑包含项（逗号分隔）",
-    "editExcludes": "编辑排除项（逗号分隔）",
+    "listEditHint": "多项用逗号分隔",
     "requestFailed": "请求失败",
     "errorRateLimit": "模型服务限流了（请求太频繁），自动重试后仍未成功。请等半分钟左右，再发一次刚才的内容。",
     "errorGeneric": "出错了：{{message}}\n可以稍后重发刚才的内容；若持续失败，请到设置页检查模型配置。"

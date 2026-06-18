@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSceneStore } from '../store/sceneStore'
 import ReferencePanel from '../components/ReferencePanel'
@@ -16,6 +16,29 @@ const Workbench: React.FC = () => {
   const [exporting, setExporting] = useState(false)
   const [exportResult, setExportResult] = useState<string | null>(null)
   const [refsCollapsed, setRefsCollapsed] = useState(false)
+  const [editingName, setEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState('')
+  const editingNameRef = useRef(false) // 去重守卫：Enter 保存后 blur 不再重复保存
+
+  const startEditName = (): void => {
+    if (!currentScene) return
+    setNameInput(currentScene.name)
+    editingNameRef.current = true
+    setEditingName(true)
+  }
+  const cancelEditName = (): void => {
+    editingNameRef.current = false
+    setEditingName(false)
+  }
+  const saveName = async (): Promise<void> => {
+    if (!editingNameRef.current) return // 已保存/已取消，blur 不再重复触发
+    editingNameRef.current = false
+    setEditingName(false)
+    const name = nameInput.trim()
+    if (currentScene && name && name !== currentScene.name) {
+      await updateScene(currentScene.id, { name })
+    }
+  }
 
   if (!currentScene) {
     return (
@@ -33,11 +56,24 @@ const Workbench: React.FC = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={() => setCurrentPage('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--ink)' }}><ArrowLeft size={16} /></button>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{currentScene.name}</span>
-          <button onClick={async () => {
-            const newName = prompt(t('guide.editProjectName'), currentScene.name)
-            if (newName && newName.trim()) await updateScene(currentScene.id, { name: newName.trim() })
-          }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><EditIcon size={13} /></button>
+          {editingName ? (
+            <input
+              autoFocus
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              onBlur={saveName}
+              onKeyDown={e => {
+                if (e.key === 'Enter') saveName()
+                else if (e.key === 'Escape') cancelEditName()
+              }}
+              style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 6, padding: '2px 8px', outline: 'none' }}
+            />
+          ) : (
+            <>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{currentScene.name}</span>
+              <button onClick={startEditName} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><EditIcon size={13} /></button>
+            </>
+          )}
         </div>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
           <PageNav current="workbench" />

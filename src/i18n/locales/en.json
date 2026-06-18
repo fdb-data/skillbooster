@@ -64,9 +64,7 @@
     "clickToFill": "Click to fill…",
     "enterWorkbench": "Enter extraction workbench",
     "enterWorkbenchHint": "Please fill in scene name, user role and trigger first",
-    "editProjectName": "Edit project name",
-    "editIncludes": "Edit in-scope items (comma separated)",
-    "editExcludes": "Edit out-of-scope items (comma separated)",
+    "listEditHint": "Separate items with commas",
     "requestFailed": "Request failed",
     "errorRateLimit": "The model service is rate-limited (too many requests) and auto-retries failed. Please wait about half a minute and send your message again.",
     "errorGeneric": "Something went wrong: {{message}}\nYou can resend your message shortly. If it keeps failing, check the model configuration in Settings."

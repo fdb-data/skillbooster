@@ -125,8 +125,8 @@ const Settings: React.FC = () => {
         apiKey: p.apiKey, model: p.models[0] || 'gpt-4o',
         baseUrl: p.baseUrl || undefined
       }
-      const success = await testConnection(config)
-      setTestResult({ success, error: success ? undefined : 'Connection failed' })
+      const { success, error } = await testConnection(config)
+      setTestResult({ success, error: success ? undefined : (error || t('settings.connectionFailed')) })
       setProviders(prev => prev.map((pr, i) => i === selectedProvider ? { ...pr, status: success ? 'ok' : 'fail' } : pr))
     } catch (err) {
       setTestResult({ success: false, error: (err as Error).message })
@@ -296,7 +296,7 @@ const Settings: React.FC = () => {
                               llmCfg = llmConfig || { provider: 'custom', apiKey: '', model: 'gpt-4o' }
                             }
                             const result = await testConnection(llmCfg)
-                            if (!result) { alert(t('settings.connectionFailed')) }
+                            if (!result.success) { alert(result.error || t('settings.connectionFailed')) }
                             else { alert(t('settings.connectionOk')) }
                           } catch (err) { alert((err as Error).message) }
                           finally { setAgentTesting(null) }

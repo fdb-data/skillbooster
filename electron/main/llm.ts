@@ -290,7 +290,12 @@ async function callOnce(options: LLMCallOptions): Promise<LLMResult> {
       if (timedOut) throw new LLMError('LLM response timeout, please retry', 'TIMEOUT')
       throw new LLMError('LLM response timeout, please retry', 'TIMEOUT')
     }
-    const msg = (err as Error).message
+    const baseMsg = (err as Error).message
+    const cause = (err as { cause?: unknown }).cause
+    const causeMsg = cause instanceof Error
+      ? (cause as { code?: string }).code ? `${(cause as { code?: string }).code}: ${cause.message}` : cause.message
+      : cause ? String(cause) : ''
+    const msg = causeMsg ? `${baseMsg} (${causeMsg})` : baseMsg
     log.error('LLM network error:', msg)
     throw new LLMError(`Network error: ${msg}`, 'NETWORK_ERROR')
   } finally {

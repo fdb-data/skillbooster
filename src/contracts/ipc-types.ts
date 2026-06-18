@@ -96,6 +96,10 @@ export interface ConversationMessage {
   role: 'user' | 'assistant'
   content: string
   createdAt: string
+  /** 萃取智能体本轮提出的候选选项（渲染为可点击卡片）；仅 assistant 消息可能有 */
+  options?: string[]
+  /** 是否在选项之外允许自由输入 */
+  allowFreeText?: boolean
 }
 
 export interface Scene {
@@ -134,6 +138,10 @@ export interface RunTurnResult {
   reply: string
   canvasUpdates: CanvasUpdate[]
   proposals: Proposal[]
+  /** 萃取智能体通过 ask_user 提出的候选选项（可点击卡片）；为空表示本轮没有提问选项 */
+  options?: string[]
+  /** 是否在选项之外允许自由输入 */
+  allowFreeText?: boolean
 }
 
 export interface DraftResult {

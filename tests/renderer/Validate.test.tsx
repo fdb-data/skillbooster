@@ -18,7 +18,17 @@ const mockScene = {
 const mockStore = {
   currentScene: mockScene,
   setCurrentPage: vi.fn(),
-  isLoading: false
+  isLoading: false,
+  // 验证状态/动作已提到 store
+  valBare: '', valSkill: '', valRunning: false, valAnalyzing: false,
+  valControl: null, valCaseResults: {}, valSingleEntry: null,
+  valRunningCaseId: null, valRunAll: null,
+  valLoadResults: vi.fn(),
+  valRunSingle: vi.fn(),
+  valRunCase: vi.fn(),
+  valRunAllCases: vi.fn(),
+  valDeleteCaseResult: vi.fn(),
+  valClearCaseResults: vi.fn()
 }
 
 describe('Validate Page', () => {
@@ -46,7 +56,7 @@ describe('Validate Page', () => {
     expect(screen.getByText(/Run comparison/)).toBeDefined()
   })
 
-  it('should call validation:run on button click', async () => {
+  it('should delegate single run to the store on button click', async () => {
     const user = userEvent.setup()
     render(<Validate />)
     const input = screen.getByPlaceholderText(/Enter a test instruction/)
@@ -54,7 +64,7 @@ describe('Validate Page', () => {
     const btn = screen.getByText(/Run comparison/)
     await user.click(btn)
     await waitFor(() => {
-      expect(window.api.validation.run).toHaveBeenCalledWith('validate-scene', 'How to test?')
+      expect(mockStore.valRunSingle).toHaveBeenCalledWith('validate-scene', 'How to test?')
     })
   })
 

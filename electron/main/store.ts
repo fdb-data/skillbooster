@@ -92,6 +92,7 @@ export function initDatabase(): void {
       role        TEXT NOT NULL,
       content     TEXT NOT NULL,
       created_at  TEXT NOT NULL,
+      options     TEXT DEFAULT NULL,
       FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
     );
 
@@ -156,6 +157,12 @@ export function initDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_conversations_scene ON conversations(scene_id);
     CREATE INDEX IF NOT EXISTS idx_test_cases_scene ON test_cases(scene_id);
   `)
+
+  // 旧库迁移：为 conversations 补 options 列（保存萃取智能体的选项卡片）
+  const convCols = db.prepare("PRAGMA table_info(conversations)").all() as Array<{ name: string }>
+  if (!convCols.some(c => c.name === 'options')) {
+    db.exec('ALTER TABLE conversations ADD COLUMN options TEXT DEFAULT NULL')
+  }
 
   log.info('Database initialized:', dbPath)
 }
@@ -289,18 +296,36 @@ export function setAttachmentInclude(sceneId: string, attId: string, include: bo
 }
 
 export function addConversationMessage(msg: ConversationMessage): void {
-  getDb().prepare('INSERT INTO conversations (id, scene_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)').run(msg.id, msg.sceneId, msg.role, msg.content, msg.createdAt)
+  const options = msg.options && msg.options.length > 0
+    ? JSON.stringify({ options: msg.options, allowFreeText: msg.allowFreeText })
+    : null
+  getDb().prepare('INSERT INTO conversations (id, scene_id, role, content, created_at, options) VALUES (?, ?, ?, ?, ?, ?)').run(msg.id, msg.sceneId, msg.role, msg.content, msg.createdAt, options)
 }
 
 export function listConversation(sceneId: string): ConversationMessage[] {
-  const rows = getDb().prepare('SELECT id, scene_id, role, content, created_at FROM conversations WHERE scene_id = ? ORDER BY created_at ASC').all(sceneId) as Array<{ id: string; scene_id: string; role: string; content: string; created_at: string }>
-  return rows.map(r => ({
-    id: r.id,
-    sceneId: r.scene_id,
-    role: r.role as 'user' | 'assistant',
-    content: r.content,
-    createdAt: r.created_at
-  }))
+  const rows = getDb().prepare('SELECT id, scene_id, role, content, created_at, options FROM conversations WHERE scene_id = ? ORDER BY created_at ASC').all(sceneId) as Array<{ id: string; scene_id: string; role: string; content: string; created_at: string; options: string | null }>
+  return rows.map(r => {
+    let options: string[] | undefined
+    let allowFreeText: boolean | undefined
+    if (r.options) {
+      try {
+        const parsed = JSON.parse(r.options) as { options?: string[]; allowFreeText?: boolean }
+        if (Array.isArray(parsed.options) && parsed.options.length > 0) {
+          options = parsed.options
+          allowFreeText = parsed.allowFreeText
+        }
+      } catch { /* 损坏的选项数据忽略 */ }
+    }
+    return {
+      id: r.id,
+      sceneId: r.scene_id,
+      role: r.role as 'user' | 'assistant',
+      content: r.content,
+      createdAt: r.created_at,
+      options,
+      allowFreeText
+    }
+  })
 }
 
 export function getLLMConfig(): LLMConfig | null {

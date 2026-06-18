@@ -15,16 +15,21 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
   const activeRunId = useSceneStore(s => s.activeRunId)
   const abortRun = useSceneStore(s => s.abortRun)
   const [input, setInput] = useState('')
+  const [customInputOpen, setCustomInputOpen] = useState(false)
+  const [customText, setCustomText] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [conversation, proposals, streamingText, agentStatus])
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return
-    const message = input.trim()
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isLoading) return
     setInput('')
-    await runTurn(sceneId, message)
+    setCustomInputOpen(false)
+    setCustomText('')
+    await runTurn(sceneId, text.trim())
   }
+
+  const handleSend = () => { sendMessage(input) }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -45,7 +50,10 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
             </button>
           </div>
         )}
-        {conversation.map(msg => (
+        {conversation.map((msg, i) => {
+          const isLast = i === conversation.length - 1
+          const showOptions = msg.role === 'assistant' && isLast && !!msg.options && msg.options.length > 0 && !isLoading
+          return (
           <div key={msg.id} style={{
             display: 'flex',
             justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
@@ -59,9 +67,37 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
               whiteSpace: msg.role === 'user' ? 'pre-wrap' : 'normal'
             }}>
               {msg.role === 'user' ? msg.content : <Markdown text={msg.content} />}
+              {showOptions && (
+                <>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10, alignItems: 'center' }}>
+                    {msg.options!.map((opt, j) => (
+                      <button key={j} onClick={() => sendMessage(opt)} className="chip-option">{opt}</button>
+                    ))}
+                    {msg.allowFreeText !== false && (
+                      <button onClick={() => setCustomInputOpen(v => !v)} className="chip-option"
+                        style={customInputOpen ? { background: 'var(--accent-soft)', borderColor: 'var(--accent)', color: 'var(--accent)' } : undefined}>
+                        {t('guide.otherOption')}
+                      </button>
+                    )}
+                  </div>
+                  {customInputOpen && (
+                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                      <input autoFocus value={customText} onChange={e => setCustomText(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') sendMessage(customText) }}
+                        placeholder={t('guide.customPlaceholder')}
+                        className="input-pill" style={{ flex: 1, fontSize: 10 }} />
+                      <button onClick={() => sendMessage(customText)} disabled={!customText.trim()}
+                        className="btn-primary" style={{ padding: '4px 12px', fontSize: 10 }}>
+                        {t('common.send')}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
-        ))}
+          )
+        })}
         {!!streamingText && (
           <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 8, padding: '0 8px' }}>
             <div style={{

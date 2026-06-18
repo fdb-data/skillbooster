@@ -6,6 +6,7 @@ import { generateId } from '../../src/utils/uuid'
 import { callLLMEx } from './llm'
 import type { LLMMessage } from './llm'
 import { runAgentLoop } from './agentLoop'
+import type { AgentTool } from './agentLoop'
 import { createCanvasTools } from './canvasTools'
 import type { CanvasToolCollector } from './canvasTools'
 import { loadCanvas, listConversation, addConversationMessage, listReferences, resolveAgentLLMConfig, getPreference, setPreference } from './store'
@@ -21,6 +22,11 @@ function loadSkillMd(): string {
     return fs.readFileSync(devPath, 'utf-8')
   }
   return 'You are an experience-extraction agent. Guide the user to extract structured experience through conversation.'
+}
+
+function toStringArray(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined
+  return v.map(x => String(x)).filter(s => s.length > 0)
 }
 
 const TYPE_LABELS: Record<KnowledgeType, string> = {
@@ -169,7 +175,32 @@ export async function runTurn(sceneId: string, userInput: string): Promise<RunTu
 
   const runId = generateId()
   const collector: CanvasToolCollector = { updates: [], proposals: [] }
-  const tools = createCanvasTools(sceneId, runId, canvas, collector)
+  let options: string[] = []
+  let allowFreeText = true
+  const tools: AgentTool[] = [
+    ...createCanvasTools(sceneId, runId, canvas, collector),
+    {
+      def: {
+        name: 'ask_user',
+        description: 'Ask the user your one follow-up question with candidate answers, then wait for their reply (the turn ends after this call). Prefer this over plain enumerated text questions. Do NOT add an "other" option yourself — set allowFreeText=true to let the user type a free-form answer; the UI renders the free-input affordance.',
+        parameters: {
+          type: 'object',
+          properties: {
+            question: { type: 'string', description: 'Question text (short, ask only one thing at a time)' },
+            options: { type: 'array', items: { type: 'string' }, description: '2-4 candidate answers (do not include an "other / type your own" option)' },
+            allowFreeText: { type: 'boolean', description: 'Whether to let the user type a free-form answer in addition to the options. Default true.' }
+          },
+          required: ['question', 'options']
+        }
+      },
+      execute: (args, ctl) => {
+        options = toStringArray(args.options) || []
+        allowFreeText = args.allowFreeText === undefined ? true : Boolean(args.allowFreeText)
+        ctl.stop(String(args.question || ''))
+        return 'Question sent to the user, awaiting their answer'
+      }
+    }
+  ]
 
   const result = await runAgentLoop({
     agentKey: 'extract',
@@ -186,14 +217,18 @@ export async function runTurn(sceneId: string, userInput: string): Promise<RunTu
     sceneId,
     role: 'assistant',
     content: result.reply,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    options: options.length > 0 ? options : undefined,
+    allowFreeText: options.length > 0 ? allowFreeText : undefined
   }
   addConversationMessage(assistantMsg)
 
   return {
     reply: result.reply,
     canvasUpdates: collector.updates,
-    proposals: collector.proposals
+    proposals: collector.proposals,
+    options: options.length > 0 ? options : undefined,
+    allowFreeText: options.length > 0 ? allowFreeText : undefined
   }
 }
 

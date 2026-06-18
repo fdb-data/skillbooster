@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSceneStore } from '../store/sceneStore'
 import { generateId } from '../utils/uuid'
-import { EventType } from '../contracts/agent-events'
-import type { AgentEvent } from '../contracts/agent-events'
-import type { ValidationVerdict, ValidationControl, ValidationResult, VerdictResult, OverallVerdict, TestCase, EvalCaseExport } from '../contracts/ipc-types'
+import type { ValidationVerdict, ValidationResult, VerdictResult, OverallVerdict, TestCase, EvalCaseExport } from '../contracts/ipc-types'
 import PageNav from '../components/PageNav'
 import { ArrowLeft, Close, ChevronDown, ChevronRight } from '../components/Icons'
 
@@ -31,82 +29,39 @@ const Validate: React.FC = () => {
 
   const [tab, setTab] = useState<'compare' | 'report'>('compare')
   const [subTab, setSubTab] = useState<'single' | 'testset'>('single')
-  const [control, setControl] = useState<ValidationControl | null>(null)
 
-  // 测试集
+  // 测试集（用例列表本身单独持久化，保留在组件本地）
   const [cases, setCases] = useState<TestCase[]>([])
   const [generating, setGenerating] = useState(false)
-  const [runAll, setRunAll] = useState<{ done: number; total: number } | null>(null)
-  const [runningCaseId, setRunningCaseId] = useState<string | null>(null)
   const [editing, setEditing] = useState<{ id: string | null; text: string } | null>(null)
 
-  // 结果
-  const [caseResults, setCaseResults] = useState<Record<string, ValidationResult>>({})
-  const [singleEntry, setSingleEntry] = useState<ReportEntry | null>(null)
+  // 纯视图态：展开/单条输入/已保存标记
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-
-  // 单条输入
   const [instruction, setInstruction] = useState('')
-
-  // A/B 实时流（对比测试 tab 的两栏）
-  const [bareResult, setBareResult] = useState('')
-  const [skillResult, setSkillResult] = useState('')
-  const [running, setRunning] = useState(false)
-  const [analyzing, setAnalyzing] = useState(false)
   const [savedSingle, setSavedSingle] = useState(false)
 
-  const activeValidateRun = useRef<string | null>(null)
-  const streamsEnded = useRef(0)
-
-  // 已加载某场景的持久化结果后才允许写回，避免初始空态覆盖磁盘
-  const resultsLoaded = useRef(false)
+  // 验证运行/流/结果状态由 store 持有，切页不丢
+  const bareResult = useSceneStore(s => s.valBare)
+  const skillResult = useSceneStore(s => s.valSkill)
+  const running = useSceneStore(s => s.valRunning)
+  const analyzing = useSceneStore(s => s.valAnalyzing)
+  const control = useSceneStore(s => s.valControl)
+  const caseResults = useSceneStore(s => s.valCaseResults)
+  const singleEntry = useSceneStore(s => s.valSingleEntry)
+  const runningCaseId = useSceneStore(s => s.valRunningCaseId)
+  const runAll = useSceneStore(s => s.valRunAll)
+  const valLoadResults = useSceneStore(s => s.valLoadResults)
+  const valRunSingle = useSceneStore(s => s.valRunSingle)
+  const valRunCase = useSceneStore(s => s.valRunCase)
+  const valRunAllCases = useSceneStore(s => s.valRunAllCases)
+  const valDeleteCaseResult = useSceneStore(s => s.valDeleteCaseResult)
+  const valClearCaseResults = useSceneStore(s => s.valClearCaseResults)
 
   useEffect(() => {
     if (!sceneId) return
-    resultsLoaded.current = false
-    setCaseResults({}); setSingleEntry(null); setControl(null)
     window.api.validation.listCases(sceneId).then(r => { if (r.success && r.data) setCases(r.data) })
-    window.api.validation.getResults(sceneId).then(r => {
-      if (r.success && r.data) {
-        setCaseResults(r.data.caseResults ?? {})
-        setSingleEntry(r.data.singleEntry ?? null)
-        const restored = r.data.singleEntry?.result.control ?? Object.values(r.data.caseResults ?? {})[0]?.control ?? null
-        setControl(restored)
-      }
-      resultsLoaded.current = true
-    })
-  }, [sceneId])
-
-  // 结果变化即写盘
-  useEffect(() => {
-    if (!sceneId || !resultsLoaded.current) return
-    window.api.validation.saveResults(sceneId, { caseResults, singleEntry })
-  }, [sceneId, caseResults, singleEntry])
-
-  useEffect(() => {
-    const unsubscribe = window.api.agent.onEvent((event: AgentEvent) => {
-      switch (event.type) {
-        case EventType.RUN_STARTED:
-          if (event.agent === 'validate') { activeValidateRun.current = event.runId; streamsEnded.current = 0 }
-          break
-        case EventType.TEXT_MESSAGE_CONTENT:
-          if (event.runId !== activeValidateRun.current) return
-          if (event.messageId === 'bare') setBareResult(prev => prev + event.delta)
-          else if (event.messageId === 'skill') setSkillResult(prev => prev + event.delta)
-          break
-        case EventType.TEXT_MESSAGE_END:
-          if (event.runId !== activeValidateRun.current) return
-          streamsEnded.current += 1
-          if (streamsEnded.current >= 2) setAnalyzing(true)
-          break
-        case EventType.RUN_FINISHED:
-        case EventType.RUN_ERROR:
-          if (event.runId === activeValidateRun.current) { activeValidateRun.current = null; setAnalyzing(false) }
-          break
-      }
-    })
-    return unsubscribe
-  }, [])
+    valLoadResults(sceneId)
+  }, [sceneId, valLoadResults])
 
   // ---------- 测试集 CRUD（整集替换持久化） ----------
   const persist = async (next: TestCase[]): Promise<void> => {
@@ -123,7 +78,7 @@ const Validate: React.FC = () => {
       if (r.success && r.data) {
         const next = r.data.slice(0, MAX_CASES).map((text, i) => ({ id: generateId(), instruction: text, sortOrder: i }))
         await persist(next)
-        setCaseResults({})
+        if (sceneId) valClearCaseResults(sceneId)
       }
     } finally {
       setGenerating(false)
@@ -145,7 +100,7 @@ const Validate: React.FC = () => {
   }
   const deleteCase = (id: string): void => {
     persist(reindex(cases.filter(c => c.id !== id)))
-    setCaseResults(prev => { const n = { ...prev }; delete n[id]; return n })
+    if (sceneId) valDeleteCaseResult(sceneId, id)
   }
   const moveCase = (id: string, dir: -1 | 1): void => {
     const idx = cases.findIndex(c => c.id === id)
@@ -156,58 +111,26 @@ const Validate: React.FC = () => {
     persist(reindex(next))
   }
 
-  // ---------- 运行 ----------
+  // ---------- 运行（编排在 store，脱离本组件生命周期，切页不丢） ----------
   const runOneCase = async (c: TestCase): Promise<void> => {
     if (!sceneId || !c.instruction.trim()) return
-    setRunningCaseId(c.id); setRunning(true); setBareResult(''); setSkillResult('')
-    try {
-      const r = await window.api.validation.runCase(sceneId, c.instruction.trim())
-      if (r.success && r.data) {
-        const data = r.data as ValidationResult
-        setCaseResults(prev => ({ ...prev, [c.id]: data }))
-        setControl(data.control); setExpanded(prev => ({ ...prev, [c.id]: true }))
-      }
-    } finally {
-      setRunningCaseId(null); setRunning(false); setAnalyzing(false); setTab('report')
-    }
+    await valRunCase(sceneId, c.id, c.instruction.trim())
+    setExpanded(prev => ({ ...prev, [c.id]: true })); setTab('report')
   }
 
   const runAllCases = async (): Promise<void> => {
     if (!sceneId) return
     const valid = cases.filter(c => c.instruction.trim())
     if (valid.length === 0) return
-    setRunAll({ done: 0, total: valid.length }); setRunning(true)
-    for (let i = 0; i < valid.length; i++) {
-      const c = valid[i]
-      setRunningCaseId(c.id); setBareResult(''); setSkillResult('')
-      try {
-        const r = await window.api.validation.runCase(sceneId, c.instruction.trim())
-        if (r.success && r.data) {
-          const data = r.data as ValidationResult
-          setCaseResults(prev => ({ ...prev, [c.id]: data }))
-          setControl(data.control)
-        }
-      } catch { /* 单条失败不阻断整集 */ }
-      setRunAll({ done: i + 1, total: valid.length })
-    }
-    setRunningCaseId(null); setRunAll(null); setRunning(false); setAnalyzing(false); setTab('report')
+    await valRunAllCases(sceneId, valid.map(c => ({ id: c.id, instruction: c.instruction.trim() })))
+    setTab('report')
   }
 
   const handleRunSingle = async (): Promise<void> => {
     if (!instruction.trim() || !sceneId) return
-    setRunning(true); setBareResult(''); setSkillResult(''); setSavedSingle(false)
-    try {
-      const r = await window.api.validation.run(sceneId, instruction.trim())
-      if (r.success && r.data) {
-        const data = r.data as ValidationResult
-        setSingleEntry({ id: 'single', instruction: instruction.trim(), result: data })
-        setControl(data.control)
-      }
-    } catch (err) {
-      setBareResult(t('validate.errorPrefix', { message: (err as Error).message }))
-    } finally {
-      setRunning(false); setAnalyzing(false); setTab('report')
-    }
+    setSavedSingle(false)
+    await valRunSingle(sceneId, instruction.trim())
+    setTab('report')
   }
 
   const handleSaveSingle = async (): Promise<void> => {

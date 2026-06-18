@@ -1,11 +1,14 @@
 import { create } from 'zustand'
-import type { Scene, ExperienceCard, LLMConfig, LLMProviderConfig, HealthCheckResult, ProposalCard, ConversationMessage, AttachmentKind, KnowledgeKey, CanvasOp, CanvasPosition } from '../contracts/ipc-types'
+import type { Scene, ExperienceCard, LLMConfig, LLMProviderConfig, HealthCheckResult, ProposalCard, ConversationMessage, AttachmentKind, KnowledgeKey, CanvasOp, CanvasPosition, ValidationResult, ValidationControl } from '../contracts/ipc-types'
 import { EventType } from '../contracts/agent-events'
 import type { AgentEvent, AgentKey } from '../contracts/agent-events'
 import { generateId } from '../utils/uuid'
 import i18n from '../i18n'
 
 type Page = 'home' | 'guide' | 'workbench' | 'validate' | 'settings'
+
+export interface ValidationReportEntry { id: string; instruction: string; result: ValidationResult }
+interface ValidationCaseInput { id: string; instruction: string }
 
 interface LiveSceneDraft {
   name: string
@@ -38,6 +41,27 @@ interface SceneStore {
 
   initAgentEvents: () => () => void
   abortRun: () => Promise<void>
+
+  // 验证（A/B 对比）状态 —— 提到 store 以脱离 Validate 页生命周期，切页不丢
+  valLoadedSceneId: string | null
+  valCaseResults: Record<string, ValidationResult>
+  valSingleEntry: ValidationReportEntry | null
+  valControl: ValidationControl | null
+  valBare: string
+  valSkill: string
+  valRunId: string | null
+  valStreamsEnded: number
+  valRunning: boolean
+  valAnalyzing: boolean
+  valRunningCaseId: string | null
+  valRunAll: { done: number; total: number } | null
+
+  valLoadResults: (sceneId: string) => Promise<void>
+  valRunSingle: (sceneId: string, instruction: string) => Promise<void>
+  valRunCase: (sceneId: string, caseId: string, instruction: string) => Promise<void>
+  valRunAllCases: (sceneId: string, cases: ValidationCaseInput[]) => Promise<void>
+  valDeleteCaseResult: (sceneId: string, caseId: string) => void
+  valClearCaseResults: (sceneId: string) => void
 
   // 画布统一操作（用户编辑路径），带 undo/redo
   canUndo: boolean
@@ -77,7 +101,7 @@ interface SceneStore {
   saveLLMConfig: (config: LLMConfig) => Promise<void>
   loadLLMProviders: () => Promise<void>
   saveLLMProviders: (providers: LLMProviderConfig[]) => Promise<void>
-  testConnection: (config: LLMConfig) => Promise<boolean>
+  testConnection: (config: LLMConfig) => Promise<{ success: boolean; error?: string }>
 
   setCurrentPage: (page: Page) => void
   clearError: () => void
@@ -178,21 +202,55 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   streamingText: null,
   liveSceneDraft: null,
 
+  valLoadedSceneId: null,
+  valCaseResults: {},
+  valSingleEntry: null,
+  valControl: null,
+  valBare: '',
+  valSkill: '',
+  valRunId: null,
+  valStreamsEnded: 0,
+  valRunning: false,
+  valAnalyzing: false,
+  valRunningCaseId: null,
+  valRunAll: null,
+
   initAgentEvents: () => {
     return window.api.agent.onEvent((event: AgentEvent) => {
       switch (event.type) {
         case EventType.RUN_STARTED:
-          set({ activeRunId: event.runId, activeAgent: event.agent, agentStatus: i18n.t('status.thinking'), streamingText: '' })
+          // validate 的 A/B 双流提到 store 持有（valBare/valSkill），不占用全局萃取/引导状态（否则切到萃取页会误显示"思考中"）
+          set(event.agent === 'validate'
+            ? { activeAgent: 'validate', valRunId: event.runId, valAnalyzing: false, valStreamsEnded: 0 }
+            : { activeRunId: event.runId, activeAgent: event.agent, agentStatus: i18n.t('status.thinking'), streamingText: '' })
           break
         case EventType.TEXT_MESSAGE_START:
-          // validate 的 A/B 双流由 Validate 页自行订阅渲染，不进全局 streamingText
+          // validate 的 A/B 双流写入 valBare/valSkill，不进全局 streamingText
           set(s => s.activeAgent === 'validate' ? s : ({
             agentStatus: null,
             streamingText: s.streamingText ? s.streamingText + '\n\n' : ''
           }))
           break
         case EventType.TEXT_MESSAGE_CONTENT:
-          set(s => s.activeAgent === 'validate' ? s : ({ streamingText: (s.streamingText ?? '') + event.delta }))
+          // messageId 为 bare/skill 的是验证 A/B 流，按 runId 归属写入对应栏
+          if (event.messageId === 'bare' || event.messageId === 'skill') {
+            set(s => s.valRunId !== event.runId ? s
+              : event.messageId === 'bare'
+                ? { valBare: s.valBare + event.delta }
+                : { valSkill: s.valSkill + event.delta })
+          } else {
+            set(s => s.activeAgent === 'validate' ? s : ({ streamingText: (s.streamingText ?? '') + event.delta }))
+          }
+          break
+        case EventType.TEXT_MESSAGE_END:
+          // 验证两栏（bare+skill）都结束后，才进入裁判分析中
+          if (event.messageId === 'bare' || event.messageId === 'skill') {
+            set(s => {
+              if (s.valRunId !== event.runId) return s
+              const ended = s.valStreamsEnded + 1
+              return ended >= 2 ? { valStreamsEnded: ended, valAnalyzing: true } : { valStreamsEnded: ended }
+            })
+          }
           break
         case EventType.TOOL_CALL_START:
           set({ agentStatus: TOOL_STATUS_KEYS[event.toolCallName] ? i18n.t(TOOL_STATUS_KEYS[event.toolCallName]) : i18n.t('status.runningTool', { tool: event.toolCallName }) })
@@ -227,7 +285,10 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
         }
         case EventType.RUN_FINISHED:
         case EventType.RUN_ERROR:
-          set({ activeRunId: null, activeAgent: null, agentStatus: null, streamingText: null })
+          // validate run 结束只清自己的状态，不动萃取/引导的全局状态
+          set(s => s.valRunId === event.runId
+            ? { activeAgent: null, valRunId: null, valAnalyzing: false }
+            : { activeRunId: null, activeAgent: null, agentStatus: null, streamingText: null })
           break
       }
     })
@@ -241,6 +302,104 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     } catch {
       // 中断失败不打扰用户
     }
+  },
+
+  // ---------- 验证（A/B 对比） ----------
+  valLoadResults: async (sceneId: string) => {
+    // 同一场景只在首次加载，避免切回页面时用磁盘旧值覆盖正在进行/刚完成的内存结果
+    if (get().valLoadedSceneId === sceneId) return
+    set({
+      valLoadedSceneId: sceneId,
+      valCaseResults: {}, valSingleEntry: null, valControl: null,
+      valBare: '', valSkill: '', valRunId: null, valStreamsEnded: 0,
+      valRunning: false, valAnalyzing: false, valRunningCaseId: null, valRunAll: null
+    })
+    try {
+      const r = await window.api.validation.getResults(sceneId)
+      const data = handleIpc(r)
+      const caseResults = data.caseResults ?? {}
+      const singleEntry = (data.singleEntry as ValidationReportEntry | null) ?? null
+      const control = singleEntry?.result.control ?? Object.values(caseResults)[0]?.control ?? null
+      // 加载期间若已切换场景，丢弃本次结果
+      if (get().valLoadedSceneId !== sceneId) return
+      set({ valCaseResults: caseResults, valSingleEntry: singleEntry, valControl: control })
+    } catch {
+      // 无持久化结果或读取失败：保持空态
+    }
+  },
+
+  valRunSingle: async (sceneId: string, instruction: string) => {
+    set({ valRunning: true, valBare: '', valSkill: '' })
+    try {
+      const r = await window.api.validation.run(sceneId, instruction)
+      const data = handleIpc(r)
+      const entry: ValidationReportEntry = { id: 'single', instruction, result: data }
+      set(s => {
+        if (s.valLoadedSceneId !== sceneId) return s // 运行中已切换场景：不跨场景污染/误存
+        window.api.validation.saveResults(sceneId, { caseResults: s.valCaseResults, singleEntry: entry })
+        return { valSingleEntry: entry, valControl: data.control }
+      })
+    } catch (err) {
+      set({ error: (err as Error).message })
+    } finally {
+      set({ valRunning: false, valAnalyzing: false })
+    }
+  },
+
+  valRunCase: async (sceneId: string, caseId: string, instruction: string) => {
+    set({ valRunningCaseId: caseId, valRunning: true, valBare: '', valSkill: '' })
+    try {
+      const r = await window.api.validation.runCase(sceneId, instruction)
+      const data = handleIpc(r)
+      set(s => {
+        if (s.valLoadedSceneId !== sceneId) return s // 运行中已切换场景：不跨场景污染/误存
+        const next = { ...s.valCaseResults, [caseId]: data }
+        window.api.validation.saveResults(sceneId, { caseResults: next, singleEntry: s.valSingleEntry })
+        return { valCaseResults: next, valControl: data.control }
+      })
+    } catch (err) {
+      set({ error: (err as Error).message })
+    } finally {
+      set({ valRunningCaseId: null, valRunning: false, valAnalyzing: false })
+    }
+  },
+
+  valRunAllCases: async (sceneId: string, cases: ValidationCaseInput[]) => {
+    const valid = cases.filter(c => c.instruction.trim())
+    if (valid.length === 0) return
+    set({ valRunAll: { done: 0, total: valid.length }, valRunning: true })
+    for (let i = 0; i < valid.length; i++) {
+      const c = valid[i]
+      set({ valRunningCaseId: c.id, valBare: '', valSkill: '' })
+      try {
+        const r = await window.api.validation.runCase(sceneId, c.instruction.trim())
+        const data = handleIpc(r)
+        set(s => {
+          if (s.valLoadedSceneId !== sceneId) return s // 运行中已切换场景：不跨场景污染/误存
+          const next = { ...s.valCaseResults, [c.id]: data }
+          window.api.validation.saveResults(sceneId, { caseResults: next, singleEntry: s.valSingleEntry })
+          return { valCaseResults: next, valControl: data.control }
+        })
+      } catch { /* 单条失败不阻断整集 */ }
+      set({ valRunAll: { done: i + 1, total: valid.length } })
+    }
+    set({ valRunningCaseId: null, valRunAll: null, valRunning: false, valAnalyzing: false })
+  },
+
+  valDeleteCaseResult: (sceneId: string, caseId: string) => {
+    set(s => {
+      const next = { ...s.valCaseResults }
+      delete next[caseId]
+      window.api.validation.saveResults(sceneId, { caseResults: next, singleEntry: s.valSingleEntry })
+      return { valCaseResults: next }
+    })
+  },
+
+  valClearCaseResults: (sceneId: string) => {
+    set(s => {
+      window.api.validation.saveResults(sceneId, { caseResults: {}, singleEntry: s.valSingleEntry })
+      return { valCaseResults: {} }
+    })
   },
 
   canUndo: false,
@@ -476,7 +635,17 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   },
 
   runTurn: async (sceneId: string, message: string) => {
-    set({ isLoading: true, error: null })
+    // 乐观渲染：用户消息立即上屏，随后才显示思考中/流式回复（否则要等整轮跑完才一起出现）
+    const userMsg: ConversationMessage = {
+      id: generateId(),
+      sceneId,
+      role: 'user',
+      content: message,
+      createdAt: new Date().toISOString()
+    }
+    set(s => (s.currentScene && s.currentScene.id === sceneId)
+      ? { isLoading: true, error: null, currentScene: { ...s.currentScene, conversation: [...s.currentScene.conversation, userMsg] } }
+      : { isLoading: true, error: null })
     try {
       const result = await window.api.extraction.runTurn(sceneId, message)
       const data = handleIpc(result)
@@ -489,19 +658,14 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
         if (!s.currentScene || s.currentScene.id !== sceneId) return { isLoading: false }
 
         const canvas = applyCanvasUpdates(s.currentScene.canvas, data.canvasUpdates)
-        const userMsg: ConversationMessage = {
-          id: generateId(),
-          sceneId,
-          role: 'user',
-          content: message,
-          createdAt: new Date().toISOString()
-        }
         const assistantMsg: ConversationMessage = {
           id: generateId(),
           sceneId,
           role: 'assistant',
           content: data.reply,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          options: data.options,
+          allowFreeText: data.allowFreeText
         }
 
         const proposals: ProposalCard[] = data.proposals
@@ -517,7 +681,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
           currentScene: {
             ...s.currentScene,
             canvas,
-            conversation: [...s.currentScene.conversation, userMsg, assistantMsg]
+            conversation: [...s.currentScene.conversation, assistantMsg]
           },
           proposals: [...s.proposals, ...proposals],
           highlightedEntries: [...s.highlightedEntries, ...newHighlighted]
@@ -682,9 +846,9 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     try {
       const result = await window.api.settings.testConnection(config)
       const data = handleIpc(result)
-      return data.success
-    } catch {
-      return false
+      return { success: data.success, error: data.error }
+    } catch (err) {
+      return { success: false, error: (err as Error).message }
     }
   },
 

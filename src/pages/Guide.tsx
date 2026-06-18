@@ -206,14 +206,6 @@ const Guide: React.FC = () => {
     setCurrentPage('workbench')
   }
 
-  const handleNameEdit = async () => {
-    const newName = prompt(t('guide.editProjectName'), projectName)
-    if (newName && newName.trim()) {
-      setProjectName(newName.trim())
-      if (currentScene) await updateScene(currentScene.id, { name: newName.trim() })
-    }
-  }
-
   const handleFileAttach = async () => {
     const el = document.createElement('input')
     el.type = 'file'
@@ -238,29 +230,25 @@ const Guide: React.FC = () => {
     setEditValue(value)
   }
 
-  const saveEdit = (field: string) => {
+  const saveEdit = async (field: string): Promise<void> => {
+    // 项目名独立于场景草稿：写回 projectName 并同步场景名
+    if (field === 'projectName') {
+      const name = editValue.trim()
+      setEditingField(null)
+      if (name && name !== projectName) {
+        setProjectName(name)
+        if (currentScene) await updateScene(currentScene.id, { name })
+      }
+      return
+    }
     const updated = { ...sceneDraft }
     if (field === 'name') updated.name = editValue
     else if (field === 'protagonist') updated.protagonist = editValue
     else if (field === 'trigger') updated.trigger = editValue
+    else if (field === 'includes') updated.includes = editValue.split(/[,，]/).map(s => s.trim()).filter(Boolean)
+    else if (field === 'excludes') updated.excludes = editValue.split(/[,，]/).map(s => s.trim()).filter(Boolean)
     setSceneDraft(updated)
     setEditingField(null)
-  }
-
-  const handleIncludesEdit = () => {
-    const val = prompt(t('guide.editIncludes'), sceneDraft.includes.join(', '))
-    if (val !== null) {
-      const items = val.split(/[,，]/).map(s => s.trim()).filter(Boolean)
-      setSceneDraft(prev => ({ ...prev, includes: items }))
-    }
-  }
-
-  const handleExcludesEdit = () => {
-    const val = prompt(t('guide.editExcludes'), sceneDraft.excludes.join(', '))
-    if (val !== null) {
-      const items = val.split(/[,，]/).map(s => s.trim()).filter(Boolean)
-      setSceneDraft(prev => ({ ...prev, excludes: items }))
-    }
   }
 
   const canEnterWorkbench = sceneDraft.name.trim() !== '' && sceneDraft.protagonist.trim() !== '' && sceneDraft.trigger.trim() !== ''
@@ -278,8 +266,20 @@ const Guide: React.FC = () => {
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', height: 56, borderBottom: '1px solid var(--line)', background: '#fff', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={() => setCurrentPage('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--ink)' }}><ArrowLeft size={16} /></button>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{projectName}</span>
-          <button onClick={handleNameEdit} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><EditIcon size={13} /></button>
+          {editingField === 'projectName' ? (
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
+                onKeyDown={e => { if (e.key === 'Enter') saveEdit('projectName'); else if (e.key === 'Escape') setEditingField(null) }}
+                style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 6, padding: '2px 8px', outline: 'none' }} />
+              <button onClick={() => saveEdit('projectName')} className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>✓</button>
+              <button onClick={() => setEditingField(null)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>✕</button>
+            </div>
+          ) : (
+            <>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{projectName}</span>
+              <button onClick={() => startEdit('projectName', projectName)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><EditIcon size={13} /></button>
+            </>
+          )}
         </div>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
           <PageNav current="guide" />
@@ -401,35 +401,20 @@ const Guide: React.FC = () => {
             {draftFields.map(({ key, label, type }) => (
               <div key={key} style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 9, color: 'var(--tri)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
-                {type === 'text' ? (
-                  editingField === key ? (
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <input value={editValue} onChange={e => setEditValue(e.target.value)}
-                        className="input-pill" style={{ flex: 1, fontSize: 10, padding: '4px 8px' }}
-                        onKeyDown={e => { if (e.key === 'Enter') saveEdit(key) }} />
-                      <button onClick={() => saveEdit(key)} className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>✓</button>
-                      <button onClick={() => setEditingField(null)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>✕</button>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => startEdit(key, sceneDraft[key] as string)}
-                      style={{
-                        fontSize: 11, color: sceneDraft[key] ? 'var(--ink)' : 'var(--tri)',
-                        background: '#fff', border: '1px solid var(--line)', borderRadius: 6,
-                        padding: '6px 10px', cursor: 'pointer', minHeight: 28,
-                        transition: 'border-color 0.15s'
-                      }}
-                      onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = 'var(--accent-edge)' }}
-                      onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = 'var(--line)' }}
-                    >
-                      {sceneDraft[key] || t('guide.clickToFill')}
-                    </div>
-                  )
+                {editingField === key ? (
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
+                      className="input-pill" style={{ flex: 1, fontSize: 10, padding: '4px 8px' }}
+                      placeholder={type === 'list' ? t('guide.listEditHint') : undefined}
+                      onKeyDown={e => { if (e.key === 'Enter') saveEdit(key); else if (e.key === 'Escape') setEditingField(null) }} />
+                    <button onClick={() => saveEdit(key)} className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>✓</button>
+                    <button onClick={() => setEditingField(null)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>✕</button>
+                  </div>
                 ) : (
                   <div
-                    onClick={key === 'includes' ? handleIncludesEdit : handleExcludesEdit}
+                    onClick={() => startEdit(key, type === 'list' ? (sceneDraft[key] as string[]).join(', ') : (sceneDraft[key] as string))}
                     style={{
-                      fontSize: 11, color: (sceneDraft[key] as string[]).length > 0 ? 'var(--ink)' : 'var(--tri)',
+                      fontSize: 11, color: (type === 'list' ? (sceneDraft[key] as string[]).length > 0 : !!sceneDraft[key]) ? 'var(--ink)' : 'var(--tri)',
                       background: '#fff', border: '1px solid var(--line)', borderRadius: 6,
                       padding: '6px 10px', cursor: 'pointer', minHeight: 28,
                       transition: 'border-color 0.15s'
@@ -437,9 +422,9 @@ const Guide: React.FC = () => {
                     onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = 'var(--accent-edge)' }}
                     onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = 'var(--line)' }}
                   >
-                    {(sceneDraft[key] as string[]).length > 0
-                      ? (sceneDraft[key] as string[]).join(' · ')
-                      : t('guide.clickToFill')}
+                    {type === 'list'
+                      ? ((sceneDraft[key] as string[]).length > 0 ? (sceneDraft[key] as string[]).join(' · ') : t('guide.clickToFill'))
+                      : (sceneDraft[key] || t('guide.clickToFill'))}
                   </div>
                 )}
               </div>
