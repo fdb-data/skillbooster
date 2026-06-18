@@ -4,9 +4,18 @@ vi.mock('electron-log', () => ({ default: { info: vi.fn(), warn: vi.fn(), error:
 vi.mock('electron', () => ({ app: { getPath: vi.fn().mockReturnValue('/tmp/skillbooster') }, dialog: {} }))
 vi.mock('archiver', () => ({ default: vi.fn() }))
 vi.mock('better-sqlite3', () => ({ default: vi.fn() }))
+// generateSkillMd 走 getLanguage()，固定为中文以断言「关联」行
+vi.mock('../../electron/main/i18n', () => ({
+  getLanguage: () => 'zh',
+  mt: (k: string) => k
+}))
 
-import { summarizeEval, slugifySkillName, buildFrontmatter, validateFrontmatter, planPackageEntries } from '../../electron/main/packager'
-import type { ValidationResult, Reference, Attachment } from '../../src/contracts/ipc-types'
+import { summarizeEval, slugifySkillName, buildFrontmatter, validateFrontmatter, planPackageEntries, generateSkillMd } from '../../electron/main/packager'
+import type { ValidationResult, Reference, Attachment, ExperienceCard, KnowledgeEntry } from '../../src/contracts/ipc-types'
+
+function entry(id: string, title: string, content = 'c'): KnowledgeEntry {
+  return { id, title, content, verified: true, createdAt: '', updatedAt: '' }
+}
 
 function ref(filename: string, storedPath: string, include = true): Reference {
   return { id: filename, filename, storedPath, extractedText: '', includeInPackage: include }
@@ -116,6 +125,45 @@ describe('validateFrontmatter - health gate', () => {
   it('flags a description over 1024 chars', () => {
     const w = validateFrontmatter('ok', 'x'.repeat(1025), 'en')
     expect(w.some(x => x.code === 'INVALID_FRONTMATTER')).toBe(true)
+  })
+})
+
+describe('generateSkillMd - inline relations from layout.edges', () => {
+  it('appends a 关联 line under the source block pointing at target titles', () => {
+    const card: ExperienceCard = {
+      flows: [entry('f1', '采集流程')],
+      rules: [entry('r1', '预处理规则')],
+      insights: [entry('i1', '误检洞察')],
+      concepts: [], relations: [],
+      layout: { positions: {}, edges: [
+        { id: 'e1', source: 'f1', target: 'r1', kind: 'link' },
+        { id: 'e2', source: 'f1', target: 'i1', kind: 'flow-order' }
+      ] }
+    }
+    const md = generateSkillMd('演示场景', 'sid', card)
+    expect(md).toContain('### 采集流程')
+    expect(md).toContain('**关联**：→ 预处理规则、→ 误检洞察')
+  })
+
+  it('omits the 关联 line for blocks without outgoing edges', () => {
+    const card: ExperienceCard = {
+      flows: [entry('f1', '孤立流程')],
+      rules: [], insights: [], concepts: [], relations: [],
+      layout: { positions: {}, edges: [] }
+    }
+    const md = generateSkillMd('演示场景', 'sid', card)
+    expect(md).toContain('### 孤立流程')
+    expect(md).not.toContain('**关联**')
+  })
+
+  it('skips edges whose target entry no longer exists', () => {
+    const card: ExperienceCard = {
+      flows: [entry('f1', '采集流程')],
+      rules: [], insights: [], concepts: [], relations: [],
+      layout: { positions: {}, edges: [{ id: 'e1', source: 'f1', target: 'gone', kind: 'link' }] }
+    }
+    const md = generateSkillMd('演示场景', 'sid', card)
+    expect(md).not.toContain('**关联**')
   })
 })
 

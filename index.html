@@ -6,7 +6,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.openai.com https://*.anthropic.com https://*.azure.com http://localhost:* https://*.example.com; img-src 'self' data:" />
   <title>SkillBooster</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* 仅保留消除首屏闪烁的最小样式；通用 *{margin:0} 重置交给 Tailwind Preflight，
+       否则无层级的内联 reset 会盖掉 @layer utilities 里的 mt/px/mx-auto 等工具类 */
     html, body, #root { height: 100%; width: 100%; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
   </style>

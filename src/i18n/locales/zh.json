@@ -5,6 +5,7 @@
     "confirm": "确认",
     "send": "发送",
     "view": "查看",
+    "delete": "删除",
     "connected": "Connected",
     "failed": "Failed",
     "unknown": "Unknown",
@@ -257,7 +258,13 @@
     "stepTitlePlaceholder": "步骤标题",
     "stepDescPlaceholder": "一句话说明（可选）",
     "moveStepUp": "上移",
-    "moveStepDown": "下移"
+    "moveStepDown": "下移",
+    "dblToOpen": "双击展开编辑",
+    "fieldTitle": "标题",
+    "fieldSteps": "步骤",
+    "fieldContent": "内容",
+    "fieldEvidence": "证据级别",
+    "stepN": "步骤 {{n}}"
   },
   "status": {
     "addingEntry": "正在添加条目…",

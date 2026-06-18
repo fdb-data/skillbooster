@@ -173,16 +173,16 @@ const Validate: React.FC = () => {
   // ---------- 子组件 ----------
   const VerdictView = ({ v }: { v: ValidationVerdict }): React.ReactElement => (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10, background: VERDICT_COLOR[v.verdict].bg, borderRadius: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 11, fontWeight: 800, color: VERDICT_COLOR[v.verdict].fg, padding: '2px 10px', background: '#fff', borderRadius: 6, flexShrink: 0 }}>{verdictLabel(v.verdict)}</span>
-        <span style={{ fontSize: 11, color: VERDICT_COLOR[v.verdict].fg, lineHeight: 1.5 }}>{v.summary}</span>
+      <div className="mb-2 flex items-center gap-2.5 rounded-lg p-2.5" style={{ background: VERDICT_COLOR[v.verdict].bg }}>
+        <span className="shrink-0 rounded-md bg-white px-2.5 py-0.5 text-[11px] font-extrabold" style={{ color: VERDICT_COLOR[v.verdict].fg }}>{verdictLabel(v.verdict)}</span>
+        <span className="text-[11px] leading-normal" style={{ color: VERDICT_COLOR[v.verdict].fg }}>{v.summary}</span>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div className="flex flex-col gap-1.5">
         {v.dimensions.map((d, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-            <span style={{ flexShrink: 0, width: 64, fontSize: 10, fontWeight: 700, color: 'var(--ink)' }}>{d.dimension}</span>
-            <span style={{ flexShrink: 0, fontSize: 9, fontWeight: 700, color: RESULT_COLOR[d.result].fg, background: RESULT_COLOR[d.result].bg, padding: '1px 8px', borderRadius: 10 }}>{resultLabel(d.result)}</span>
-            <span style={{ fontSize: 10, color: 'var(--sub)', lineHeight: 1.5 }}>{d.evidence}</span>
+          <div key={i} className="flex items-start gap-2">
+            <span className="w-16 shrink-0 text-[10px] font-bold text-ink">{d.dimension}</span>
+            <span className="shrink-0 rounded-full px-2 py-px text-[9px] font-bold" style={{ color: RESULT_COLOR[d.result].fg, background: RESULT_COLOR[d.result].bg }}>{resultLabel(d.result)}</span>
+            <span className="text-[10px] leading-normal text-sub">{d.evidence}</span>
           </div>
         ))}
       </div>
@@ -190,139 +190,132 @@ const Validate: React.FC = () => {
   )
 
   const ABPane = ({ title, accent, text }: { title: string; accent: boolean; text: string }): React.ReactElement => (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: `1px solid ${accent ? 'var(--accent-edge)' : 'var(--line)'}`, borderRadius: 10, background: accent ? 'var(--accent-soft)' : '#fff' }}>
-      <div style={{ fontSize: 10, fontWeight: 700, color: accent ? 'var(--accent)' : 'var(--sub)', padding: '8px 12px', borderBottom: '1px solid var(--line)' }}>{title}</div>
-      <div style={{ flex: 1, overflow: 'auto', padding: 12 }}>
+    <div className={`flex min-w-0 flex-1 flex-col rounded-card border ${accent ? 'border-accent-edge bg-accent-soft' : 'border-line bg-white'}`}>
+      <div className={`border-b border-line px-3 py-2 text-[10px] font-bold ${accent ? 'text-accent' : 'text-sub'}`}>{title}</div>
+      <div className="flex-1 overflow-auto p-3">
         {text
-          ? <p style={{ fontSize: 11, color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>{text}{running && <span style={{ color: 'var(--accent)' }}>▍</span>}</p>
+          ? <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{text}{running && <span className="text-accent">▍</span>}</p>
           : running
-            ? <div>{Array.from({ length: 5 }).map((_, i) => <div key={i} style={{ height: 10, borderRadius: 4, background: 'var(--canvas)', marginBottom: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>
-            : <p style={{ fontSize: 11, color: 'var(--tri)', margin: 0 }}>{t('validate.waitingRun')}</p>}
+            ? <div>{Array.from({ length: 5 }).map((_, i) => <div key={i} className="mb-1.5 h-2.5 rounded bg-canvas" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>
+            : <p className="text-[11px] text-tri">{t('validate.waitingRun')}</p>}
       </div>
     </div>
   )
 
   const ABStatic = ({ bare, withSkill }: { bare: string; withSkill: string }): React.ReactElement => (
-    <div style={{ display: 'flex', gap: 12 }}>
-      <div style={{ flex: 1, minWidth: 0, border: '1px solid var(--line)', borderRadius: 8, padding: 10, background: '#fff' }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--sub)', marginBottom: 6 }}>{t('validate.colA')}</div>
-        <p style={{ fontSize: 11, color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>{bare}</p>
+    <div className="flex gap-3">
+      <div className="min-w-0 flex-1 rounded-lg border border-line bg-white p-2.5">
+        <div className="mb-1.5 text-[9px] font-bold text-sub">{t('validate.colA')}</div>
+        <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{bare}</p>
       </div>
-      <div style={{ flex: 1, minWidth: 0, border: '1px solid var(--accent-edge)', borderRadius: 8, padding: 10, background: 'var(--accent-soft)' }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', marginBottom: 6 }}>{t('validate.colB')}</div>
-        <p style={{ fontSize: 11, color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>{withSkill}</p>
+      <div className="min-w-0 flex-1 rounded-lg border border-accent-edge bg-accent-soft p-2.5">
+        <div className="mb-1.5 text-[9px] font-bold text-accent">{t('validate.colB')}</div>
+        <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{withSkill}</p>
       </div>
     </div>
   )
 
   const TabButton = ({ id, label }: { id: 'compare' | 'report'; label: string }): React.ReactElement => (
-    <button onClick={() => setTab(id)} style={{
-      background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, padding: '8px 4px', marginRight: 20,
-      fontWeight: tab === id ? 700 : 500, color: tab === id ? 'var(--accent)' : 'var(--sub)',
-      borderBottom: tab === id ? '2px solid var(--accent)' : '2px solid transparent'
-    }}>{label}</button>
+    <button onClick={() => setTab(id)}
+      className={`mr-5 cursor-pointer border-b-2 px-1 py-2 text-xs ${tab === id ? 'border-accent font-bold text-accent' : 'border-transparent font-medium text-sub hover:text-ink'}`}>{label}</button>
   )
 
   const SubTabButton = ({ id, label }: { id: 'single' | 'testset'; label: string }): React.ReactElement => (
-    <button onClick={() => setSubTab(id)} style={{
-      cursor: 'pointer', fontSize: 11, padding: '5px 14px', borderRadius: 16,
-      border: `1px solid ${subTab === id ? 'var(--accent)' : 'var(--line)'}`,
-      background: subTab === id ? 'var(--accent-soft)' : '#fff',
-      color: subTab === id ? 'var(--accent)' : 'var(--sub)', fontWeight: subTab === id ? 700 : 500
-    }}>{label}</button>
+    <button onClick={() => setSubTab(id)}
+      className={`cursor-pointer rounded-2xl border px-3.5 py-1.5 text-[11px] ${subTab === id ? 'border-accent bg-accent-soft font-bold text-accent' : 'border-line bg-white font-medium text-sub hover:border-accent-edge'}`}>{label}</button>
   )
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#fff' }}>
-      {/* 统一主头部：返回图标 + 场景名 + 居中导航 */}
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', height: 56, borderBottom: '1px solid var(--line)', background: '#fff', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={() => setCurrentPage('workbench')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--ink)' }}><ArrowLeft size={16} /></button>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{currentScene?.name}</span>
+    <div className="flex h-full flex-col bg-white">
+      {/* 统一主头部：返回图标 + 场景名 + 居中导航（grid 三栏稳健居中） */}
+      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-white px-4">
+        <div className="flex items-center gap-2 justify-self-start">
+          <button onClick={() => setCurrentPage('workbench')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
+          <span className="text-[13px] font-bold text-ink">{currentScene?.name}</span>
         </div>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+        <div className="justify-self-center">
           <PageNav current="validate" />
         </div>
         <div />
       </div>
 
       {/* 第二行：验证标题 + 内部 tab（对比/报告） */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 28px', height: 44, borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', marginRight: 16 }}>{t('validate.title')}</span>
+      <div className="flex h-11 shrink-0 items-center gap-2 border-b border-line px-7">
+        <span className="mr-4 text-xs font-bold text-ink">{t('validate.title')}</span>
         <TabButton id="compare" label={t('validate.tabCompare')} />
         <TabButton id="report" label={t('validate.tabReport')} />
       </div>
 
       {tab === 'compare' ? (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: '14px 28px 0' }}>
+        <div className="flex min-h-0 flex-1 flex-col px-7 pt-3.5">
           {/* 受控条件 */}
-          <div style={{ padding: '7px 12px', background: 'var(--canvas)', borderRadius: 8, fontSize: 10, color: 'var(--sub)', flexShrink: 0 }}>
-            <span style={{ fontWeight: 700, color: 'var(--ink)' }}>{t('validate.controlLabel')}</span>{' '}
+          <div className="shrink-0 rounded-lg bg-canvas px-3 py-2 text-[10px] text-sub">
+            <span className="font-bold text-ink">{t('validate.controlLabel')}</span>{' '}
             {control ? t('validate.controlBar', { model: control.model, temp: control.temperature }) : t('validate.controlBarPending')}
           </div>
 
           {/* A/B 两栏实时输出 */}
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 12, padding: '12px 0' }}>
+          <div className="flex min-h-0 flex-1 gap-3 py-3">
             <ABPane title={t('validate.colA')} accent={false} text={bareResult} />
             <ABPane title={t('validate.colB')} accent text={skillResult} />
           </div>
           {analyzing && (
-            <div style={{ padding: 8, marginBottom: 8, background: '#EFF6FF', borderRadius: 8, fontSize: 10, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <div className="mb-2 flex shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[10px]" style={{ background: '#EFF6FF', color: '#1E40AF' }}>
               <span style={{ animation: 'pulse 1.2s ease-in-out infinite' }}>●</span> {t('validate.analyzing')}
             </div>
           )}
 
           {/* 底部输入区：子 tab */}
-          <div style={{ borderTop: '1px solid var(--line)', padding: '12px 0', flexShrink: 0 }}>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+          <div className="shrink-0 border-t border-line py-3">
+            <div className="mb-2.5 flex gap-2">
               <SubTabButton id="single" label={t('validate.subSingle')} />
               <SubTabButton id="testset" label={t('validate.subTestset')} />
             </div>
 
             {subTab === 'single' ? (
-              <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }}>
+              <div className="flex items-stretch gap-2.5">
                 <textarea value={instruction} onChange={e => setInstruction(e.target.value)}
                   placeholder={t('validate.inputPlaceholder')} disabled={running}
                   rows={3}
-                  style={{ flex: 1, fontSize: 12, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--line)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }} />
-                <button onClick={handleRunSingle} disabled={running || !instruction.trim()} className="btn-primary" style={{ padding: '0 22px', fontSize: 12, flexShrink: 0 }}>
+                  className="flex-1 resize-y rounded-card border border-line px-3 py-2.5 font-[inherit] text-xs leading-normal outline-none focus:border-accent" />
+                <button onClick={handleRunSingle} disabled={running || !instruction.trim()} className="btn-primary shrink-0 px-5 text-xs">
                   {running ? t('validate.running') : t('validate.runCompare')}
                 </button>
               </div>
             ) : (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
-                  <button onClick={handleGenerate} disabled={busy} className="btn-primary" style={{ padding: '6px 14px', fontSize: 11 }}>
+                <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                  <button onClick={handleGenerate} disabled={busy} className="btn-primary px-3.5 py-1.5 text-[11px]">
                     {generating ? t('validate.testset.generating') : t('validate.testset.generate')}
                   </button>
-                  <button onClick={openAdd} disabled={busy || cases.length >= MAX_CASES} className="btn-soft" style={{ padding: '6px 12px', fontSize: 11 }}>{t('validate.testset.add')}</button>
-                  <span style={{ fontSize: 10, color: 'var(--tri)' }}>{t('validate.testset.counter', { count: cases.length, max: MAX_CASES })}</span>
-                  <span style={{ flex: 1 }} />
-                  <button onClick={runAllCases} disabled={busy || cases.filter(c => c.instruction.trim()).length === 0} className="btn-primary" style={{ padding: '6px 14px', fontSize: 11 }}>
+                  <button onClick={openAdd} disabled={busy || cases.length >= MAX_CASES} className="btn-soft px-3 py-1.5 text-[11px]">{t('validate.testset.add')}</button>
+                  <span className="text-[10px] text-tri">{t('validate.testset.counter', { count: cases.length, max: MAX_CASES })}</span>
+                  <span className="flex-1" />
+                  <button onClick={runAllCases} disabled={busy || cases.filter(c => c.instruction.trim()).length === 0} className="btn-primary px-3.5 py-1.5 text-[11px]">
                     {runAll ? t('validate.testset.running', { done: runAll.done, total: runAll.total }) : t('validate.testset.runAll')}
                   </button>
                 </div>
 
                 {cases.length === 0 ? (
-                  <p style={{ fontSize: 11, color: 'var(--tri)', lineHeight: 1.6, padding: '4px 0' }}>{t('validate.testset.empty')}</p>
+                  <p className="py-1 text-[11px] leading-relaxed text-tri">{t('validate.testset.empty')}</p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflow: 'auto' }}>
+                  <div className="flex max-h-[180px] flex-col gap-1.5 overflow-auto">
                     {cases.map((c, idx) => {
                       const r = caseResults[c.id]
                       const isRunning = runningCaseId === c.id
                       return (
-                        <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 8, background: isRunning ? 'var(--accent-soft)' : '#fff' }}>
-                          <span style={{ fontSize: 10, color: 'var(--tri)', width: 14, flexShrink: 0 }}>{idx + 1}</span>
-                          <button onClick={() => openEdit(c)} title={t('validate.testset.edit')} style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: c.instruction ? 'var(--ink)' : 'var(--tri)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: 0 }}>
+                        <div key={c.id} className={`flex items-center gap-1.5 rounded-lg border border-line px-2 py-1.5 ${isRunning ? 'bg-accent-soft' : 'bg-white'}`}>
+                          <span className="w-3.5 shrink-0 text-[10px] text-tri">{idx + 1}</span>
+                          <button onClick={() => openEdit(c)} title={t('validate.testset.edit')} className={`min-w-0 flex-1 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap border-none bg-none text-left text-[11px] ${c.instruction ? 'text-ink' : 'text-tri'}`}>
                             {c.instruction || t('validate.testset.modalPlaceholder')}
                           </button>
-                          {r?.verdict && <span style={{ flexShrink: 0, fontSize: 9, fontWeight: 700, color: VERDICT_COLOR[r.verdict.verdict].fg, background: VERDICT_COLOR[r.verdict.verdict].bg, padding: '1px 8px', borderRadius: 10 }}>{verdictLabel(r.verdict.verdict)}</span>}
-                          <button onClick={() => moveCase(c.id, -1)} disabled={idx === 0 || busy} title="↑" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--tri)', flexShrink: 0 }}>↑</button>
-                          <button onClick={() => moveCase(c.id, 1)} disabled={idx === cases.length - 1 || busy} title="↓" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--tri)', flexShrink: 0 }}>↓</button>
-                          <button onClick={() => runOneCase(c)} disabled={busy || !c.instruction.trim()} className="btn-soft" style={{ padding: '3px 10px', fontSize: 9, flexShrink: 0 }}>
+                          {r?.verdict && <span className="shrink-0 rounded-full px-2 py-px text-[9px] font-bold" style={{ color: VERDICT_COLOR[r.verdict.verdict].fg, background: VERDICT_COLOR[r.verdict.verdict].bg }}>{verdictLabel(r.verdict.verdict)}</span>}
+                          <button onClick={() => moveCase(c.id, -1)} disabled={idx === 0 || busy} title="↑" className="shrink-0 cursor-pointer border-none bg-none text-[11px] text-tri hover:text-sub">↑</button>
+                          <button onClick={() => moveCase(c.id, 1)} disabled={idx === cases.length - 1 || busy} title="↓" className="shrink-0 cursor-pointer border-none bg-none text-[11px] text-tri hover:text-sub">↓</button>
+                          <button onClick={() => runOneCase(c)} disabled={busy || !c.instruction.trim()} className="btn-soft shrink-0 px-2.5 py-0.5 text-[9px]">
                             {isRunning ? t('validate.running') : (r ? t('validate.testset.rerun') : t('validate.testset.run'))}
                           </button>
-                          <button onClick={() => deleteCase(c.id)} disabled={busy} title={t('validate.testset.delete')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)', flexShrink: 0 }}><Close size={12} /></button>
+                          <button onClick={() => deleteCase(c.id)} disabled={busy} title={t('validate.testset.delete')} className="flex shrink-0 cursor-pointer items-center border-none bg-none text-tri hover:text-sub"><Close size={12} /></button>
                         </div>
                       )
                     })}
@@ -334,61 +327,61 @@ const Validate: React.FC = () => {
         </div>
       ) : (
         /* ===== 验证报告 tab ===== */
-        <div style={{ flex: 1, overflow: 'auto', padding: '16px 28px' }}>
+        <div className="flex-1 overflow-auto px-7 py-4">
           {/* 汇总结果 */}
-          <div style={{ border: '1px solid var(--line)', borderRadius: 10, background: '#FAFAFB', padding: 14, marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink)' }}>{t('validate.report.summaryTitle')}</span>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={() => handleExport('json')} disabled={agg.count === 0} className="btn-soft" style={{ padding: '4px 12px', fontSize: 9 }}>{t('validate.export.json')}</button>
-                <button onClick={() => handleExport('markdown')} disabled={agg.count === 0} className="btn-soft" style={{ padding: '4px 12px', fontSize: 9 }}>{t('validate.export.markdown')}</button>
+          <div className="mb-3.5 rounded-card border border-line bg-canvas p-3.5">
+            <div className="mb-2.5 flex items-center justify-between">
+              <span className="text-xs font-extrabold text-ink">{t('validate.report.summaryTitle')}</span>
+              <div className="flex gap-1.5">
+                <button onClick={() => handleExport('json')} disabled={agg.count === 0} className="btn-soft px-3 py-1 text-[9px]">{t('validate.export.json')}</button>
+                <button onClick={() => handleExport('markdown')} disabled={agg.count === 0} className="btn-soft px-3 py-1 text-[9px]">{t('validate.export.markdown')}</button>
               </div>
             </div>
             {agg.count > 0 ? (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: VERDICT_COLOR[agg.verdict].fg, background: VERDICT_COLOR[agg.verdict].bg, padding: '3px 12px', borderRadius: 6 }}>{verdictLabel(agg.verdict)}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>{t('validate.summary.winRate', { win: agg.win, tie: agg.tie, loss: agg.loss })}</span>
+                <div className="mb-2 flex items-center gap-2.5">
+                  <span className="rounded-md px-3 py-0.5 text-xs font-extrabold" style={{ color: VERDICT_COLOR[agg.verdict].fg, background: VERDICT_COLOR[agg.verdict].bg }}>{verdictLabel(agg.verdict)}</span>
+                  <span className="text-xs font-bold text-ink">{t('validate.summary.winRate', { win: agg.win, tie: agg.tie, loss: agg.loss })}</span>
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--sub)' }}>
+                <div className="text-[10px] text-sub">
                   {t('validate.numbers.tokens', { bare: agg.bareTok, skill: agg.skillTok })}{' · '}
                   {t('validate.numbers.tokenDiff', { diff: agg.skillTok - agg.bareTok })}
                 </div>
               </>
             ) : (
-              <p style={{ fontSize: 11, color: 'var(--tri)', margin: 0 }}>{t('validate.summary.noResults')}</p>
+              <p className="text-[11px] text-tri">{t('validate.summary.noResults')}</p>
             )}
           </div>
 
           {/* 逐条结果 */}
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink)', marginBottom: 8 }}>{t('validate.report.detailTitle')}</div>
+          <div className="mb-2 text-xs font-extrabold text-ink">{t('validate.report.detailTitle')}</div>
           {reportEntries.length === 0 ? (
-            <p style={{ fontSize: 11, color: 'var(--tri)', lineHeight: 1.6 }}>{t('validate.report.empty')}</p>
+            <p className="text-[11px] leading-relaxed text-tri">{t('validate.report.empty')}</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="flex flex-col gap-2">
               {reportEntries.map(e => {
                 const open = expanded[e.id]
                 const v = e.result.verdict
                 return (
-                  <div key={e.id} style={{ border: '1px solid var(--line)', borderRadius: 10 }}>
-                    <button onClick={() => setExpanded(prev => ({ ...prev, [e.id]: !open }))} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
-                      <span style={{ color: 'var(--tri)', display: 'flex', alignItems: 'center' }}>{open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}</span>
-                      <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.instruction}</span>
-                      {v && <span style={{ flexShrink: 0, fontSize: 9, fontWeight: 700, color: VERDICT_COLOR[v.verdict].fg, background: VERDICT_COLOR[v.verdict].bg, padding: '2px 10px', borderRadius: 10 }}>{verdictLabel(v.verdict)}</span>}
+                  <div key={e.id} className="rounded-card border border-line">
+                    <button onClick={() => setExpanded(prev => ({ ...prev, [e.id]: !open }))} className="flex w-full cursor-pointer items-center gap-2 border-none bg-none px-3 py-2.5 text-left">
+                      <span className="flex items-center text-tri">{open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}</span>
+                      <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-ink">{e.instruction}</span>
+                      {v && <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[9px] font-bold" style={{ color: VERDICT_COLOR[v.verdict].fg, background: VERDICT_COLOR[v.verdict].bg }}>{verdictLabel(v.verdict)}</span>}
                     </button>
                     {open && (
-                      <div style={{ padding: '0 12px 12px' }}>
-                        {v ? <VerdictView v={v} /> : e.result.diffSummary ? <div style={{ fontSize: 10, color: 'var(--sub)', whiteSpace: 'pre-wrap' }}>{e.result.diffSummary}</div> : null}
-                        <div style={{ marginTop: 10 }}><ABStatic bare={e.result.bare} withSkill={e.result.withSkill} /></div>
+                      <div className="px-3 pb-3">
+                        {v ? <VerdictView v={v} /> : e.result.diffSummary ? <div className="whitespace-pre-wrap text-[10px] text-sub">{e.result.diffSummary}</div> : null}
+                        <div className="mt-2.5"><ABStatic bare={e.result.bare} withSkill={e.result.withSkill} /></div>
                         {(e.result.bareTokens || e.result.skillTokens) && (
-                          <div style={{ marginTop: 6, fontSize: 9, color: 'var(--tri)' }}>
+                          <div className="mt-1.5 text-[9px] text-tri">
                             {t('validate.numbers.tokens', { bare: e.result.bareTokens?.totalTokens ?? 0, skill: e.result.skillTokens?.totalTokens ?? 0 })}
                             {e.result.bareLatencyMs != null && e.result.skillLatencyMs != null && ` · ${t('validate.numbers.latency', { a: e.result.bareLatencyMs, b: e.result.skillLatencyMs })}`}
                           </div>
                         )}
                         {e.id === 'single' && (
-                          <div style={{ marginTop: 8 }}>
-                            <button onClick={handleSaveSingle} disabled={savedSingle} className="btn-soft" style={{ padding: '4px 12px', fontSize: 9 }}>{savedSingle ? t('validate.saved') : t('validate.save')}</button>
+                          <div className="mt-2">
+                            <button onClick={handleSaveSingle} disabled={savedSingle} className="btn-soft px-3 py-1 text-[9px]">{savedSingle ? t('validate.saved') : t('validate.save')}</button>
                           </div>
                         )}
                       </div>
@@ -403,15 +396,15 @@ const Validate: React.FC = () => {
 
       {/* 编辑测试指令弹窗 */}
       {editing && (
-        <div onClick={closeModal} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div onClick={ev => ev.stopPropagation()} style={{ width: 560, maxWidth: '90vw', background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>{t('validate.testset.editTitle')}</div>
+        <div onClick={closeModal} className="fixed inset-0 z-50 flex items-center justify-center bg-black/35">
+          <div onClick={ev => ev.stopPropagation()} className="w-[560px] max-w-[90vw] rounded-xl bg-white p-[18px] shadow-[0_10px_40px_rgba(0,0,0,0.2)]">
+            <div className="mb-3 text-[13px] font-bold text-ink">{t('validate.testset.editTitle')}</div>
             <textarea value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })}
               placeholder={t('validate.testset.modalPlaceholder')} autoFocus rows={7}
-              style={{ width: '100%', fontSize: 12, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--line)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box' }} />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
-              <button onClick={closeModal} className="btn-soft" style={{ padding: '6px 16px', fontSize: 11 }}>{t('validate.testset.cancel')}</button>
-              <button onClick={saveModal} disabled={!editing.text.trim()} className="btn-primary" style={{ padding: '6px 16px', fontSize: 11 }}>{t('validate.testset.saveCase')}</button>
+              className="box-border w-full resize-y rounded-card border border-line px-3 py-2.5 font-[inherit] text-xs leading-normal outline-none focus:border-accent" />
+            <div className="mt-3.5 flex justify-end gap-2">
+              <button onClick={closeModal} className="btn-soft px-4 py-1.5 text-[11px]">{t('validate.testset.cancel')}</button>
+              <button onClick={saveModal} disabled={!editing.text.trim()} className="btn-primary px-4 py-1.5 text-[11px]">{t('validate.testset.saveCase')}</button>
             </div>
           </div>
         </div>

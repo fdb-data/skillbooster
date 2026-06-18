@@ -1,11 +1,45 @@
+@import 'tailwindcss';
 @import './tokens.css';
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body, #root { height: 100%; width: 100%; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: var(--ink);
-  background: #fff;
+/* 把已有令牌 (tokens.css) 映射成 Tailwind 工具类，令牌仍是唯一来源 */
+@theme {
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-edge: var(--accent-edge);
+  --color-ink: var(--ink);
+  --color-sub: var(--sub);
+  --color-tri: var(--tri);
+  --color-line: var(--line);
+  --color-canvas: var(--canvas);
+  --color-ai-bubble: var(--ai-bubble);
+  --color-user-bubble: var(--user-bubble);
+  --color-anchor-bg: var(--anchor-bg);
+  --color-anchor-border: var(--anchor-border);
+  --color-anchor-text: var(--anchor-text);
+  --color-ev-institutional: var(--evidence-institutional);
+  --color-ev-validated: var(--evidence-validated);
+  --color-ev-sample: var(--evidence-sample);
+  --color-ev-exploratory: var(--evidence-exploratory);
+
+  --radius-card: 10px;
+  --radius-pill: 999px;
+  --radius-block: 8px;
+
+  --text-title: 24px;
+  --text-page: 13px;
+  --text-body: 11px;
+  --text-hint: 9px;
+}
+
+/* Tailwind Preflight 已对 * 做了 margin/padding/box-sizing 重置；
+   不要再写裸 * 重置，否则会盖掉 mx-auto/mt/px 等工具类 */
+@layer base {
+  html, body, #root { height: 100%; width: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: #fff;
+  }
 }
 
 .btn-primary {
@@ -106,4 +140,17 @@ div:hover > .block-actions {
 }
 .ghost-block {
   animation: ghostIn 0.35s ease-out;
+}
+
+/* 首页卡片渐入（错位入场，micro-interaction） */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up { animation: none; opacity: 1; }
 }

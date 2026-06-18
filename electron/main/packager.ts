@@ -27,7 +27,8 @@ const SKILL_TEXT = {
   rules: { en: 'Rules', zh: '规则知识' },
   insights: { en: 'Insights', zh: '洞察知识' },
   concepts: { en: 'Concepts', zh: '概念' },
-  relations: { en: 'Relations', zh: '关系' }
+  relations: { en: 'Relations', zh: '关系' },
+  relatesTo: { en: 'Related', zh: '关联' }
 } as const
 
 /** Agent Skills 规范：name 仅小写字母/数字/单连字符，首尾不为连字符，无连续连字符 */
@@ -128,45 +129,56 @@ export function healthCheck(sceneId: string): HealthCheckResult {
   }
 }
 
-function generateSkillMd(sceneName: string, sceneId: string, canvas: ExperienceCard): string {
+export function generateSkillMd(sceneName: string, sceneId: string, canvas: ExperienceCard): string {
   const lang = getLanguage()
   const { name, description } = buildFrontmatter(sceneName, sceneId, lang)
+
+  // 连线（layout.edges）以「关联」行内联到来源块下方：source → target 标题
+  const titleById = new Map<string, string>()
+  for (const key of ['flows', 'rules', 'insights', 'concepts', 'relations'] as const) {
+    for (const e of canvas[key]) titleById.set(e.id, e.title)
+  }
+  const edges = canvas.layout?.edges ?? []
+  const sep = lang === 'zh' ? '、' : ', '
+  const colon = lang === 'zh' ? '：' : ': '
+  const renderEntry = (entry: { id: string; title: string; content: string }): string => {
+    let block = `### ${entry.title}\n${entry.content}\n`
+    const targets = edges
+      .filter(e => e.source === entry.id)
+      .map(e => titleById.get(e.target))
+      .filter((t): t is string => !!t)
+    if (targets.length > 0) {
+      block += `\n**${SKILL_TEXT.relatesTo[lang]}**${colon}${targets.map(t => `→ ${t}`).join(sep)}\n`
+    }
+    return block + '\n'
+  }
+
   let md = `---\nname: ${name}\ndescription: ${yamlQuote(description)}\nmetadata:\n  version: "1.0"\n---\n\n`
   md += `# ${SKILL_TEXT.title[lang](sceneName)}\n\n`
 
   if (canvas.flows.length > 0) {
     md += `## ${SKILL_TEXT.flows[lang]}\n\n`
-    for (const f of canvas.flows) {
-      md += `### ${f.title}\n${f.content}\n\n`
-    }
+    for (const f of canvas.flows) md += renderEntry(f)
   }
 
   if (canvas.rules.length > 0) {
     md += `## ${SKILL_TEXT.rules[lang]}\n\n`
-    for (const r of canvas.rules) {
-      md += `### ${r.title}\n${r.content}\n\n`
-    }
+    for (const r of canvas.rules) md += renderEntry(r)
   }
 
   if (canvas.insights.length > 0) {
     md += `## ${SKILL_TEXT.insights[lang]}\n\n`
-    for (const i of canvas.insights) {
-      md += `### ${i.title}\n${i.content}\n\n`
-    }
+    for (const i of canvas.insights) md += renderEntry(i)
   }
 
   if (canvas.concepts.length > 0) {
     md += `## ${SKILL_TEXT.concepts[lang]}\n\n`
-    for (const c of canvas.concepts) {
-      md += `### ${c.title}\n${c.content}\n\n`
-    }
+    for (const c of canvas.concepts) md += renderEntry(c)
   }
 
   if (canvas.relations.length > 0) {
     md += `## ${SKILL_TEXT.relations[lang]}\n\n`
-    for (const r of canvas.relations) {
-      md += `### ${r.title}\n${r.content}\n\n`
-    }
+    for (const r of canvas.relations) md += renderEntry(r)
   }
 
   return md

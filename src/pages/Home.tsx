@@ -133,7 +133,7 @@ const Home: React.FC = () => {
     }
     const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1
     return (
-      <div style={{ display: 'flex', height: 4, borderRadius: 2, overflow: 'hidden', gap: 1 }}>
+      <div className="flex h-1.5 w-24 gap-px overflow-hidden rounded-full bg-line">
         {counts.institutional > 0 && <div style={{ flex: counts.institutional / total, background: '#2E9E6B' }} />}
         {counts.validated > 0 && <div style={{ flex: counts.validated / total, background: '#3B82F6' }} />}
         {counts.sample > 0 && <div style={{ flex: counts.sample / total, background: '#E0A93B' }} />}
@@ -143,143 +143,149 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto', background: '#fff' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', height: 56, borderBottom: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div className="relative h-full overflow-auto bg-white">
+      {/* 顶部柔光：靛蓝品牌色，营造纵深，不改主色 */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[460px]"
+        style={{ background: 'radial-gradient(58% 70% at 50% -8%, rgba(79,70,229,0.10), rgba(79,70,229,0.03) 42%, transparent 72%)' }} />
+
+      <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line/70 bg-white/75 px-7 backdrop-blur-md">
+        <div className="flex items-center gap-2">
           <MindLogo size={18} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{t('home.brand')}</span>
+          <span className="text-[13px] font-bold tracking-tight text-ink">{t('home.brand')}</span>
         </div>
-        <button onClick={() => setCurrentPage('settings')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, color: 'var(--tri)', fontSize: 11 }}>
+        <button onClick={() => setCurrentPage('settings')} className="flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] text-tri transition-colors hover:bg-canvas hover:text-sub">
           <SettingsIcon size={14} /> {t('home.settings')}
         </button>
       </div>
 
-      <div style={{ textAlign: 'center', paddingTop: 48, paddingBottom: 16 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)', marginBottom: 8 }}>{t('home.heroTitle')}</h1>
-        <p style={{ fontSize: 12, color: 'var(--sub)' }}>{t('home.heroSubtitle')}</p>
+      <div className="relative pb-6 pt-16 text-center">
+        <h1 className="mx-auto mb-3 max-w-[720px] px-6 text-[30px] font-bold leading-tight tracking-tight text-ink">{t('home.heroTitle')}</h1>
+        <p className="mx-auto max-w-[560px] px-6 text-[13px] leading-relaxed text-sub">{t('home.heroSubtitle')}</p>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+      <div className="relative mx-auto w-full max-w-[680px] px-6">
         <div onDrop={handleDrop} onDragOver={handleDragOver}
-          style={{ border: '1.5px solid var(--accent-edge)', borderRadius: 14, padding: '16px 20px', minHeight: 104, background: '#fff' }}>
+          className="group min-h-[116px] rounded-2xl border border-accent-edge bg-white px-5 py-4 shadow-[0_4px_24px_-8px_rgba(17,17,46,0.08)] transition-all duration-200 focus-within:border-accent focus-within:shadow-[0_12px_40px_-10px_rgba(79,70,229,0.28)]">
           <textarea value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleStart() }}
             placeholder={t('home.inputPlaceholder')}
-            style={{ width: '100%', border: 'none', outline: 'none', resize: 'none', fontSize: 13, color: 'var(--ink)', minHeight: 48, fontFamily: 'inherit', background: 'transparent' }} />
+            className="min-h-[52px] w-full resize-none border-none bg-transparent font-[inherit] text-[14px] leading-relaxed text-ink outline-none placeholder:text-tri" />
           {attachedFiles.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {attachedFiles.map(f => (
-                <div key={f.path} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', background: 'var(--canvas)', border: '1px solid var(--line)', borderRadius: 999, fontSize: 10, color: 'var(--ink)', maxWidth: 220 }}>
+                <div key={f.path} className="flex max-w-[220px] items-center gap-1 rounded-full border border-line bg-canvas px-2 py-[3px] text-[10px] text-ink">
                   <Paperclip size={11} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">{f.name}</span>
                   <button onClick={() => setAttachedFiles(prev => prev.filter(p => p.path !== f.path))}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)', padding: 0 }}><Close size={11} /></button>
+                    className="flex cursor-pointer items-center border-none bg-none p-0 text-tri hover:text-sub"><Close size={11} /></button>
                 </div>
               ))}
             </div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button onClick={handleFileAttach} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><Paperclip size={15} /></button>
-              <span style={{ fontSize: 9, color: 'var(--tri)' }}>{t('home.dropHint')}</span>
+          <div className="mt-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button onClick={handleFileAttach} title={t('home.dropHint')} className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-tri transition-colors hover:bg-canvas hover:text-accent"><Paperclip size={15} /></button>
+              <span className="text-[9px] text-tri">{t('home.dropHint')}</span>
             </div>
             <button onClick={handleStart} disabled={!input.trim() && attachedFiles.length === 0}
-              className="btn-primary" style={{ padding: '8px 20px', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>{t('home.startProject')} <ArrowRight size={12} /></button>
+              className="btn-primary flex items-center gap-1.5 px-5 py-2.5 text-[12px] shadow-[0_4px_14px_-2px_rgba(79,70,229,0.45)] transition-all hover:-translate-y-px disabled:shadow-none">{t('home.startProject')} <ArrowRight size={13} /></button>
           </div>
         </div>
       </div>
 
-      <p style={{ textAlign: 'center', marginTop: 12, fontSize: 10, color: 'var(--accent)', cursor: 'pointer' }}>{t('home.draftFromDocsHint')}</p>
+      <p className="relative mx-auto mt-3.5 w-fit cursor-pointer text-center text-[11px] text-accent transition-colors hover:text-ink">{t('home.draftFromDocsHint')}</p>
 
-      <div style={{ maxWidth: 600, margin: '20px auto 0' }}>
+      <div className="relative mx-auto mt-5 w-full max-w-[680px] px-6">
         <div onDrop={handleImportDrop} onDragOver={handleDragOver}
-          style={{ border: '1px dashed var(--line)', borderRadius: 14, padding: '14px 20px', background: 'var(--canvas)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>{t('home.importSkill')}</div>
-              <div style={{ fontSize: 10, color: 'var(--sub)' }}>{t('home.importSectionHint')}</div>
+          className="rounded-2xl border border-dashed border-line bg-canvas/60 px-5 py-4 transition-colors hover:border-accent-edge">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="mb-0.5 text-xs font-semibold text-ink">{t('home.importSkill')}</div>
+              <div className="text-[10px] text-sub">{t('home.importSectionHint')}</div>
             </div>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-              <button onClick={() => pickImport('file')} disabled={importing} className="btn-primary" style={{ padding: '6px 12px', fontSize: 10, whiteSpace: 'nowrap' }}>{t('home.importPickFile')}</button>
-              <button onClick={() => pickImport('folder')} disabled={importing} className="btn-ghost" style={{ padding: '6px 12px', fontSize: 10, whiteSpace: 'nowrap' }}>{t('home.importPickFolder')}</button>
+            <div className="flex shrink-0 gap-2">
+              <button onClick={() => pickImport('file')} disabled={importing} className="btn-primary whitespace-nowrap px-3.5 py-1.5 text-[10px]">{t('home.importPickFile')}</button>
+              <button onClick={() => pickImport('folder')} disabled={importing} className="btn-ghost whitespace-nowrap px-3.5 py-1.5 text-[10px]">{t('home.importPickFolder')}</button>
             </div>
           </div>
-          <div style={{ fontSize: 9, color: 'var(--tri)', marginTop: 8 }}>{importing ? t('home.importing') : t('home.importDropHint')}</div>
+          <div className="mt-2 text-[9px] text-tri">{importing ? t('home.importing') : t('home.importDropHint')}</div>
         </div>
       </div>
 
       {pendingImport && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35"
           onClick={() => setPendingImport(null)}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: '#fff', borderRadius: 12, padding: 24, maxWidth: 380, margin: '0 16px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
-            <p style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.6, margin: '0 0 20px' }}>{t('home.importConfirmText')}</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setPendingImport(null)} className="btn-ghost" style={{ padding: '6px 16px', fontSize: 11 }}>{t('home.importConfirmCancel')}</button>
-              <button onClick={confirmImport} className="btn-primary" style={{ padding: '6px 16px', fontSize: 11 }}>{t('home.importConfirmOk')}</button>
+            className="mx-4 max-w-[380px] rounded-xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+            <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.importConfirmText')}</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setPendingImport(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.importConfirmCancel')}</button>
+              <button onClick={confirmImport} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
             </div>
           </div>
         </div>
       )}
 
       {scriptHint && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, maxWidth: 380, margin: '0 16px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
-            <p style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.6, margin: '0 0 20px' }}>{scriptHint.message}</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => { const id = scriptHint.sceneId; setScriptHint(null); enterWorkbench(id) }} className="btn-primary" style={{ padding: '6px 16px', fontSize: 11 }}>{t('home.importConfirmOk')}</button>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35">
+          <div className="mx-4 max-w-[380px] rounded-xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+            <p className="mb-5 text-[13px] leading-relaxed text-ink">{scriptHint.message}</p>
+            <div className="flex justify-end">
+              <button onClick={() => { const id = scriptHint.sceneId; setScriptHint(null); enterWorkbench(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
             </div>
           </div>
         </div>
       )}
 
       {pendingDelete && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35"
           onClick={() => setPendingDelete(null)}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: '#fff', borderRadius: 12, padding: 24, maxWidth: 380, margin: '0 16px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
-            <p style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.6, margin: '0 0 20px' }}>{t('home.deleteConfirmText', { name: pendingDelete.name })}</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setPendingDelete(null)} className="btn-ghost" style={{ padding: '6px 16px', fontSize: 11 }}>{t('home.deleteConfirmCancel')}</button>
-              <button onClick={() => { const id = pendingDelete.id; setPendingDelete(null); void deleteScene(id) }} className="btn-primary" style={{ padding: '6px 16px', fontSize: 11 }}>{t('home.deleteConfirmOk')}</button>
+            className="mx-4 max-w-[380px] rounded-xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+            <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.deleteConfirmText', { name: pendingDelete.name })}</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setPendingDelete(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.deleteConfirmCancel')}</button>
+              <button onClick={() => { const id = pendingDelete.id; setPendingDelete(null); void deleteScene(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.deleteConfirmOk')}</button>
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ maxWidth: 960, margin: '32px auto 0', padding: '0 28px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--sub)' }}>{t('home.myProjects', { count: scenes.length })}</span>
+      <div className="relative mx-auto mt-12 w-full max-w-[920px] px-6">
+        <div className="mb-3.5 flex items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-tri">{t('home.myProjects', { count: scenes.length })}</span>
+          <span className="h-px flex-1 bg-line" />
         </div>
-        <div style={{ height: 1, background: 'var(--line)', marginBottom: 20 }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          {scenes.map(scene => {
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(264px,1fr))] gap-3.5">
+          {scenes.map((scene, i) => {
             const stColor = statusColors[scene.status] || statusColors.active
             const stText = t(`home.status.${scene.status}`, { defaultValue: t('home.status.active') })
             return (
               <div key={scene.id} onClick={() => handleCardClick(scene.id)}
-                style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 10, padding: 16, cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{scene.name}</span>
-                  <button onClick={e => { e.stopPropagation(); setPendingDelete({ id: scene.id, name: scene.name }) }} style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Close size={14} /></button>
+                className="animate-fade-up group cursor-pointer rounded-xl border border-line bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(17,17,46,0.03)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-accent-edge hover:shadow-[0_10px_28px_-8px_rgba(79,70,229,0.22)]"
+                style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }}>
+                <div className="flex items-start justify-between gap-2">
+                  <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-ink transition-colors group-hover:text-accent">{scene.name}</span>
+                  <button onClick={e => { e.stopPropagation(); setPendingDelete({ id: scene.id, name: scene.name }) }} className="-mr-1 -mt-1 flex shrink-0 cursor-pointer items-center rounded-md border-none bg-none p-1 text-tri opacity-0 transition-all hover:bg-canvas hover:text-sub group-hover:opacity-100"><Close size={13} /></button>
                 </div>
-                <div style={{ marginTop: 10 }}>{evidenceBar(scene)}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
-                  <div style={{ width: 9, height: 9, borderRadius: '50%', background: stColor }} />
-                  <span style={{ fontSize: 10, color: 'var(--sub)' }}>{stText}</span>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-[6px] w-[6px] rounded-full" style={{ background: stColor }} />
+                    <span className="text-[10px] text-sub">{stText}</span>
+                  </div>
+                  {evidenceBar(scene)}
                 </div>
               </div>
             )
           })}
-          <div onClick={handleStart}
-            style={{ border: '1.5px dashed var(--accent)', borderRadius: 10, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', fontSize: 12, fontWeight: 600, cursor: 'pointer', minHeight: 80 }}>
+          <button onClick={handleStart}
+            className="animate-fade-up flex min-h-[84px] cursor-pointer items-center justify-center gap-1 rounded-xl border-[1.5px] border-dashed border-accent-edge bg-transparent px-4 text-xs font-semibold text-accent transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:bg-accent-soft"
+            style={{ animationDelay: `${Math.min(scenes.length, 12) * 45}ms` }}>
             {t('home.newProject')}
-          </div>
+          </button>
         </div>
       </div>
-      <p style={{ textAlign: 'center', marginTop: 32, fontSize: 9, color: 'var(--tri)' }}>{t('home.communityComingSoon')}</p>
+      <p className="relative mb-12 mt-12 text-center text-[9px] text-tri">{t('home.communityComingSoon')}</p>
     </div>
   )
 }

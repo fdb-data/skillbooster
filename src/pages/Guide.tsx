@@ -262,44 +262,44 @@ const Guide: React.FC = () => {
   ]
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#fff' }}>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', height: 56, borderBottom: '1px solid var(--line)', background: '#fff', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={() => setCurrentPage('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--ink)' }}><ArrowLeft size={16} /></button>
+    <div className="flex h-full flex-col bg-white">
+      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-white px-4">
+        <div className="flex items-center gap-2 justify-self-start">
+          <button onClick={() => setCurrentPage('home')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
           {editingField === 'projectName' ? (
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <div className="flex items-center gap-1">
               <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
                 onKeyDown={e => { if (e.key === 'Enter') saveEdit('projectName'); else if (e.key === 'Escape') setEditingField(null) }}
-                style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 6, padding: '2px 8px', outline: 'none' }} />
-              <button onClick={() => saveEdit('projectName')} className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>✓</button>
-              <button onClick={() => setEditingField(null)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>✕</button>
+                className="rounded-md border border-line px-2 py-0.5 text-[13px] font-bold text-ink outline-none focus:border-accent" />
+              <button onClick={() => saveEdit('projectName')} className="btn-soft px-2 py-0.5 text-[9px]">✓</button>
+              <button onClick={() => setEditingField(null)} className="btn-ghost px-2 py-0.5 text-[9px]">✕</button>
             </div>
           ) : (
             <>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{projectName}</span>
-              <button onClick={() => startEdit('projectName', projectName)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><EditIcon size={13} /></button>
+              <span className="text-[13px] font-bold text-ink">{projectName}</span>
+              <button onClick={() => startEdit('projectName', projectName)} className="flex cursor-pointer items-center text-tri hover:text-accent"><EditIcon size={13} /></button>
             </>
           )}
         </div>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+        <div className="justify-self-center">
           <PageNav current="guide" />
         </div>
         <div />
       </div>
 
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+      <div className="flex flex-1 overflow-hidden">
         {/* 左侧：对话区 */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--line)' }}>
-          <div style={{ flex: 1, overflow: 'auto', padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: 440, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="flex flex-1 flex-col border-r border-line">
+          <div className="flex flex-1 flex-col items-center overflow-auto py-6">
+            <div className="flex w-full max-w-[460px] flex-col gap-3 px-4">
               {messages.map((msg, i) => (
                 <div key={i}>
                   {msg.role === 'assistant' ? (
-                    <div style={{ background: 'var(--ai-bubble)', borderRadius: 10, padding: '12px 16px' }}>
+                    <div className="rounded-card bg-ai-bubble px-4 py-3">
                       <Markdown text={msg.content} />
                       {msg.options && msg.options.length > 0 && !msg.done && (
                         <>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10, alignItems: 'center' }}>
+                          <div className="mt-2.5 flex flex-wrap items-center gap-2">
                             {msg.options.map((opt, j) => {
                               const isLast = i === messages.length - 1
                               if (msg.optionsMultiSelect && isLast) {
@@ -321,9 +321,9 @@ const Guide: React.FC = () => {
                             )}
                             {msg.optionsMultiSelect && i === messages.length - 1 && (
                               <>
-                                <span style={{ fontSize: 9, color: 'var(--tri)' }}>{t('guide.multiSelectHint')}</span>
+                                <span className="text-[9px] text-tri">{t('guide.multiSelectHint')}</span>
                                 {(selectedOptions.length > 0 || customText.trim() !== '') && (
-                                  <button onClick={confirmMultiSelect} className="btn-primary" style={{ padding: '4px 12px', fontSize: 10 }}>
+                                  <button onClick={confirmMultiSelect} className="btn-primary px-3 py-1 text-[10px]">
                                     {t('guide.confirmCount', { count: selectedOptions.length + (customText.trim() ? 1 : 0) })}
                                   </button>
                                 )}
@@ -331,14 +331,14 @@ const Guide: React.FC = () => {
                             )}
                           </div>
                           {customInputOpen && i === messages.length - 1 && (
-                            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                            <div className="mt-2 flex gap-1.5">
                               <input autoFocus value={customText} onChange={e => setCustomText(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') submitCustom(!!msg.optionsMultiSelect) }}
                                 placeholder={t('guide.customPlaceholder')}
-                                className="input-pill" style={{ flex: 1, fontSize: 10 }} />
+                                className="input-pill flex-1 text-[10px]" />
                               <button onClick={() => submitCustom(!!msg.optionsMultiSelect)}
                                 disabled={!customText.trim() && selectedOptions.length === 0}
-                                className="btn-primary" style={{ padding: '4px 12px', fontSize: 10 }}>
+                                className="btn-primary px-3 py-1 text-[10px]">
                                 {msg.optionsMultiSelect ? t('common.confirm') : t('common.send')}
                               </button>
                             </div>
@@ -347,26 +347,26 @@ const Guide: React.FC = () => {
                       )}
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <div style={{ background: 'var(--user-bubble)', borderRadius: 10, padding: '10px 16px', maxWidth: '80%' }}>
-                        <p style={{ fontSize: 11, color: 'var(--ink)', lineHeight: 1.5 }}>{msg.content}</p>
+                    <div className="flex justify-end">
+                      <div className="max-w-[80%] rounded-card bg-user-bubble px-4 py-2.5">
+                        <p className="text-[11px] leading-normal text-ink">{msg.content}</p>
                       </div>
                     </div>
                   )}
                 </div>
               ))}
               {sending && (
-                <div style={{ background: 'var(--ai-bubble)', borderRadius: 10, padding: '12px 16px' }}>
+                <div className="rounded-card bg-ai-bubble px-4 py-3">
                   {streamingText && (
                     <Markdown text={streamingText} style={{ marginBottom: 8 }} />
                   )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ display: 'flex', gap: 3 }}>
-                      <span className="thinking-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--tri)', animation: 'pulse 1.2s ease-in-out infinite' }} />
-                      <span className="thinking-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--tri)', animation: 'pulse 1.2s ease-in-out 0.2s infinite' }} />
-                      <span className="thinking-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--tri)', animation: 'pulse 1.2s ease-in-out 0.4s infinite' }} />
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-[3px]">
+                      <span className="thinking-dot h-[5px] w-[5px] rounded-full bg-tri" style={{ animation: 'pulse 1.2s ease-in-out infinite' }} />
+                      <span className="thinking-dot h-[5px] w-[5px] rounded-full bg-tri" style={{ animation: 'pulse 1.2s ease-in-out 0.2s infinite' }} />
+                      <span className="thinking-dot h-[5px] w-[5px] rounded-full bg-tri" style={{ animation: 'pulse 1.2s ease-in-out 0.4s infinite' }} />
                     </div>
-                    <span style={{ fontSize: 10, color: 'var(--tri)' }}>{agentStatus || t('guide.thinking')}</span>
+                    <span className="text-[10px] text-tri">{agentStatus || t('guide.thinking')}</span>
                   </div>
                 </div>
               )}
@@ -374,53 +374,45 @@ const Guide: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ padding: '12px 0', display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
-            <div style={{ width: 440, display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button onClick={handleFileAttach} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--tri)' }}><Paperclip size={15} /></button>
-              {attachedFiles.length > 0 && <span style={{ fontSize: 8, color: 'var(--tri)' }}>{t('guide.filesCount', { count: attachedFiles.length })}</span>}
+          <div className="flex shrink-0 justify-center py-3">
+            <div className="flex w-full max-w-[460px] items-center gap-2 px-4">
+              <button onClick={handleFileAttach} className="flex cursor-pointer items-center text-tri hover:text-accent"><Paperclip size={15} /></button>
+              {attachedFiles.length > 0 && <span className="text-[8px] text-tri">{t('guide.filesCount', { count: attachedFiles.length })}</span>}
               <input value={input} onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) handleSend(input) }}
                 placeholder={t('guide.inputPlaceholder')}
-                className="input-pill"
-                disabled={isLoading || guideDone}
-                style={{ flex: 1, fontSize: 11 }} />
+                className="input-pill flex-1 text-[11px]"
+                disabled={isLoading || guideDone} />
               <button onClick={() => handleSend(input)} disabled={isLoading || guideDone || !input.trim()}
-                className="btn-primary" style={{ padding: '8px 14px', fontSize: 14, display: 'flex', alignItems: 'center' }}><Send size={14} /></button>
+                className="btn-primary flex items-center px-3.5 py-2 text-sm"><Send size={14} /></button>
             </div>
           </div>
         </div>
 
         {/* 右侧：场景属性面板 */}
-        <div style={{ width: 300, display: 'flex', flexDirection: 'column', background: 'var(--canvas)' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)' }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>{t('guide.sceneProps')}</span>
-            <span style={{ fontSize: 9, color: 'var(--tri)', marginLeft: 8 }}>{t('guide.realtimeExtract')}</span>
+        <div className="flex w-[300px] shrink-0 flex-col bg-canvas">
+          <div className="border-b border-line px-5 py-4">
+            <span className="text-xs font-bold text-ink">{t('guide.sceneProps')}</span>
+            <span className="ml-2 text-[9px] text-tri">{t('guide.realtimeExtract')}</span>
           </div>
 
-          <div style={{ flex: 1, overflow: 'auto', padding: '12px 20px' }}>
+          <div className="flex-1 overflow-auto px-5 py-3">
             {draftFields.map(({ key, label, type }) => (
-              <div key={key} style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 9, color: 'var(--tri)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+              <div key={key} className="mb-3.5">
+                <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.5px] text-tri">{label}</div>
                 {editingField === key ? (
-                  <div style={{ display: 'flex', gap: 4 }}>
+                  <div className="flex gap-1">
                     <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
-                      className="input-pill" style={{ flex: 1, fontSize: 10, padding: '4px 8px' }}
+                      className="input-pill flex-1 px-2 py-1 text-[10px]"
                       placeholder={type === 'list' ? t('guide.listEditHint') : undefined}
                       onKeyDown={e => { if (e.key === 'Enter') saveEdit(key); else if (e.key === 'Escape') setEditingField(null) }} />
-                    <button onClick={() => saveEdit(key)} className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>✓</button>
-                    <button onClick={() => setEditingField(null)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>✕</button>
+                    <button onClick={() => saveEdit(key)} className="btn-soft px-2 py-0.5 text-[9px]">✓</button>
+                    <button onClick={() => setEditingField(null)} className="btn-ghost px-2 py-0.5 text-[9px]">✕</button>
                   </div>
                 ) : (
                   <div
                     onClick={() => startEdit(key, type === 'list' ? (sceneDraft[key] as string[]).join(', ') : (sceneDraft[key] as string))}
-                    style={{
-                      fontSize: 11, color: (type === 'list' ? (sceneDraft[key] as string[]).length > 0 : !!sceneDraft[key]) ? 'var(--ink)' : 'var(--tri)',
-                      background: '#fff', border: '1px solid var(--line)', borderRadius: 6,
-                      padding: '6px 10px', cursor: 'pointer', minHeight: 28,
-                      transition: 'border-color 0.15s'
-                    }}
-                    onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = 'var(--accent-edge)' }}
-                    onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = 'var(--line)' }}
+                    className={`min-h-[28px] cursor-pointer rounded-md border border-line bg-white px-2.5 py-1.5 text-[11px] transition-colors hover:border-accent-edge ${(type === 'list' ? (sceneDraft[key] as string[]).length > 0 : !!sceneDraft[key]) ? 'text-ink' : 'text-tri'}`}
                   >
                     {type === 'list'
                       ? ((sceneDraft[key] as string[]).length > 0 ? (sceneDraft[key] as string[]).join(' · ') : t('guide.clickToFill'))
@@ -431,20 +423,16 @@ const Guide: React.FC = () => {
             ))}
           </div>
 
-          <div style={{ padding: '12px 20px', borderTop: '1px solid var(--line)' }}>
+          <div className="border-t border-line px-5 py-3">
             <button
               onClick={handleStartExtraction}
               disabled={!canEnterWorkbench}
-              className="btn-primary"
-              style={{
-                width: '100%', padding: '10px 0', fontSize: 12,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-              }}
+              className="btn-primary flex w-full items-center justify-center gap-1.5 py-2.5 text-xs"
             >
               {t('guide.enterWorkbench')} <ArrowRight size={14} />
             </button>
             {!canEnterWorkbench && (
-              <p style={{ fontSize: 9, color: 'var(--tri)', textAlign: 'center', marginTop: 6 }}>
+              <p className="mt-1.5 text-center text-[9px] text-tri">
                 {t('guide.enterWorkbenchHint')}
               </p>
             )}

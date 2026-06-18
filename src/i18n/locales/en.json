@@ -5,6 +5,7 @@
     "confirm": "Confirm",
     "send": "Send",
     "view": "View",
+    "delete": "Delete",
     "connected": "Connected",
     "failed": "Failed",
     "unknown": "Unknown",
@@ -257,7 +258,13 @@
     "stepTitlePlaceholder": "Step title",
     "stepDescPlaceholder": "One-line note (optional)",
     "moveStepUp": "Move up",
-    "moveStepDown": "Move down"
+    "moveStepDown": "Move down",
+    "dblToOpen": "Double-click to expand & edit",
+    "fieldTitle": "Title",
+    "fieldSteps": "Steps",
+    "fieldContent": "Content",
+    "fieldEvidence": "Evidence level",
+    "stepN": "Step {{n}}"
   },
   "status": {
     "addingEntry": "Adding entry…",

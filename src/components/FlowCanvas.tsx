@@ -476,6 +476,8 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
   const applyProposal = useSceneStore(s => s.applyProposal)
   const rejectProposal = useSceneStore(s => s.rejectProposal)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [nodeModalId, setNodeModalId] = useState<string | null>(null)
+  const [stepModal, setStepModal] = useState<{ entryId: string; index: number } | null>(null)
   const { screenToFlowPosition, getNode } = useReactFlow()
   // 幽灵积木被拖动后的位置（不入经验卡，仅在采纳时带走）
   const ghostPosRef = useRef<Map<string, CanvasPosition>>(new Map())
@@ -504,6 +506,14 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
   const handleDelete = useCallback((id: string) => {
     applyCanvasOp(sceneId, { kind: 'delete', id })
   }, [applyCanvasOp, sceneId])
+
+  const handleOpenStep = useCallback((id: string, index: number) => {
+    setStepModal({ entryId: id, index })
+  }, [])
+
+  const onNodeDoubleClick = useCallback((_e: React.MouseEvent, node: Node) => {
+    if (node.type === 'knowledge') setNodeModalId(node.id)
+  }, [])
 
   const handleAcceptProposal = useCallback((proposalId: string, override?: { title: string; content: string }) => {
     const node = getNode(`ghost-${proposalId}`)
@@ -537,7 +547,8 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
             onSave: handleSave,
             onSaveSteps: handleSaveSteps,
             onCancelEdit: () => setEditingId(null),
-            onDelete: handleDelete
+            onDelete: handleDelete,
+            onOpenStep: handleOpenStep
           }
         })
       })
@@ -576,7 +587,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
       label: e.label,
       style: { stroke: e.kind === 'flow-order' ? '#3B82F6' : '#A6ABB5', strokeWidth: 1.5 }
     })))
-  }, [canvas, proposals, highlightedEntries, editingId, handleSave, handleSaveSteps, handleDelete, handleAcceptProposal, handleRejectProposal, setNodes, setEdges])
+  }, [canvas, proposals, highlightedEntries, editingId, handleSave, handleSaveSteps, handleDelete, handleOpenStep, handleAcceptProposal, handleRejectProposal, setNodes, setEdges])
 
   const onConnect = useCallback((connection: Connection) => {
     if (!connection.source || !connection.target || connection.source === connection.target) return
@@ -658,6 +669,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
         onConnect={onConnect}
         onEdgesDelete={onEdgesDelete}
         onNodeDragStop={onNodeDragStop}
+        onNodeDoubleClick={onNodeDoubleClick}
         deleteKeyCode={['Backspace', 'Delete']}
         fitView
         fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
@@ -692,6 +704,31 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
         </Panel>
       </ReactFlow>
       </div>
+
+      {/* 双击节点：展开查看/编辑模态 */}
+      {nodeModalId && (() => {
+        const ktype = entryTypeById.get(nodeModalId)
+        if (!ktype) return null
+        const entry = canvas[`${ktype}s` as KnowledgeKey].find(e => e.id === nodeModalId)
+        if (!entry) return null
+        return (
+          <NodeEditModal entry={entry} ktype={ktype} onSave={handleSave} onSaveSteps={handleSaveSteps}
+            onDelete={handleDelete} onClose={() => setNodeModalId(null)} />
+        )
+      })()}
+
+      {/* 双击流程步骤：展开编辑模态 */}
+      {stepModal && (() => {
+        const ktype = entryTypeById.get(stepModal.entryId)
+        if (!ktype) return null
+        const entry = canvas[`${ktype}s` as KnowledgeKey].find(e => e.id === stepModal.entryId)
+        if (!entry) return null
+        const config = TYPE_CONFIG[ktype]
+        return (
+          <StepEditModal entry={entry} index={stepModal.index} color={config.color} icon={config.icon}
+            label={t(config.labelKey)} onSaveSteps={handleSaveSteps} onClose={() => setStepModal(null)} />
+        )
+      })()}
     </div>
   )
 }

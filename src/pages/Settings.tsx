@@ -142,97 +142,84 @@ const Settings: React.FC = () => {
   ]
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#fff' }}>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 28px', height: 56, borderBottom: '1px solid var(--line)' }}>
-        <button onClick={() => setCurrentPage('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--ink)' }}><ArrowLeft size={16} /></button>
-        <span style={{ fontSize: 13, fontWeight: 700, marginLeft: 8 }}>{t('settings.title')}</span>
+    <div className="flex h-full flex-col bg-white">
+      <div className="flex h-14 items-center border-b border-line px-7">
+        <button onClick={() => setCurrentPage('home')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
+        <span className="ml-2 text-[13px] font-bold text-ink">{t('settings.title')}</span>
       </div>
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <div style={{ width: 180, borderRight: '1px solid var(--line)', padding: '16px 12px', flexShrink: 0 }}>
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-[180px] shrink-0 border-r border-line p-3">
           {(['general', 'llm', 'agents'] as SettingsTab[]).map(tabKey => (
             <button key={tabKey} onClick={() => setTab(tabKey)}
-              style={{
-                display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px',
-                border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11,
-                background: tab === tabKey ? 'var(--accent-soft)' : 'transparent',
-                color: tab === tabKey ? 'var(--accent)' : 'var(--sub)', fontWeight: tab === tabKey ? 600 : 400,
-                marginBottom: 2
-              }}>
+              className={`mb-0.5 block w-full rounded-md px-2.5 py-2 text-left text-[11px] transition-colors ${tab === tabKey ? 'bg-accent-soft font-semibold text-accent' : 'text-sub hover:bg-canvas'}`}>
               {{ llm: t('settings.tabLlm'), agents: t('settings.tabAgents'), general: t('settings.tabGeneral') }[tabKey]}
             </button>
           ))}
         </div>
 
-        <div style={{ flex: 1, padding: 24, overflow: 'auto' }}>
+        <div className="flex-1 overflow-auto p-6">
+          <div className="mx-auto max-w-[640px]">
           {tab === 'llm' && (
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>{t('settings.providerList')}</h3>
-              {providers.map((p, i) => (
-                <div key={p.id} onClick={() => setSelectedProvider(i)}
-                  style={{
-                    padding: '8px 12px', borderRadius: 8, marginBottom: 4, cursor: 'pointer',
-                    background: i === selectedProvider ? 'var(--accent-soft)' : '#fff',
-                    border: i === selectedProvider ? '1px solid var(--accent-edge)' : '1px solid var(--line)',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                  }}>
-                  <div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{p.name}</span>
-                    <span style={{ fontSize: 9, color: 'var(--tri)', marginLeft: 8 }}>{t('settings.modelsCount', { count: p.models.length })}</span>
+              <h3 className="mb-4 text-[13px] font-bold text-ink">{t('settings.providerList')}</h3>
+              <div className="flex flex-col gap-1.5">
+                {providers.map((p, i) => (
+                  <div key={p.id} onClick={() => setSelectedProvider(i)}
+                    className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 transition-colors ${i === selectedProvider ? 'border-accent-edge bg-accent-soft' : 'border-line bg-white hover:border-accent-edge'}`}>
+                    <div>
+                      <span className="text-[11px] font-semibold text-ink">{p.name}</span>
+                      <span className="ml-2 text-[9px] text-tri">{t('settings.modelsCount', { count: p.models.length })}</span>
+                    </div>
+                    <span className="rounded px-1.5 py-px text-[9px]" style={{
+                      background: p.status === 'ok' ? '#dcfce7' : p.status === 'fail' ? '#fee2e2' : 'var(--canvas)',
+                      color: p.status === 'ok' ? '#16a34a' : p.status === 'fail' ? '#dc2626' : 'var(--tri)'
+                    }}>
+                      {p.status === 'ok' ? t('common.connected') : p.status === 'fail' ? t('common.failed') : t('common.unknown')}
+                    </span>
                   </div>
-                  <span style={{
-                    fontSize: 9, padding: '1px 6px', borderRadius: 4,
-                    background: p.status === 'ok' ? '#dcfce7' : p.status === 'fail' ? '#fee2e2' : 'var(--canvas)',
-                    color: p.status === 'ok' ? '#16a34a' : p.status === 'fail' ? '#dc2626' : 'var(--tri)'
-                  }}>
-                    {p.status === 'ok' ? t('common.connected') : p.status === 'fail' ? t('common.failed') : t('common.unknown')}
-                  </span>
-                </div>
-              ))}
-              <button onClick={handleAddProvider} className="btn-ghost" style={{ padding: '6px 12px', fontSize: 10, marginTop: 4 }}>{t('settings.addProvider')}</button>
+                ))}
+              </div>
+              <button onClick={handleAddProvider} className="btn-ghost mt-2 px-3 py-1.5 text-[10px]">{t('settings.addProvider')}</button>
 
               {providers.length > 0 && (
-                <div style={{ marginTop: 20, padding: 16, border: '1px solid var(--line)', borderRadius: 10 }}>
-                  <div style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--sub)', marginBottom: 3 }}>{t('settings.name')}</label>
+                <div className="mt-5 rounded-card border border-line bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                  <div className="mb-3">
+                    <label className="mb-1 block text-[10px] font-semibold text-sub">{t('settings.name')}</label>
                     <input value={providers[selectedProvider]?.name || ''} onChange={e => handleProviderChange('name', e.target.value)}
-                      className="input-pill" style={{ width: '100%', fontSize: 11 }} />
+                      className="input-pill w-full text-[11px]" />
                   </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--sub)', marginBottom: 3 }}>Base URL</label>
+                  <div className="mb-3">
+                    <label className="mb-1 block text-[10px] font-semibold text-sub">Base URL</label>
                     <input value={providers[selectedProvider]?.baseUrl || ''} onChange={e => handleProviderChange('baseUrl', e.target.value)}
-                      placeholder="https://api.example.com/v1" className="input-pill" style={{ width: '100%', fontSize: 11 }} />
+                      placeholder="https://api.example.com/v1" className="input-pill w-full text-[11px]" />
                   </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--sub)', marginBottom: 3 }}>API Key</label>
+                  <div className="mb-3">
+                    <label className="mb-1 block text-[10px] font-semibold text-sub">API Key</label>
                     <input type="password" value={providers[selectedProvider]?.apiKey || ''} onChange={e => handleProviderChange('apiKey', e.target.value)}
-                      className="input-pill" style={{ width: '100%', fontSize: 11 }} />
+                      className="input-pill w-full text-[11px]" />
                   </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--sub)', marginBottom: 3 }}>{t('settings.modelList')}</label>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <div className="mb-3">
+                    <label className="mb-1 block text-[10px] font-semibold text-sub">{t('settings.modelList')}</label>
+                    <div className="flex flex-wrap gap-1.5">
                       {(providers[selectedProvider]?.models || []).map((m, j) => (
-                        <span key={j} style={{
-                          padding: '2px 8px', borderRadius: 4, fontSize: 9,
-                          background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4
-                        }}>
+                        <span key={j} className="flex items-center gap-1 rounded bg-accent-soft px-2 py-0.5 text-[9px] text-accent">
                           <input value={m} onChange={e => handleModelChange(j, e.target.value)}
-                            style={{ border: 'none', background: 'transparent', fontSize: 9, color: 'var(--accent)', width: 80, outline: 'none' }} />
-                          <button onClick={() => handleRemoveModel(j)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tri)', fontSize: 10 }}>×</button>
+                            className="w-20 border-none bg-transparent text-[9px] text-accent outline-none" />
+                          <button onClick={() => handleRemoveModel(j)} className="cursor-pointer border-none bg-none text-[10px] text-tri hover:text-sub">×</button>
                         </span>
                       ))}
-                      <button onClick={handleAddModel} className="btn-ghost" style={{ padding: '2px 6px', fontSize: 8 }}>+</button>
+                      <button onClick={handleAddModel} className="btn-ghost px-1.5 py-0.5 text-[8px]">+</button>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={handleSave} className="btn-primary" style={{ padding: '6px 16px', fontSize: 10 }}>{t('common.save')}</button>
-                    <button onClick={handleTest} disabled={testing} className="btn-ghost" style={{ padding: '6px 16px', fontSize: 10 }}>
+                  <div className="flex gap-2">
+                    <button onClick={handleSave} className="btn-primary px-4 py-1.5 text-[10px]">{t('common.save')}</button>
+                    <button onClick={handleTest} disabled={testing} className="btn-ghost px-4 py-1.5 text-[10px]">
                       {testing ? t('common.testing') : t('settings.testConnection')}
                     </button>
                   </div>
                   {testResult && (
-                    <div style={{
-                      marginTop: 8, padding: 8, borderRadius: 6, fontSize: 10,
+                    <div className="mt-2 rounded-md p-2 text-[10px]" style={{
                       background: testResult.success ? '#dcfce7' : '#fee2e2',
                       color: testResult.success ? '#16a34a' : '#dc2626'
                     }}>
@@ -246,18 +233,18 @@ const Settings: React.FC = () => {
 
           {tab === 'agents' && (
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>{t('settings.agentTitle')}</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <h3 className="mb-4 text-[13px] font-bold text-ink">{t('settings.agentTitle')}</h3>
+              <div className="flex flex-col gap-3">
                 {agentCards.map(agent => {
                   const cfg = agentConfigs[agent.key]
                   const selectedProviderIdx = cfg ? providers.findIndex(p => p.name.toLowerCase().includes(cfg.provider.toLowerCase())) : 0
                   const currentProvider = providers[selectedProviderIdx] || providers[0]
                   return (
-                    <div key={agent.key} style={{ padding: 16, border: '1px solid var(--line)', borderRadius: 10 }}>
-                      <h4 style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>{agent.label}</h4>
-                      <p style={{ fontSize: 10, color: 'var(--sub)', marginBottom: 8 }}>{agent.desc}</p>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                        <label style={{ fontSize: 9, color: 'var(--tri)', width: 40 }}>Provider</label>
+                    <div key={agent.key} className="rounded-card border border-line bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                      <h4 className="mb-1 text-xs font-bold text-ink">{agent.label}</h4>
+                      <p className="mb-3 text-[10px] text-sub">{agent.desc}</p>
+                      <div className="mb-2 flex items-center gap-2">
+                        <label className="w-10 text-[9px] text-tri">Provider</label>
                         <select value={selectedProviderIdx} onChange={async e => {
                           const idx = Number(e.target.value)
                           const p = providers[idx]
@@ -266,24 +253,24 @@ const Settings: React.FC = () => {
                             setAgentConfigs(prev => ({ ...prev, [agent.key]: newCfg }))
                             await window.api.settings.saveAgentConfig(newCfg)
                           }
-                        }} className="input-pill" style={{ fontSize: 10, padding: '4px 8px' }}>
+                        }} className="input-pill px-2 py-1 text-[10px]">
                           {providers.map((p, i) => <option key={i} value={i}>{p.name}</option>)}
                         </select>
-                        <label style={{ fontSize: 9, color: 'var(--tri)', width: 30 }}>Model</label>
+                        <label className="w-[30px] text-[9px] text-tri">Model</label>
                         <select value={cfg?.model || currentProvider?.models[0] || ''} onChange={async e => {
                           const newCfg: AgentConfig = { agentKey: agent.key, provider: cfg?.provider || currentProvider?.name || '', apiKey: cfg?.apiKey || currentProvider?.apiKey || '', model: e.target.value, baseUrl: cfg?.baseUrl || currentProvider?.baseUrl || undefined }
                           setAgentConfigs(prev => ({ ...prev, [agent.key]: newCfg }))
                           await window.api.settings.saveAgentConfig(newCfg)
-                        }} className="input-pill" style={{ fontSize: 10, padding: '4px 8px' }}>
+                        }} className="input-pill px-2 py-1 text-[10px]">
                           {(currentProvider?.models || []).map((m, i) => <option key={i}>{m}</option>)}
                         </select>
                       </div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                        <label style={{ fontSize: 9, color: 'var(--tri)' }}>{t('settings.driverPrompt')}</label>
-                        <span style={{ fontSize: 9, padding: '2px 6px', background: 'var(--canvas)', borderRadius: 4, color: 'var(--sub)' }}>{agent.promptFile}</span>
-                        <button onClick={async () => { await window.api.settings.openPromptFile(agent.promptFile) }} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 8 }}>{t('common.view')}</button>
+                      <div className="mb-2 flex items-center gap-2">
+                        <label className="text-[9px] text-tri">{t('settings.driverPrompt')}</label>
+                        <span className="rounded bg-canvas px-1.5 py-0.5 text-[9px] text-sub">{agent.promptFile}</span>
+                        <button onClick={async () => { await window.api.settings.openPromptFile(agent.promptFile) }} className="btn-ghost px-2 py-0.5 text-[8px]">{t('common.view')}</button>
                       </div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <div className="flex items-center gap-2">
                         <button onClick={async () => {
                           setAgentTesting(agent.key)
                           try {
@@ -300,7 +287,7 @@ const Settings: React.FC = () => {
                             else { alert(t('settings.connectionOk')) }
                           } catch (err) { alert((err as Error).message) }
                           finally { setAgentTesting(null) }
-                        }} disabled={agentTesting === agent.key} className="btn-soft" style={{ padding: '4px 10px', fontSize: 9 }}>
+                        }} disabled={agentTesting === agent.key} className="btn-soft px-2.5 py-1 text-[9px]">
                           {agentTesting === agent.key ? t('common.testing') : t('settings.testOneRound')}
                         </button>
                       </div>
@@ -313,14 +300,14 @@ const Settings: React.FC = () => {
 
           {tab === 'general' && (
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>{t('settings.generalTitle')}</h3>
-              <div style={{ maxWidth: 320 }}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>{t('settings.language')}</label>
-                <p style={{ fontSize: 10, color: 'var(--tri)', margin: '0 0 6px' }}>{t('settings.languageDesc')}</p>
+              <h3 className="mb-4 text-[13px] font-bold text-ink">{t('settings.generalTitle')}</h3>
+              <div className="max-w-[320px] rounded-card border border-line bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                <label className="mb-0.5 block text-[11px] font-semibold text-ink">{t('settings.language')}</label>
+                <p className="mb-2 text-[10px] text-tri">{t('settings.languageDesc')}</p>
                 <select
                   value={i18n.language === 'zh' ? 'zh' : 'en'}
                   onChange={e => setLanguage(e.target.value as Lang)}
-                  className="input-pill" style={{ fontSize: 11, padding: '6px 10px' }}>
+                  className="input-pill w-full px-2.5 py-1.5 text-[11px]">
                   {SUPPORTED_LANGS.map(l => (
                     <option key={l} value={l}>{LANG_LABELS[l]}</option>
                   ))}
@@ -328,6 +315,7 @@ const Settings: React.FC = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>
