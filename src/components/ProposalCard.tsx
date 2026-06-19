@@ -37,7 +37,7 @@ const ProposalCard: React.FC<{ proposalCard: ProposalCardType }> = ({ proposalCa
   return (
     <div style={{
       margin: '8px 0', padding: 10,
-      border: '1px solid var(--line)', borderRadius: 8, background: '#fff'
+      border: '1px solid var(--line)', borderRadius: 8, background: 'var(--surface)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         <span style={{

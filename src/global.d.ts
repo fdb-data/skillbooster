@@ -102,6 +102,8 @@ interface ElectronApi {
     openPromptFile: (relativePath: string) => Promise<IpcResult<{ success: boolean; error?: string }>>
     getLanguage: () => Promise<IpcResult<'en' | 'zh'>>
     setLanguage: (lang: 'en' | 'zh') => Promise<IpcResult<'en' | 'zh'>>
+    getTheme: () => Promise<IpcResult<'light' | 'dark' | 'system'>>
+    setTheme: (theme: 'light' | 'dark' | 'system') => Promise<IpcResult<'light' | 'dark' | 'system'>>
   }
 }
 

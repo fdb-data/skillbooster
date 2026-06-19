@@ -6,6 +6,19 @@ if (typeof window !== 'undefined' && !window.scrollIntoView) {
   Element.prototype.scrollIntoView = vi.fn()
 }
 
+// theme.ts 在模块加载时调用 window.matchMedia（jsdom/happy-dom 默认没有）
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn()
+  })) as unknown as typeof window.matchMedia
+}
+
 // @xyflow/react 需要 ResizeObserver（jsdom 没有）
 if (typeof window !== 'undefined' && !window.ResizeObserver) {
   class ResizeObserverMock {
@@ -79,7 +92,9 @@ const mockApi = {
     saveAgentConfig: vi.fn().mockResolvedValue({ success: true, data: {} }),
     openPromptFile: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
     getLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),
-    setLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' })
+    setLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),
+    getTheme: vi.fn().mockResolvedValue({ success: true, data: 'system' }),
+    setTheme: vi.fn().mockResolvedValue({ success: true, data: 'system' })
   }
 }
 

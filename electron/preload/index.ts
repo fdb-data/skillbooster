@@ -72,7 +72,9 @@ const api = {
     saveAgentConfig: (config: unknown): Promise<unknown> => ipcRenderer.invoke('settings:saveAgentConfig', config),
     openPromptFile: (relativePath: string): Promise<unknown> => ipcRenderer.invoke('settings:openPromptFile', relativePath),
     getLanguage: (): Promise<unknown> => ipcRenderer.invoke('settings:getLanguage'),
-    setLanguage: (lang: string): Promise<unknown> => ipcRenderer.invoke('settings:setLanguage', lang)
+    setLanguage: (lang: string): Promise<unknown> => ipcRenderer.invoke('settings:setLanguage', lang),
+    getTheme: (): Promise<unknown> => ipcRenderer.invoke('settings:getTheme'),
+    setTheme: (theme: string): Promise<unknown> => ipcRenderer.invoke('settings:setTheme', theme)
   }
 }
 

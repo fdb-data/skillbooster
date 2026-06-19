@@ -291,6 +291,17 @@ export function registerIpcHandlers(): void {
     return normalized
   }))
 
+  ipcMain.handle('settings:getTheme', wrapHandler(async () => {
+    const v = store.getPreference('theme')
+    return v === 'dark' || v === 'light' ? v : 'system'
+  }))
+
+  ipcMain.handle('settings:setTheme', wrapHandler(async (_e, theme: string) => {
+    const normalized = theme === 'dark' || theme === 'light' ? theme : 'system'
+    store.setPreference('theme', normalized)
+    return normalized
+  }))
+
   ipcMain.handle('settings:openPromptFile', wrapHandler(async (_e, relativePath: string) => {
     const { shell } = await import('electron')
     const promptPath = path.join(process.cwd(), 'resources', relativePath)

@@ -3,6 +3,7 @@ import { join } from 'path'
 import log from 'electron-log'
 import { initDatabase, closeDatabase } from './store'
 import { registerIpcHandlers } from './ipcHandlers'
+import { initAutoUpdater } from './updater'
 
 log.info('SkillBooster starting...')
 
@@ -49,6 +50,7 @@ app.whenReady().then(() => {
   initDatabase()
   registerIpcHandlers()
   createWindow()
+  initAutoUpdater(() => mainWindow)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

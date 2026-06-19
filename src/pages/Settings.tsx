@@ -4,6 +4,8 @@ import { useSceneStore } from '../store/sceneStore'
 import { ArrowLeft } from '../components/Icons'
 import { setLanguage, SUPPORTED_LANGS, LANG_LABELS } from '../i18n'
 import type { Lang } from '../i18n'
+import { setTheme, THEME_MODES } from '../theme'
+import type { ThemeMode } from '../theme'
 import type { LLMConfig, LLMProviderConfig, AgentConfig } from '../global'
 
 type SettingsTab = 'llm' | 'agents' | 'general'
@@ -35,8 +37,15 @@ const Settings: React.FC = () => {
   const [testResult, setTestResult] = useState<{ success: boolean; error?: string } | null>(null)
   const [agentConfigs, setAgentConfigs] = useState<Record<string, AgentConfig>>({})
   const [agentTesting, setAgentTesting] = useState<string | null>(null)
+  const [theme, setThemeState] = useState<ThemeMode>('system')
 
   useEffect(() => { loadLLMConfig(); loadLLMProviders() }, [loadLLMConfig, loadLLMProviders])
+
+  useEffect(() => {
+    window.api.settings.getTheme().then(res => {
+      if (res.success && res.data) setThemeState(res.data)
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const loadAgents = async () => {
@@ -142,7 +151,7 @@ const Settings: React.FC = () => {
   ]
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-surface">
       <div className="flex h-14 items-center border-b border-line px-7">
         <button onClick={() => setCurrentPage('home')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
         <span className="ml-2 text-[13px] font-bold text-ink">{t('settings.title')}</span>
@@ -166,7 +175,7 @@ const Settings: React.FC = () => {
               <div className="flex flex-col gap-1.5">
                 {providers.map((p, i) => (
                   <div key={p.id} onClick={() => setSelectedProvider(i)}
-                    className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 transition-colors ${i === selectedProvider ? 'border-accent-edge bg-accent-soft' : 'border-line bg-white hover:border-accent-edge'}`}>
+                    className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 transition-colors ${i === selectedProvider ? 'border-accent-edge bg-accent-soft' : 'border-line bg-surface hover:border-accent-edge'}`}>
                     <div>
                       <span className="text-[11px] font-semibold text-ink">{p.name}</span>
                       <span className="ml-2 text-[9px] text-tri">{t('settings.modelsCount', { count: p.models.length })}</span>
@@ -183,7 +192,7 @@ const Settings: React.FC = () => {
               <button onClick={handleAddProvider} className="btn-ghost mt-2 px-3 py-1.5 text-[10px]">{t('settings.addProvider')}</button>
 
               {providers.length > 0 && (
-                <div className="mt-5 rounded-card border border-line bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                <div className="mt-5 rounded-card border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
                   <div className="mb-3">
                     <label className="mb-1 block text-[10px] font-semibold text-sub">{t('settings.name')}</label>
                     <input value={providers[selectedProvider]?.name || ''} onChange={e => handleProviderChange('name', e.target.value)}
@@ -240,7 +249,7 @@ const Settings: React.FC = () => {
                   const selectedProviderIdx = cfg ? providers.findIndex(p => p.name.toLowerCase().includes(cfg.provider.toLowerCase())) : 0
                   const currentProvider = providers[selectedProviderIdx] || providers[0]
                   return (
-                    <div key={agent.key} className="rounded-card border border-line bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                    <div key={agent.key} className="rounded-card border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
                       <h4 className="mb-1 text-xs font-bold text-ink">{agent.label}</h4>
                       <p className="mb-3 text-[10px] text-sub">{agent.desc}</p>
                       <div className="mb-2 flex items-center gap-2">
@@ -301,7 +310,7 @@ const Settings: React.FC = () => {
           {tab === 'general' && (
             <div>
               <h3 className="mb-4 text-[13px] font-bold text-ink">{t('settings.generalTitle')}</h3>
-              <div className="max-w-[320px] rounded-card border border-line bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+              <div className="max-w-[320px] rounded-card border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
                 <label className="mb-0.5 block text-[11px] font-semibold text-ink">{t('settings.language')}</label>
                 <p className="mb-2 text-[10px] text-tri">{t('settings.languageDesc')}</p>
                 <select
@@ -310,6 +319,17 @@ const Settings: React.FC = () => {
                   className="input-pill w-full px-2.5 py-1.5 text-[11px]">
                   {SUPPORTED_LANGS.map(l => (
                     <option key={l} value={l}>{LANG_LABELS[l]}</option>
+                  ))}
+                </select>
+
+                <label className="mb-0.5 mt-5 block text-[11px] font-semibold text-ink">{t('settings.theme')}</label>
+                <p className="mb-2 text-[10px] text-tri">{t('settings.themeDesc')}</p>
+                <select
+                  value={theme}
+                  onChange={e => { const v = e.target.value as ThemeMode; setThemeState(v); setTheme(v) }}
+                  className="input-pill w-full px-2.5 py-1.5 text-[11px]">
+                  {THEME_MODES.map(m => (
+                    <option key={m} value={m}>{t(`settings.theme_${m}`)}</option>
                   ))}
                 </select>
               </div>

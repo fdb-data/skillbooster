@@ -143,12 +143,12 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div className="relative h-full overflow-auto bg-white">
+    <div className="relative h-full overflow-auto bg-surface">
       {/* 顶部柔光：靛蓝品牌色，营造纵深，不改主色 */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[460px]"
         style={{ background: 'radial-gradient(58% 70% at 50% -8%, rgba(79,70,229,0.10), rgba(79,70,229,0.03) 42%, transparent 72%)' }} />
 
-      <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line/70 bg-white/75 px-7 backdrop-blur-md">
+      <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line/70 bg-surface/75 px-7 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <MindLogo size={18} />
           <span className="text-[13px] font-bold tracking-tight text-ink">{t('home.brand')}</span>
@@ -165,7 +165,7 @@ const Home: React.FC = () => {
 
       <div className="relative mx-auto w-full max-w-[680px] px-6">
         <div onDrop={handleDrop} onDragOver={handleDragOver}
-          className="group min-h-[116px] rounded-2xl border border-accent-edge bg-white px-5 py-4 shadow-[0_4px_24px_-8px_rgba(17,17,46,0.08)] transition-all duration-200 focus-within:border-accent focus-within:shadow-[0_12px_40px_-10px_rgba(79,70,229,0.28)]">
+          className="group min-h-[116px] rounded-2xl border border-accent-edge bg-surface px-5 py-4 shadow-[0_4px_24px_-8px_rgba(17,17,46,0.08)] transition-all duration-200 focus-within:border-accent focus-within:shadow-[0_12px_40px_-10px_rgba(79,70,229,0.28)]">
           <textarea value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleStart() }}
             placeholder={t('home.inputPlaceholder')}
@@ -216,7 +216,7 @@ const Home: React.FC = () => {
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35"
           onClick={() => setPendingImport(null)}>
           <div onClick={e => e.stopPropagation()}
-            className="mx-4 max-w-[380px] rounded-xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+            className="mx-4 max-w-[380px] rounded-xl bg-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
             <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.importConfirmText')}</p>
             <div className="flex justify-end gap-2">
               <button onClick={() => setPendingImport(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.importConfirmCancel')}</button>
@@ -228,7 +228,7 @@ const Home: React.FC = () => {
 
       {scriptHint && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35">
-          <div className="mx-4 max-w-[380px] rounded-xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+          <div className="mx-4 max-w-[380px] rounded-xl bg-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
             <p className="mb-5 text-[13px] leading-relaxed text-ink">{scriptHint.message}</p>
             <div className="flex justify-end">
               <button onClick={() => { const id = scriptHint.sceneId; setScriptHint(null); enterWorkbench(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
@@ -241,7 +241,7 @@ const Home: React.FC = () => {
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35"
           onClick={() => setPendingDelete(null)}>
           <div onClick={e => e.stopPropagation()}
-            className="mx-4 max-w-[380px] rounded-xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+            className="mx-4 max-w-[380px] rounded-xl bg-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
             <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.deleteConfirmText', { name: pendingDelete.name })}</p>
             <div className="flex justify-end gap-2">
               <button onClick={() => setPendingDelete(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.deleteConfirmCancel')}</button>
@@ -262,7 +262,7 @@ const Home: React.FC = () => {
             const stText = t(`home.status.${scene.status}`, { defaultValue: t('home.status.active') })
             return (
               <div key={scene.id} onClick={() => handleCardClick(scene.id)}
-                className="animate-fade-up group cursor-pointer rounded-xl border border-line bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(17,17,46,0.03)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-accent-edge hover:shadow-[0_10px_28px_-8px_rgba(79,70,229,0.22)]"
+                className="animate-fade-up group cursor-pointer rounded-xl border border-line bg-surface px-4 py-3.5 shadow-[0_1px_2px_rgba(17,17,46,0.03)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-accent-edge hover:shadow-[0_10px_28px_-8px_rgba(79,70,229,0.22)]"
                 style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }}>
                 <div className="flex items-start justify-between gap-2">
                   <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-ink transition-colors group-hover:text-accent">{scene.name}</span>

@@ -52,7 +52,7 @@ const Workbench: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{
         position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', height: 56, borderBottom: '1px solid var(--line)', background: '#fff', flexShrink: 0
+        padding: '0 16px', height: 56, borderBottom: '1px solid var(--line)', background: 'var(--surface)', flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={() => setCurrentPage('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--ink)' }}><ArrowLeft size={16} /></button>

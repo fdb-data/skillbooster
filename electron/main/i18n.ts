@@ -31,6 +31,10 @@ type MsgKey =
   | 'skillMdNotFound'
   | 'invalidSkillSource'
   | 'importDialogTitle'
+  | 'updateReadyTitle'
+  | 'updateReadyBody'
+  | 'updateRestartNow'
+  | 'updateLater'
 
 const MESSAGES: Record<MsgKey, Record<Lang, string>> = {
   sceneNotFound: { en: 'Scene not found', zh: '场景不存在' },
@@ -44,7 +48,11 @@ const MESSAGES: Record<MsgKey, Record<Lang, string>> = {
   attachmentFileMissing: { en: 'Attachment file no longer exists on disk', zh: '附件文件已不在磁盘上' },
   skillMdNotFound: { en: 'SKILL.md not found in the selected skill', zh: '所选技能里找不到 SKILL.md' },
   invalidSkillSource: { en: 'Unsupported import source: please pick a SKILL.md file, a skill folder or a .zip package', zh: '不支持的导入来源：请选择 SKILL.md 文件、技能文件夹或 .zip 包' },
-  importDialogTitle: { en: 'Import an existing Skill', zh: '导入已有 Skill' }
+  importDialogTitle: { en: 'Import an existing Skill', zh: '导入已有 Skill' },
+  updateReadyTitle: { en: 'Update ready', zh: '更新已就绪' },
+  updateReadyBody: { en: 'Version {version} has been downloaded. Restart now to install?', zh: '新版本 {version} 已下载完成，是否立即重启安装？' },
+  updateRestartNow: { en: 'Restart now', zh: '立即重启' },
+  updateLater: { en: 'Later', zh: '稍后' }
 }
 
 /** 主进程面向用户的固定文案（错误、对话框标题等），跟随语言开关 */

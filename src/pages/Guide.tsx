@@ -262,8 +262,8 @@ const Guide: React.FC = () => {
   ]
 
   return (
-    <div className="flex h-full flex-col bg-white">
-      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-white px-4">
+    <div className="flex h-full flex-col bg-surface">
+      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-surface px-4">
         <div className="flex items-center gap-2 justify-self-start">
           <button onClick={() => setCurrentPage('home')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
           {editingField === 'projectName' ? (
@@ -412,7 +412,7 @@ const Guide: React.FC = () => {
                 ) : (
                   <div
                     onClick={() => startEdit(key, type === 'list' ? (sceneDraft[key] as string[]).join(', ') : (sceneDraft[key] as string))}
-                    className={`min-h-[28px] cursor-pointer rounded-md border border-line bg-white px-2.5 py-1.5 text-[11px] transition-colors hover:border-accent-edge ${(type === 'list' ? (sceneDraft[key] as string[]).length > 0 : !!sceneDraft[key]) ? 'text-ink' : 'text-tri'}`}
+                    className={`min-h-[28px] cursor-pointer rounded-md border border-line bg-surface px-2.5 py-1.5 text-[11px] transition-colors hover:border-accent-edge ${(type === 'list' ? (sceneDraft[key] as string[]).length > 0 : !!sceneDraft[key]) ? 'text-ink' : 'text-tri'}`}
                   >
                     {type === 'list'
                       ? ((sceneDraft[key] as string[]).length > 0 ? (sceneDraft[key] as string[]).join(' · ') : t('guide.clickToFill'))

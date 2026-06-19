@@ -10,6 +10,7 @@ import type { AgentTool } from './agentLoop'
 import { createCanvasTools } from './canvasTools'
 import type { CanvasToolCollector } from './canvasTools'
 import { loadCanvas, listConversation, addConversationMessage, listReferences, resolveAgentLLMConfig, getPreference, setPreference } from './store'
+import { getSceneDraft } from './agents'
 import { languageDirective, mt } from './i18n'
 
 function loadSkillMd(): string {
@@ -133,8 +134,25 @@ export async function buildConversationContext(
   ]
 }
 
-function buildSystemPrompt(canvas: ExperienceCard, refTexts: string[]): string {
+/** 场景定义概要：把引导阶段确定的场景信息带入萃取上下文，避免开场重复追问领域 */
+export function buildSceneSection(sceneId: string): string {
+  const d = getSceneDraft(sceneId)
+  if (!d.name && !d.protagonist && !d.trigger && d.includes.length === 0 && d.excludes.length === 0) {
+    return ''
+  }
+  const lines: string[] = []
+  if (d.name) lines.push(`Scene: ${d.name}`)
+  if (d.protagonist) lines.push(`Protagonist (who makes the judgment): ${d.protagonist}`)
+  if (d.trigger) lines.push(`Trigger (when it applies): ${d.trigger}`)
+  if (d.includes.length > 0) lines.push(`In scope: ${d.includes.join('; ')}`)
+  if (d.excludes.length > 0) lines.push(`Out of scope: ${d.excludes.join('; ')}`)
+  return '\n\n## Scene definition (already confirmed with the user; do NOT ask the user to restate the domain/scenario — start extracting concrete experience directly)\n' + lines.join('\n')
+}
+
+function buildSystemPrompt(sceneId: string, canvas: ExperienceCard, refTexts: string[]): string {
   let prompt = loadSkillMd()
+
+  prompt += buildSceneSection(sceneId)
 
   prompt += '\n\n## Current experience canvas (outline; use the id in [] to update/delete)\n'
   prompt += buildCanvasOutline(canvas)
@@ -206,7 +224,7 @@ export async function runTurn(sceneId: string, userInput: string): Promise<RunTu
     agentKey: 'extract',
     sceneId,
     runId,
-    systemPrompt: buildSystemPrompt(canvas, refTexts),
+    systemPrompt: buildSystemPrompt(sceneId, canvas, refTexts),
     messages,
     tools,
     config
@@ -245,6 +263,7 @@ export async function draftFromDocs(sceneId: string): Promise<DraftResult> {
   const canvas = loadCanvas(sceneId)
 
   let systemPrompt = loadSkillMd()
+  systemPrompt += buildSceneSection(sceneId)
   systemPrompt += '\n\n## Current task: draft a first version of the experience canvas from documents\n'
   systemPrompt += 'Carefully read the reference documents the user provided, extract the flows, rules, and insights, and add them to the canvas one by one with the canvas_add tool (record provenance with the document name/section; judge the evidence level by content: regulatory documents → institutional, contains validation data → validated, cases → sample).'
   systemPrompt += ' After adding everything, output an opening message: summarize what you extracted and which parts need the user to supplement or confirm.\n'

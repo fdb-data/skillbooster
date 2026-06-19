@@ -174,7 +174,7 @@ const Validate: React.FC = () => {
   const VerdictView = ({ v }: { v: ValidationVerdict }): React.ReactElement => (
     <div>
       <div className="mb-2 flex items-center gap-2.5 rounded-lg p-2.5" style={{ background: VERDICT_COLOR[v.verdict].bg }}>
-        <span className="shrink-0 rounded-md bg-white px-2.5 py-0.5 text-[11px] font-extrabold" style={{ color: VERDICT_COLOR[v.verdict].fg }}>{verdictLabel(v.verdict)}</span>
+        <span className="shrink-0 rounded-md bg-surface px-2.5 py-0.5 text-[11px] font-extrabold" style={{ color: VERDICT_COLOR[v.verdict].fg }}>{verdictLabel(v.verdict)}</span>
         <span className="text-[11px] leading-normal" style={{ color: VERDICT_COLOR[v.verdict].fg }}>{v.summary}</span>
       </div>
       <div className="flex flex-col gap-1.5">
@@ -190,7 +190,7 @@ const Validate: React.FC = () => {
   )
 
   const ABPane = ({ title, accent, text }: { title: string; accent: boolean; text: string }): React.ReactElement => (
-    <div className={`flex min-w-0 flex-1 flex-col rounded-card border ${accent ? 'border-accent-edge bg-accent-soft' : 'border-line bg-white'}`}>
+    <div className={`flex min-w-0 flex-1 flex-col rounded-card border ${accent ? 'border-accent-edge bg-accent-soft' : 'border-line bg-surface'}`}>
       <div className={`border-b border-line px-3 py-2 text-[10px] font-bold ${accent ? 'text-accent' : 'text-sub'}`}>{title}</div>
       <div className="flex-1 overflow-auto p-3">
         {text
@@ -204,7 +204,7 @@ const Validate: React.FC = () => {
 
   const ABStatic = ({ bare, withSkill }: { bare: string; withSkill: string }): React.ReactElement => (
     <div className="flex gap-3">
-      <div className="min-w-0 flex-1 rounded-lg border border-line bg-white p-2.5">
+      <div className="min-w-0 flex-1 rounded-lg border border-line bg-surface p-2.5">
         <div className="mb-1.5 text-[9px] font-bold text-sub">{t('validate.colA')}</div>
         <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{bare}</p>
       </div>
@@ -222,13 +222,13 @@ const Validate: React.FC = () => {
 
   const SubTabButton = ({ id, label }: { id: 'single' | 'testset'; label: string }): React.ReactElement => (
     <button onClick={() => setSubTab(id)}
-      className={`cursor-pointer rounded-2xl border px-3.5 py-1.5 text-[11px] ${subTab === id ? 'border-accent bg-accent-soft font-bold text-accent' : 'border-line bg-white font-medium text-sub hover:border-accent-edge'}`}>{label}</button>
+      className={`cursor-pointer rounded-2xl border px-3.5 py-1.5 text-[11px] ${subTab === id ? 'border-accent bg-accent-soft font-bold text-accent' : 'border-line bg-surface font-medium text-sub hover:border-accent-edge'}`}>{label}</button>
   )
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-surface">
       {/* 统一主头部：返回图标 + 场景名 + 居中导航（grid 三栏稳健居中） */}
-      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-white px-4">
+      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-surface px-4">
         <div className="flex items-center gap-2 justify-self-start">
           <button onClick={() => setCurrentPage('workbench')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
           <span className="text-[13px] font-bold text-ink">{currentScene?.name}</span>
@@ -304,7 +304,7 @@ const Validate: React.FC = () => {
                       const r = caseResults[c.id]
                       const isRunning = runningCaseId === c.id
                       return (
-                        <div key={c.id} className={`flex items-center gap-1.5 rounded-lg border border-line px-2 py-1.5 ${isRunning ? 'bg-accent-soft' : 'bg-white'}`}>
+                        <div key={c.id} className={`flex items-center gap-1.5 rounded-lg border border-line px-2 py-1.5 ${isRunning ? 'bg-accent-soft' : 'bg-surface'}`}>
                           <span className="w-3.5 shrink-0 text-[10px] text-tri">{idx + 1}</span>
                           <button onClick={() => openEdit(c)} title={t('validate.testset.edit')} className={`min-w-0 flex-1 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap border-none bg-none text-left text-[11px] ${c.instruction ? 'text-ink' : 'text-tri'}`}>
                             {c.instruction || t('validate.testset.modalPlaceholder')}
@@ -397,7 +397,7 @@ const Validate: React.FC = () => {
       {/* 编辑测试指令弹窗 */}
       {editing && (
         <div onClick={closeModal} className="fixed inset-0 z-50 flex items-center justify-center bg-black/35">
-          <div onClick={ev => ev.stopPropagation()} className="w-[560px] max-w-[90vw] rounded-xl bg-white p-[18px] shadow-[0_10px_40px_rgba(0,0,0,0.2)]">
+          <div onClick={ev => ev.stopPropagation()} className="w-[560px] max-w-[90vw] rounded-xl bg-surface p-[18px] shadow-[0_10px_40px_rgba(0,0,0,0.2)]">
             <div className="mb-3 text-[13px] font-bold text-ink">{t('validate.testset.editTitle')}</div>
             <textarea value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })}
               placeholder={t('validate.testset.modalPlaceholder')} autoFocus rows={7}

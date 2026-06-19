@@ -33,4 +33,30 @@
 
   --ai-bubble: #F5F5F8;
   --user-bubble: #EEEDFC;
+
+  /* 表面色：应用底色 / 卡片输入框底色（深色模式会翻转） */
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+}
+
+/* 深色模式：只覆盖基础令牌，Tailwind 工具类（bg-canvas/text-ink 等）经 var 间接引用自动跟随 */
+[data-theme='dark'] {
+  --accent: #6366F1;
+  --accent-soft: #2A2740;
+  --accent-edge: #3D3A5C;
+  --ink: #E8E8F0;
+  --sub: #A0A3AD;
+  --tri: #6B6F7A;
+  --line: #2A2A38;
+  --canvas: #16161F;
+
+  --anchor-bg: #3A2F1A;
+  --anchor-border: #5C4A24;
+  --anchor-text: #E8B45A;
+
+  --ai-bubble: #20202C;
+  --user-bubble: #2A2740;
+
+  --bg: #0F0F16;
+  --surface: #1B1B26;
 }

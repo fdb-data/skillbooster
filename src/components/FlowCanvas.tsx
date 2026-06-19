@@ -188,7 +188,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
     <div
       className={highlighted ? 'block-new' : ''}
       style={{
-        width: 240, background: highlighted ? '#FBFAFF' : '#fff',
+        width: 240, background: highlighted ? 'var(--accent-soft)' : 'var(--surface)',
         border: '1px solid var(--line)', borderLeft: `6px solid ${config.color}`,
         borderRadius: 10, padding: '11px 13px', fontSize: 11,
         boxShadow: '0 1px 3px rgba(26,26,46,0.04), 0 6px 16px rgba(26,26,46,0.08)'
@@ -211,7 +211,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
                 style={{
                   fontSize: 8, padding: '2px 6px', borderRadius: 999, cursor: 'pointer',
                   border: `1px solid ${evidence === o.value ? o.color : 'var(--line)'}`,
-                  background: evidence === o.value ? o.color : '#fff',
+                  background: evidence === o.value ? o.color : 'var(--surface)',
                   color: evidence === o.value ? '#fff' : 'var(--sub)'
                 }}>{t(o.labelKey)}</button>
             ))}
@@ -236,7 +236,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
             expanded ? (
               <div>
                 <button className="nodrag" onClick={() => setExpanded(false)}
-                  style={{ width: '100%', textAlign: 'center', background: '#F4F8FF', border: '1px solid #D6E4FB', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '4px 0', margin: '6px 0 2px' }}>
+                  style={{ width: '100%', textAlign: 'center', background: 'var(--accent-soft)', border: '1px solid var(--accent-edge)', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '4px 0', margin: '6px 0 2px' }}>
                   ▴ {t('canvas.collapseSteps')}
                 </button>
                 {flowSteps.length === 0 && (
@@ -252,7 +252,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
                   </p>
                 )}
                 <button className="nodrag" onClick={() => setExpanded(true)}
-                  style={{ width: '100%', textAlign: 'center', background: '#F4F8FF', border: '1px solid #D6E4FB', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '4px 0', marginTop: 6 }}>
+                  style={{ width: '100%', textAlign: 'center', background: 'var(--accent-soft)', border: '1px solid var(--accent-edge)', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '4px 0', marginTop: 6 }}>
                   ▾ {flowSteps.length > 0 ? t('canvas.expandSteps', { count: flowSteps.length }) : t('canvas.expandStepsEmpty')}
                 </button>
               </div>
@@ -267,7 +267,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 5 }}>
             {highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3 }}>{t('canvas.justGrown')}</span>}
-            {!entry.verified && !highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: '#FFF6E6', color: '#C8862A', borderRadius: 3 }}>{t('canvas.toVerify')}</span>}
+            {!entry.verified && !highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: 'var(--anchor-bg)', color: 'var(--anchor-text)', borderRadius: 3 }}>{t('canvas.toVerify')}</span>}
             <span style={{ flex: 1 }} />
             <button className="nodrag" onClick={() => data.onStartEdit(entry.id)}
               style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 10, padding: 0 }}>✎</button>
@@ -402,7 +402,7 @@ const NodeEditModal: React.FC<{
           <button key={o.value} onClick={() => setEvidence(o.value)}
             style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, cursor: 'pointer',
               border: `1px solid ${evidence === o.value ? o.color : 'var(--line)'}`,
-              background: evidence === o.value ? o.color : '#fff',
+              background: evidence === o.value ? o.color : 'var(--surface)',
               color: evidence === o.value ? '#fff' : 'var(--sub)' }}>{t(o.labelKey)}</button>
         ))}
       </div>
