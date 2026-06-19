@@ -1,6 +1,6 @@
 {
   "name": "skillbooster",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SkillBooster - 经验萃取智能体桌面应用",
   "main": "./out/main/index.js",
   "author": "SkillBooster",

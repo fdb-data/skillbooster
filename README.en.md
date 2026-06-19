@@ -13,7 +13,7 @@ Tacit experience in professional domains ("how it's done", "how to judge", "what
 ## Key features
 
 - 🗣️ **Conversation is extraction** — the extraction agent builds blocks as it talks through multi-step tool calls, fully streamed and interruptible at any time; replies are Markdown-rendered (tables included)
-- 🧩 **Tangram canvas** — three kinds of knowledge blocks (Flow · how to do / Rule · how to judge / Insight · how to read) can be freely dragged, connected, undone/redone; you can build it entirely by hand without the agent (concept/relation are enterprise-tier features, the data model is reserved)
+- 🧩 **Tangram canvas** — three kinds of knowledge blocks (Flow · how to do / Rule · how to judge / Insight · how to read) can be freely dragged, connected, double-clicked to expand and edit, undone/redone; you can build it entirely by hand without the agent (concept/relation are enterprise-tier features, the data model is reserved)
 - 👻 **Ghost blocks** — an honest divide: content you've confirmed goes straight onto the canvas; content the agent inferred appears as semi-transparent dashed blocks for you to accept, edit, or reject in place
 - 🎯 **Gap-driven follow-ups** — the system tracks coverage of the three knowledge kinds in real time, and the agent designs follow-up questions around missing categories and unverified entries
 - 🏷️ **Evidence grading** — every entry is tagged with an evidence level: institutional / validated / sample / exploratory
@@ -110,7 +110,7 @@ The exported ZIP contains:
 
 ```
 {scene-name}-skill.zip
-├── SKILL.md                # YAML frontmatter + structured-knowledge Markdown, usable directly as an LLM system prompt
+├── SKILL.md                # YAML frontmatter + structured-knowledge Markdown, usable directly as an LLM system prompt (canvas edges inlined as "Related" lines)
 ├── experience-card.json    # structured experience card (evidence levels, sources, canvas layout)
 └── references/             # original reference documents selected for packaging
 ```
