@@ -47,7 +47,7 @@ describe('FlowCanvas', () => {
 
   it('should render the palette with three active block types', () => {
     render(<div style={{ width: 800, height: 600 }}><FlowCanvas sceneId="s1" canvas={canvas} /></div>)
-    expect(screen.getByText(/Components/)).toBeDefined()
+    // 元件栏改为左侧竖条，仅图标+类型名（无标题），Flow/Rule/Insight 仍在
     expect(screen.getAllByText('Flow').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Rule').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Insight').length).toBeGreaterThan(0)

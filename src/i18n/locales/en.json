@@ -207,8 +207,9 @@
     "upload": "+ Upload",
     "collapse": "Collapse sidebar",
     "empty": "No references yet",
-    "drafting": "Drafting...",
-    "draftFromDocs": "Draft from documents",
+    "drafting": "Extracting...",
+    "draftFromDocs": "Extract from documents",
+    "draftFromDocsMessage": "Extracting experience from {{docs}}",
     "includeHint": "Checked = bundled into the exported Skill package"
   },
   "scripts": {

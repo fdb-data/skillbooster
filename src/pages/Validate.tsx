@@ -4,6 +4,7 @@ import { useSceneStore } from '../store/sceneStore'
 import { generateId } from '../utils/uuid'
 import type { ValidationVerdict, ValidationResult, VerdictResult, OverallVerdict, TestCase, EvalCaseExport } from '../contracts/ipc-types'
 import PageNav from '../components/PageNav'
+import Markdown from '../components/Markdown'
 import { ArrowLeft, Close, ChevronDown, ChevronRight } from '../components/Icons'
 
 const MAX_CASES = 10
@@ -194,7 +195,7 @@ const Validate: React.FC = () => {
       <div className={`border-b border-line px-3 py-2 text-[10px] font-bold ${accent ? 'text-accent' : 'text-sub'}`}>{title}</div>
       <div className="flex-1 overflow-auto p-3">
         {text
-          ? <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{text}{running && <span className="text-accent">▍</span>}</p>
+          ? <div className="text-[11px] leading-relaxed text-ink"><Markdown text={text} />{running && <span className="text-accent">▍</span>}</div>
           : running
             ? <div>{Array.from({ length: 5 }).map((_, i) => <div key={i} className="mb-1.5 h-2.5 rounded bg-canvas" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>
             : <p className="text-[11px] text-tri">{t('validate.waitingRun')}</p>}
@@ -206,11 +207,11 @@ const Validate: React.FC = () => {
     <div className="flex gap-3">
       <div className="min-w-0 flex-1 rounded-lg border border-line bg-surface p-2.5">
         <div className="mb-1.5 text-[9px] font-bold text-sub">{t('validate.colA')}</div>
-        <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{bare}</p>
+        <div className="text-[11px] leading-relaxed text-ink"><Markdown text={bare} /></div>
       </div>
       <div className="min-w-0 flex-1 rounded-lg border border-accent-edge bg-accent-soft p-2.5">
         <div className="mb-1.5 text-[9px] font-bold text-accent">{t('validate.colB')}</div>
-        <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-ink">{withSkill}</p>
+        <div className="text-[11px] leading-relaxed text-ink"><Markdown text={withSkill} /></div>
       </div>
     </div>
   )

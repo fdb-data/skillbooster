@@ -254,9 +254,11 @@ export async function draftFromDocs(sceneId: string): Promise<DraftResult> {
   const config = resolveAgentLLMConfig('extract')
   if (!config) throw new Error(mt('configureLLMFirst'))
 
-  const refs = listReferences(sceneId)
-  if (refs.length === 0) throw new Error(mt('uploadDocsFirst'))
+  const allRefs = listReferences(sceneId)
+  if (allRefs.length === 0) throw new Error(mt('uploadDocsFirst'))
 
+  const checkedRefs = allRefs.filter(r => r.includeInPackage)
+  const refs = checkedRefs.length > 0 ? checkedRefs : allRefs
   const refTexts = refs.map(r => `--- ${r.filename} ---\n${r.extractedText}`).filter(t => t.length > 0)
   if (refTexts.length === 0) throw new Error(mt('emptyDocs'))
 

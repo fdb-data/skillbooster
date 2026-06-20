@@ -192,7 +192,7 @@
     "welcomeTitle": "✅ 场景定义已完成，现在可以开始萃取经验了",
     "welcomeIntro": "把你的经验讲给我，我会拆解成画布上的积木。你可以：",
     "welcomeStep1": "1. 直接讲一段你的经验（一个案例、一条原则都行），我会拆解后放上画布；",
-    "welcomeStep2": "2. 在左侧上传参考文档，点「从文档起草」让我先搭出初版；",
+    "welcomeStep2": "2. 在左侧上传参考文档，点「从文档萃取」让我先搭出初版；",
     "welcomeStep3": "3. 从画布左上角元件栏拖出积木，自己动手搭。",
     "letAgentAsk": "▶ 开始萃取",
     "startGuideMessage": "我准备好了，请根据当前场景开始引导我，先问我第一个问题。",
@@ -207,8 +207,9 @@
     "upload": "+ 上传",
     "collapse": "收起边栏",
     "empty": "暂无参考文档",
-    "drafting": "正在起草...",
-    "draftFromDocs": "从文档起草",
+    "drafting": "正在萃取...",
+    "draftFromDocs": "从文档萃取",
+    "draftFromDocsMessage": "从{{docs}}文档萃取经验",
     "includeHint": "勾选 = 导出时打入 skills 包"
   },
   "scripts": {

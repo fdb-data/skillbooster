@@ -66,11 +66,15 @@ describe('Workbench Page', () => {
     expect(container.querySelector('button svg')).toBeTruthy()
   })
 
-  it('should render three-column layout components', () => {
+  it('should render conversation + canvas with collapsible resources', () => {
     render(<Workbench />)
-    expect(screen.getByTestId('reference-panel')).toBeDefined()
+    // 双主栏：对话 + 画布常驻
     expect(screen.getByTestId('canvas')).toBeDefined()
     expect(screen.getByTestId('conversation')).toBeDefined()
+    // 资源面板默认收起为竖条，点击展开浮层后才渲染
+    expect(screen.queryByTestId('reference-panel')).toBeNull()
+    fireEvent.click(screen.getByText('References'))
+    expect(screen.getByTestId('reference-panel')).toBeDefined()
   })
 
   it('should navigate to validate on validate button click', async () => {

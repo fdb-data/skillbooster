@@ -39,9 +39,9 @@ function stepsToContent(steps: FlowStep[]): string {
 }
 
 const TYPE_CONFIG: Record<KnowledgeType, { labelKey: string; color: string; hintKey: string; icon: React.FC<{ size?: number; color?: string }> }> = {
-  flow: { labelKey: 'canvas.typeFlowLabel', color: '#3B82F6', hintKey: 'canvas.typeFlowHint', icon: ArrowRight },
-  rule: { labelKey: 'canvas.typeRuleLabel', color: '#DC2626', hintKey: 'canvas.typeRuleHint', icon: Shield },
-  insight: { labelKey: 'canvas.typeInsightLabel', color: '#E0A93B', hintKey: 'canvas.typeInsightHint', icon: Eye },
+  flow: { labelKey: 'canvas.typeFlowLabel', color: '#4C6EF5', hintKey: 'canvas.typeFlowHint', icon: ArrowRight },
+  rule: { labelKey: 'canvas.typeRuleLabel', color: '#E64980', hintKey: 'canvas.typeRuleHint', icon: Shield },
+  insight: { labelKey: 'canvas.typeInsightLabel', color: '#F08C00', hintKey: 'canvas.typeInsightHint', icon: Eye },
   concept: { labelKey: 'canvas.typeConceptLabel', color: '#8B5CF6', hintKey: 'canvas.typeConceptHint', icon: CircleDot },
   relation: { labelKey: 'canvas.typeRelationLabel', color: '#10B981', hintKey: 'canvas.typeRelationHint', icon: Dot }
 }
@@ -127,7 +127,7 @@ const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: 
 
   return (
     <div style={{ position: 'relative', marginTop: 4 }}>
-      {steps.length > 1 && <div style={{ position: 'absolute', left: 7, top: 10, bottom: 16, width: 2, background: `${color}33` }} />}
+      {steps.length > 1 && <div style={{ position: 'absolute', left: 7, top: 12, bottom: 18, width: 2, background: `${color}55` }} />}
       {steps.map((s, i) => editIndex === i ? (
         <React.Fragment key={i}>{editRow(i + 1)}</React.Fragment>
       ) : (
@@ -135,11 +135,11 @@ const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: 
           onDoubleClick={onOpenStep ? (e => { e.stopPropagation(); onOpenStep(i) }) : undefined}
           className={onOpenStep ? 'nodrag' : undefined}
           title={onOpenStep ? t('canvas.dblToOpen') : undefined}
-          style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '3px 0', position: 'relative', cursor: onOpenStep ? 'pointer' : undefined }}>
-          <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>{i + 1}</div>
+          style={{ display: 'flex', gap: 9, alignItems: 'flex-start', padding: '7px 0', position: 'relative', cursor: onOpenStep ? 'pointer' : undefined }}>
+          <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1, boxShadow: `0 0 0 3px var(--surface)` }}>{i + 1}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{s.title}</div>
-            {s.desc && <div style={{ fontSize: 10, color: 'var(--tri)', lineHeight: 1.5, marginTop: 2 }}>{s.desc}</div>}
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.4 }}>{s.title}</div>
+            {s.desc && <div style={{ fontSize: 10, color: 'var(--tri)', lineHeight: 1.65, marginTop: 3 }}>{s.desc}</div>}
           </div>
           {hoverIndex === i && (
             <div className="nodrag" style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
@@ -188,7 +188,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
     <div
       className={highlighted ? 'block-new' : ''}
       style={{
-        width: 240, background: highlighted ? 'var(--accent-soft)' : 'var(--surface)',
+        width: isFlow && expanded ? 340 : 240, background: highlighted ? 'var(--accent-soft)' : 'var(--surface)',
         border: '1px solid var(--line)', borderLeft: `6px solid ${config.color}`,
         borderRadius: 10, padding: '11px 13px', fontSize: 11,
         boxShadow: '0 1px 3px rgba(26,26,46,0.04), 0 6px 16px rgba(26,26,46,0.08)'
@@ -236,7 +236,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
             expanded ? (
               <div>
                 <button className="nodrag" onClick={() => setExpanded(false)}
-                  style={{ width: '100%', textAlign: 'center', background: 'var(--accent-soft)', border: '1px solid var(--accent-edge)', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '4px 0', margin: '6px 0 2px' }}>
+                  style={{ display: 'block', marginLeft: 'auto', background: 'none', border: 'none', color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '2px 4px', margin: '4px 0 2px auto' }}>
                   ▴ {t('canvas.collapseSteps')}
                 </button>
                 {flowSteps.length === 0 && (
@@ -585,7 +585,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
       target: e.target,
       animated: e.kind === 'flow-order',
       label: e.label,
-      style: { stroke: e.kind === 'flow-order' ? '#3B82F6' : '#A6ABB5', strokeWidth: 1.5 }
+      style: { stroke: e.kind === 'flow-order' ? '#4C6EF5' : '#A6ABB5', strokeWidth: 1.5 }
     })))
   }, [canvas, proposals, highlightedEntries, editingId, handleSave, handleSaveSteps, handleDelete, handleOpenStep, handleAcceptProposal, handleRejectProposal, setNodes, setEdges])
 
@@ -639,22 +639,18 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
   const filledDots = Math.min(5, Math.ceil(totalEntries / 3))
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }} onDrop={onDrop} onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}>
-      {/* 元件栏：画布顶部横条，避免浮层遮挡节点 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderBottom: '1px solid var(--line)', background: '#fff', flexShrink: 0 }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--sub)', letterSpacing: 0.5, flexShrink: 0 }}>{t('canvas.paletteTitle')}</span>
+    <div style={{ width: '100%', height: '100%', display: 'flex' }} onDrop={onDrop} onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}>
+      {/* 元件栏：画布左侧竖条，flex 挤占不遮挡节点；hint 收进 tooltip */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '10px 8px', borderRight: '1px solid var(--line)', background: '#fff', flexShrink: 0, width: 60 }}>
         {PALETTE_TYPES.map(type => {
           const c = TYPE_CONFIG[type]
           const PIcon = c.icon
           return (
-            <div key={type} draggable
+            <div key={type} draggable title={t(c.hintKey)}
               onDragStart={e => { e.dataTransfer.setData('application/skillbooster-block', type); e.dataTransfer.effectAllowed = 'copy' }}
-              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 10px', border: '1px solid var(--line)', borderLeft: `4px solid ${c.color}`, borderRadius: 6, cursor: 'grab', background: '#fff', userSelect: 'none' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 5, background: c.color, flexShrink: 0 }}><PIcon size={11} color="#fff" /></span>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{t(c.labelKey)}</div>
-                <div style={{ fontSize: 9, color: 'var(--tri)' }}>{t(c.hintKey)}</div>
-              </div>
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', width: '100%', border: '1px solid var(--line)', borderTop: `3px solid ${c.color}`, borderRadius: 8, cursor: 'grab', background: '#fff', userSelect: 'none' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: 6, background: c.color, flexShrink: 0 }}><PIcon size={14} color="#fff" /></span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--ink)' }}>{t(c.labelKey)}</span>
             </div>
           )
         })}

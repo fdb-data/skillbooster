@@ -698,7 +698,21 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   },
 
   draftFromDocs: async (sceneId: string) => {
-    set({ isLoading: true, error: null })
+    // 乐观渲染：先上屏一条用户消息（从《xx》、《xx》文档萃取经验），再跑 agent
+    const allRefs = get().currentScene?.references ?? []
+    const checkedRefs = allRefs.filter(r => r.includeInPackage)
+    const refs = checkedRefs.length > 0 ? checkedRefs : allRefs
+    const docList = refs.map(r => `《${r.filename}》`).join('、')
+    const userMsg: ConversationMessage = {
+      id: generateId(),
+      sceneId,
+      role: 'user',
+      content: i18n.t('reference.draftFromDocsMessage', { docs: docList }),
+      createdAt: new Date().toISOString()
+    }
+    set(s => (s.currentScene && s.currentScene.id === sceneId)
+      ? { isLoading: true, error: null, currentScene: { ...s.currentScene, conversation: [...s.currentScene.conversation, userMsg] } }
+      : { isLoading: true, error: null })
     try {
       const result = await window.api.extraction.draftFromDocs(sceneId)
       const data = handleIpc(result)

@@ -15,7 +15,7 @@ const Workbench: React.FC = () => {
   const updateScene = useSceneStore(s => s.updateScene)
   const [exporting, setExporting] = useState(false)
   const [exportResult, setExportResult] = useState<string | null>(null)
-  const [refsCollapsed, setRefsCollapsed] = useState(false)
+  const [refsCollapsed, setRefsCollapsed] = useState(true)
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
   const editingNameRef = useRef(false) // 去重守卫：Enter 保存后 blur 不再重复保存
@@ -115,22 +115,30 @@ const Workbench: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', gap: 20, padding: '18px 18px 0' }}>
-        {refsCollapsed ? (
-          <div style={{ width: 28, flexShrink: 0 }}>
-            <button onClick={() => setRefsCollapsed(false)} title={t('workbench.expandRefs')}
-              style={{
-                width: '100%', background: 'var(--canvas)', border: '1px solid var(--line)', borderRadius: 10,
-                padding: '10px 0', cursor: 'pointer', color: 'var(--sub)', fontSize: 10,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6
-              }}>
-              <span>»</span>
-              <span style={{ writingMode: 'vertical-rl', letterSpacing: 2 }}>{t('workbench.refs')}</span>
-              {currentScene.references.length > 0 && <span>{currentScene.references.length}</span>}
-            </button>
-          </div>
-        ) : (
-          <div style={{ width: 216, display: 'flex', flexDirection: 'column', gap: 12, flexShrink: 0, overflow: 'auto' }}>
+      <div style={{ position: 'relative', display: 'flex', flex: 1, overflow: 'hidden', gap: 20, padding: '18px 18px 0' }}>
+        {/* 资源竖条：常驻最左，点击展开浮层 */}
+        <div style={{ width: 28, flexShrink: 0 }}>
+          <button onClick={() => setRefsCollapsed(c => !c)} title={t('workbench.expandRefs')}
+            style={{
+              width: '100%', background: refsCollapsed ? 'var(--canvas)' : 'var(--accent-soft)',
+              border: `1px solid ${refsCollapsed ? 'var(--line)' : 'var(--accent-edge)'}`, borderRadius: 10,
+              padding: '10px 0', cursor: 'pointer', color: refsCollapsed ? 'var(--sub)' : 'var(--accent)', fontSize: 10,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6
+            }}>
+            <span>{refsCollapsed ? '»' : '«'}</span>
+            <span style={{ writingMode: 'vertical-rl', letterSpacing: 2 }}>{t('workbench.refs')}</span>
+            {currentScene.references.length > 0 && <span>{currentScene.references.length}</span>}
+          </button>
+        </div>
+
+        {/* 资源浮层：展开时盖在对话区之上，不挤主区 */}
+        {!refsCollapsed && (
+          <div style={{
+            position: 'absolute', left: 54, top: 18, bottom: 18, width: 300, zIndex: 30,
+            display: 'flex', flexDirection: 'column', gap: 12, overflow: 'auto',
+            background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 12,
+            padding: 12, boxShadow: '0 8px 28px rgba(26,26,46,0.16)'
+          }}>
             <div style={{ background: 'var(--canvas)', border: '1px solid var(--line)', borderRadius: 10, padding: 12, overflow: 'auto' }}>
               <ReferencePanel sceneId={currentScene.id} references={currentScene.references} onCollapse={() => setRefsCollapsed(true)} />
             </div>
@@ -143,15 +151,17 @@ const Workbench: React.FC = () => {
           </div>
         )}
 
-        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, border: '1px solid var(--line)', borderRadius: 10, background: '#F6F6FA' }}>
-          <FlowCanvas sceneId={currentScene.id} canvas={currentScene.canvas} />
-        </div>
-
-        <div style={{ width: 340, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+        {/* 对话：聊天窄栏，固定宽度 */}
+        <div style={{ width: 380, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontSize: 9, color: 'var(--tri)', marginBottom: 4 }}>{t('workbench.agentDriven')}</span>
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <Conversation sceneId={currentScene.id} conversation={currentScene.conversation} />
           </div>
+        </div>
+
+        {/* 画布：占满剩余主区 */}
+        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, border: '1px solid var(--line)', borderRadius: 10, background: '#F6F6FA' }}>
+          <FlowCanvas sceneId={currentScene.id} canvas={currentScene.canvas} />
         </div>
       </div>
     </div>
