@@ -48,6 +48,42 @@ vi.mock('better-sqlite3', () => {
           _data.llm_provider = _data.llm_provider || []
           _data.llm_provider.push({ id: args[0], name: args[1], base_url: args[2], api_key: args[3], models: args[4], sort_order: args[5], updated_at: args[6] })
         }
+        if (sql.includes('INSERT INTO test_cases')) {
+          _data.test_cases = _data.test_cases || []
+          _data.test_cases.push({
+            id: args[0], scene_id: args[1], instruction: args[2], expected_answer: args[3],
+            source_reference_ids: args[4], difficulty: args[5], confidence: args[6],
+            tags: args[7], notes: args[8], sort_order: args[9], created_at: args[10], updated_at: args[11]
+          })
+        }
+        if (sql.includes('UPDATE test_cases')) {
+          if (_data.test_cases) {
+            const idx = _data.test_cases.findIndex((c: any) => c.id === args[args.length - 1])
+            if (idx >= 0) {
+              const updated = { ..._data.test_cases[idx] }
+              const setSql = sql.replace(/UPDATE test_cases SET /i, '')
+              const setParts = setSql.split(' WHERE ')[0].split(',').map((s: string) => s.trim())
+              setParts.forEach((part: string, i: number) => {
+                const col = part.split(' = ')[0]
+                if (col === 'expected_answer') updated.expected_answer = args[i]
+                else if (col === 'source_reference_ids') updated.source_reference_ids = args[i]
+                else if (col === 'sort_order') updated.sort_order = args[i]
+                else if (col === 'updated_at') updated.updated_at = args[i]
+                else updated[col] = args[i]
+              })
+              _data.test_cases[idx] = updated
+            }
+          }
+        }
+        if (sql.includes('DELETE FROM test_cases')) {
+          if (_data.test_cases) {
+            if (sql.includes('scene_id = ?')) {
+              _data.test_cases = _data.test_cases.filter((c: any) => c.scene_id !== args[0])
+            } else {
+              _data.test_cases = _data.test_cases.filter((c: any) => c.id !== args[0])
+            }
+          }
+        }
       }),
       get: vi.fn((...args: any[]) => {
         if (sql.includes('SELECT') && sql.includes('scenes') && sql.includes('WHERE')) {
@@ -64,6 +100,9 @@ vi.mock('better-sqlite3', () => {
         }
         if (sql.includes('agent_config') && sql.includes('WHERE agent_key')) {
           return _data.agent_config?.find((a: any) => a.agent_key === args[0])
+        }
+        if (sql.includes('test_cases') && sql.includes('WHERE id = ?')) {
+          return _data.test_cases?.find((c: any) => c.id === args[0])
         }
         return undefined
       }),
@@ -82,6 +121,28 @@ vi.mock('better-sqlite3', () => {
         }
         if (sql.includes('llm_provider')) {
           return _data.llm_provider || []
+        }
+        if (sql.includes('test_cases') && sql.includes('WHERE scene_id = ?') && sql.includes('ORDER BY')) {
+          return (_data.test_cases || [])
+            .filter((c: any) => c.scene_id === _args[0])
+            .sort((a: any, b: any) => {
+              if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order
+              return a.created_at.localeCompare(b.created_at)
+            })
+        }
+        if (sql.includes('PRAGMA table_info(test_cases)')) {
+          return [
+            { name: 'id' }, { name: 'scene_id' }, { name: 'instruction' }, { name: 'expected_answer' },
+            { name: 'source_reference_ids' }, { name: 'difficulty' }, { name: 'confidence' },
+            { name: 'tags' }, { name: 'notes' }, { name: 'sort_order' },
+            { name: 'created_at' }, { name: 'updated_at' }
+          ]
+        }
+        if (sql.includes('PRAGMA table_info(conversations)')) {
+          return [
+            { name: 'id' }, { name: 'scene_id' }, { name: 'role' },
+            { name: 'content' }, { name: 'created_at' }, { name: 'options' }
+          ]
         }
         return []
       })
@@ -231,5 +292,90 @@ describe('Store - Canvas', () => {
     const loaded = store.loadCanvas('nonexistent')
     expect(loaded.flows.length).toBe(0)
     expect(loaded.rules.length).toBe(0)
+  })
+})
+
+describe('Store - Test Cases CRUD', () => {
+  beforeEach(() => {
+    try { store.initDatabase() } catch {}
+    store.createScene('scene-cases', 'Test Cases Scene')
+  })
+
+  it('should add and get a test case with full fields', () => {
+    const c = store.addTestCase('scene-cases', {
+      instruction: 'How do I handle refund?',
+      expectedAnswer: 'Approve if within 7 days',
+      sourceReferenceIds: ['ref-1'],
+      difficulty: 'medium',
+      confidence: 'high',
+      tags: 'refund,policy',
+      notes: 'Key case',
+      sortOrder: 1
+    })
+    expect(c.id).toBeDefined()
+    expect(c.sceneId).toBe('scene-cases')
+    expect(c.instruction).toBe('How do I handle refund?')
+    expect(c.expectedAnswer).toBe('Approve if within 7 days')
+    expect(c.sourceReferenceIds).toEqual(['ref-1'])
+    expect(c.difficulty).toBe('medium')
+    expect(c.confidence).toBe('high')
+    expect(c.tags).toBe('refund,policy')
+    expect(c.notes).toBe('Key case')
+    expect(c.sortOrder).toBe(1)
+    expect(c.createdAt).toBeDefined()
+
+    const fetched = store.getTestCase(c.id)
+    expect(fetched).toEqual(c)
+  })
+
+  it('should list test cases ordered by sort_order', () => {
+    store.addTestCase('scene-cases', { instruction: 'Second', sortOrder: 2 })
+    store.addTestCase('scene-cases', { instruction: 'First', sortOrder: 1 })
+    const list = store.listTestCases('scene-cases')
+    expect(list.length).toBe(2)
+    expect(list[0].instruction).toBe('First')
+    expect(list[1].instruction).toBe('Second')
+  })
+
+  it('should update a test case', () => {
+    const c = store.addTestCase('scene-cases', { instruction: 'Original' })
+    const updated = store.updateTestCase('scene-cases', c.id, {
+      instruction: 'Updated',
+      expectedAnswer: 'New answer',
+      difficulty: 'hard',
+      confidence: 'low',
+      sortOrder: 5
+    })
+    expect(updated.instruction).toBe('Updated')
+    expect(updated.expectedAnswer).toBe('New answer')
+    expect(updated.difficulty).toBe('hard')
+    expect(updated.confidence).toBe('low')
+    expect(updated.sortOrder).toBe(5)
+    expect(updated.updatedAt).toBeDefined()
+  })
+
+  it('should delete a test case', () => {
+    const c = store.addTestCase('scene-cases', { instruction: 'To delete' })
+    store.deleteTestCase('scene-cases', c.id)
+    expect(store.getTestCase(c.id)).toBeUndefined()
+    expect(store.listTestCases('scene-cases')).toHaveLength(0)
+  })
+
+  it('should reject update/delete for wrong scene', () => {
+    store.createScene('other-scene', 'Other')
+    const c = store.addTestCase('scene-cases', { instruction: 'Mine' })
+    expect(() => store.updateTestCase('other-scene', c.id, { instruction: 'Hacked' })).toThrow('Test case not found')
+    expect(() => store.deleteTestCase('other-scene', c.id)).toThrow('Test case not found')
+  })
+
+  it('should save all test cases for a scene', () => {
+    const cases = store.saveTestCases('scene-cases', [
+      { id: 'c1', sceneId: 'scene-cases', instruction: 'A', expectedAnswer: 'ans-a', sourceReferenceIds: [], difficulty: 'easy', confidence: 'high', sortOrder: 0, createdAt: '2024-01-01T00:00:00.000Z' },
+      { id: 'c2', sceneId: 'scene-cases', instruction: 'B', sourceReferenceIds: ['ref-2'], sortOrder: 1, createdAt: '2024-01-02T00:00:00.000Z' }
+    ])
+    expect(cases.length).toBe(2)
+    expect(cases[0].instruction).toBe('A')
+    expect(cases[0].expectedAnswer).toBe('ans-a')
+    expect(cases[1].sourceReferenceIds).toEqual(['ref-2'])
   })
 })

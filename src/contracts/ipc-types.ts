@@ -222,8 +222,17 @@ export interface ValidationResult {
 /** 场景测试集中的一条测试指令 */
 export interface TestCase {
   id: string
+  sceneId: string
   instruction: string
+  expectedAnswer?: string
+  sourceReferenceIds?: string[]
+  difficulty?: 'easy' | 'medium' | 'hard'
+  confidence?: 'high' | 'medium' | 'low'
+  tags?: string
+  notes?: string
   sortOrder: number
+  createdAt: string
+  updatedAt?: string
 }
 
 /** 引导对话的一条消息（独立于萃取 conversations，保留选项/多选等 UI 元数据以便完整恢复） */

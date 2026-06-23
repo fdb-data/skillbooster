@@ -5,6 +5,7 @@ import fs from 'fs'
 import log from 'electron-log'
 import type { ExperienceCard, LLMConfig, LLMProviderConfig, ConversationMessage, Reference, Attachment, AttachmentKind, TestCase, ValidationResultsBundle, GuideMessageRecord } from '../../src/contracts/ipc-types'
 import { emptyExperienceCard } from '../../src/contracts/ipc-types'
+import { generateId } from '../../src/utils/uuid'
 
 let db: Database.Database | null = null
 
@@ -130,11 +131,18 @@ export function initDatabase(): void {
     );
 
     CREATE TABLE IF NOT EXISTS test_cases (
-      id          TEXT PRIMARY KEY,
-      scene_id    TEXT NOT NULL,
-      instruction TEXT NOT NULL,
-      sort_order  INTEGER NOT NULL DEFAULT 0,
-      created_at  TEXT NOT NULL,
+      id                   TEXT PRIMARY KEY,
+      scene_id             TEXT NOT NULL,
+      instruction          TEXT NOT NULL,
+      expected_answer      TEXT,
+      source_reference_ids TEXT DEFAULT '[]',
+      difficulty           TEXT CHECK(difficulty IN ('easy', 'medium', 'hard')),
+      confidence           TEXT CHECK(confidence IN ('high', 'medium', 'low')),
+      tags                 TEXT,
+      notes                TEXT,
+      sort_order           INTEGER NOT NULL DEFAULT 0,
+      created_at           TEXT NOT NULL,
+      updated_at           TEXT,
       FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
     );
 
@@ -162,6 +170,25 @@ export function initDatabase(): void {
   const convCols = db.prepare("PRAGMA table_info(conversations)").all() as Array<{ name: string }>
   if (!convCols.some(c => c.name === 'options')) {
     db.exec('ALTER TABLE conversations ADD COLUMN options TEXT DEFAULT NULL')
+  }
+
+  // 旧库迁移：为 test_cases 补新字段
+  const tcCols = db.prepare("PRAGMA table_info(test_cases)").all() as Array<{ name: string }>
+  const tcColNames = new Set(tcCols.map(c => c.name))
+  const tcMigrations = [
+    'ALTER TABLE test_cases ADD COLUMN expected_answer TEXT',
+    'ALTER TABLE test_cases ADD COLUMN source_reference_ids TEXT DEFAULT "[]"',
+    'ALTER TABLE test_cases ADD COLUMN difficulty TEXT',
+    'ALTER TABLE test_cases ADD COLUMN confidence TEXT',
+    'ALTER TABLE test_cases ADD COLUMN tags TEXT',
+    'ALTER TABLE test_cases ADD COLUMN notes TEXT',
+    'ALTER TABLE test_cases ADD COLUMN updated_at TEXT'
+  ]
+  for (const sql of tcMigrations) {
+    const colName = sql.match(/ADD COLUMN (\w+)/)?.[1]
+    if (colName && !tcColNames.has(colName)) {
+      db.exec(sql)
+    }
   }
 
   log.info('Database initialized:', dbPath)
@@ -400,9 +427,49 @@ export function resolveAgentLLMConfig(agentKey: string): LLMConfig | null {
 /** 测试集上限：每个场景最多 10 条测试指令 */
 export const MAX_TEST_CASES = 10
 
+function parseReferenceIds(raw: string | null): string[] {
+  if (!raw) return []
+  try {
+    return JSON.parse(raw) as string[]
+  } catch {
+    return []
+  }
+}
+
+function rowToTestCase(r: {
+  id: string; scene_id: string; instruction: string; expected_answer: string | null;
+  source_reference_ids: string | null; difficulty: string | null; confidence: string | null;
+  tags: string | null; notes: string | null; sort_order: number;
+  created_at: string; updated_at: string | null
+}): TestCase {
+  return {
+    id: r.id,
+    sceneId: r.scene_id,
+    instruction: r.instruction,
+    expectedAnswer: r.expected_answer ?? undefined,
+    sourceReferenceIds: parseReferenceIds(r.source_reference_ids),
+    difficulty: (r.difficulty as TestCase['difficulty']) ?? undefined,
+    confidence: (r.confidence as TestCase['confidence']) ?? undefined,
+    tags: r.tags ?? undefined,
+    notes: r.notes ?? undefined,
+    sortOrder: r.sort_order,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at ?? undefined
+  }
+}
+
 export function listTestCases(sceneId: string): TestCase[] {
-  const rows = getDb().prepare('SELECT id, instruction, sort_order FROM test_cases WHERE scene_id = ? ORDER BY sort_order ASC').all(sceneId) as Array<{ id: string; instruction: string; sort_order: number }>
-  return rows.map(r => ({ id: r.id, instruction: r.instruction, sortOrder: r.sort_order }))
+  const rows = getDb().prepare(`
+    SELECT id, scene_id, instruction, expected_answer, source_reference_ids,
+           difficulty, confidence, tags, notes, sort_order, created_at, updated_at
+    FROM test_cases WHERE scene_id = ? ORDER BY sort_order ASC, created_at ASC
+  `).all(sceneId) as Array<{
+    id: string; scene_id: string; instruction: string; expected_answer: string | null;
+    source_reference_ids: string | null; difficulty: string | null; confidence: string | null;
+    tags: string | null; notes: string | null; sort_order: number;
+    created_at: string; updated_at: string | null
+  }>
+  return rows.map(rowToTestCase)
 }
 
 /** 整集替换某场景的测试用例（增删改调序统一走这条路），最多保留前 MAX_TEST_CASES 条 */
@@ -411,14 +478,82 @@ export function saveTestCases(sceneId: string, cases: TestCase[]): TestCase[] {
   const capped = cases.slice(0, MAX_TEST_CASES)
   const tx = getDb().transaction(() => {
     getDb().prepare('DELETE FROM test_cases WHERE scene_id = ?').run(sceneId)
-    const stmt = getDb().prepare('INSERT INTO test_cases (id, scene_id, instruction, sort_order, created_at) VALUES (?, ?, ?, ?, ?)')
+    const stmt = getDb().prepare(`
+      INSERT INTO test_cases (id, scene_id, instruction, expected_answer, source_reference_ids,
+                             difficulty, confidence, tags, notes, sort_order, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `)
     capped.forEach((c, i) => {
       const text = c.instruction.trim()
-      if (text) stmt.run(c.id, sceneId, text, i, now)
+      if (text) stmt.run(
+        c.id, sceneId, text, c.expectedAnswer ?? null,
+        JSON.stringify(c.sourceReferenceIds ?? []),
+        c.difficulty ?? null, c.confidence ?? null,
+        c.tags ?? null, c.notes ?? null,
+        c.sortOrder ?? i, now, now
+      )
     })
   })
   tx()
   return listTestCases(sceneId)
+}
+
+export function addTestCase(sceneId: string, input: Omit<TestCase, 'id' | 'sceneId' | 'createdAt' | 'updatedAt'>): TestCase {
+  const now = new Date().toISOString()
+  const id = generateId()
+  const sortOrder = input.sortOrder ?? 0
+  getDb().prepare(`
+    INSERT INTO test_cases (id, scene_id, instruction, expected_answer, source_reference_ids,
+                           difficulty, confidence, tags, notes, sort_order, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id, sceneId, input.instruction, input.expectedAnswer ?? null,
+    JSON.stringify(input.sourceReferenceIds ?? []),
+    input.difficulty ?? null, input.confidence ?? null,
+    input.tags ?? null, input.notes ?? null, sortOrder, now, now
+  )
+  return getTestCase(id)!
+}
+
+export function updateTestCase(sceneId: string, caseId: string, input: Partial<Omit<TestCase, 'id' | 'sceneId' | 'createdAt'>>): TestCase {
+  const existing = getTestCase(caseId)
+  if (!existing || existing.sceneId !== sceneId) throw new Error('Test case not found')
+  const now = new Date().toISOString()
+  const sets: string[] = []
+  const values: unknown[] = []
+  if (input.instruction !== undefined) { sets.push('instruction = ?'); values.push(input.instruction) }
+  if (input.expectedAnswer !== undefined) { sets.push('expected_answer = ?'); values.push(input.expectedAnswer ?? null) }
+  if (input.sourceReferenceIds !== undefined) { sets.push('source_reference_ids = ?'); values.push(JSON.stringify(input.sourceReferenceIds)) }
+  if (input.difficulty !== undefined) { sets.push('difficulty = ?'); values.push(input.difficulty ?? null) }
+  if (input.confidence !== undefined) { sets.push('confidence = ?'); values.push(input.confidence ?? null) }
+  if (input.tags !== undefined) { sets.push('tags = ?'); values.push(input.tags ?? null) }
+  if (input.notes !== undefined) { sets.push('notes = ?'); values.push(input.notes ?? null) }
+  if (input.sortOrder !== undefined) { sets.push('sort_order = ?'); values.push(input.sortOrder) }
+  sets.push('updated_at = ?'); values.push(now)
+  values.push(caseId)
+  getDb().prepare(`UPDATE test_cases SET ${sets.join(', ')} WHERE id = ?`).run(...values)
+  return getTestCase(caseId)!
+}
+
+export function deleteTestCase(sceneId: string, caseId: string): void {
+  const existing = getTestCase(caseId)
+  if (!existing || existing.sceneId !== sceneId) throw new Error('Test case not found')
+  getDb().prepare('DELETE FROM test_cases WHERE id = ?').run(caseId)
+}
+
+export function getTestCase(caseId: string): TestCase | undefined {
+  const r = getDb().prepare(`
+    SELECT id, scene_id, instruction, expected_answer, source_reference_ids,
+           difficulty, confidence, tags, notes, sort_order, created_at, updated_at
+    FROM test_cases WHERE id = ?
+  `).get(caseId) as {
+    id: string; scene_id: string; instruction: string; expected_answer: string | null;
+    source_reference_ids: string | null; difficulty: string | null; confidence: string | null;
+    tags: string | null; notes: string | null; sort_order: number;
+    created_at: string; updated_at: string | null
+  } | undefined
+  if (!r) return undefined
+  return rowToTestCase(r)
 }
 
 const EMPTY_VALIDATION_RESULTS: ValidationResultsBundle = { caseResults: {}, singleEntry: null }
