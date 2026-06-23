@@ -26,6 +26,7 @@ type MsgKey =
   | 'exportDialogTitle'
   | 'exportCanceled'
   | 'diffAnalysisFailed'
+  | 'noCasesToReplay'
   | 'attachmentNotFound'
   | 'attachmentFileMissing'
   | 'skillMdNotFound'
@@ -44,6 +45,7 @@ const MESSAGES: Record<MsgKey, Record<Lang, string>> = {
   exportDialogTitle: { en: 'Export Skill package', zh: '导出 Skills 包' },
   exportCanceled: { en: 'Export canceled by user', zh: '用户取消导出' },
   diffAnalysisFailed: { en: 'Diff analysis failed', zh: '差异分析失败' },
+  noCasesToReplay: { en: 'No cases available for replay in this scene', zh: '当前场景没有可用于验证回放的案例' },
   attachmentNotFound: { en: 'Attachment not found', zh: '附件不存在' },
   attachmentFileMissing: { en: 'Attachment file no longer exists on disk', zh: '附件文件已不在磁盘上' },
   skillMdNotFound: { en: 'SKILL.md not found in the selected skill', zh: '所选技能里找不到 SKILL.md' },

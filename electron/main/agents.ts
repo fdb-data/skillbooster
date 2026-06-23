@@ -6,11 +6,11 @@ import { runAgentLoop } from './agentLoop'
 import type { AgentTool } from './agentLoop'
 import { emitAgentEvent } from './agentEvents'
 import { EventType } from '../../src/contracts/agent-events'
-import { resolveAgentLLMConfig, listReferences, loadCanvas, getPreference, setPreference, listGuideMessages, saveGuideMessages } from './store'
+import { resolveAgentLLMConfig, getScene, listReferences, loadCanvas, getPreference, setPreference, listGuideMessages, saveGuideMessages, listTestCases, getTestCase } from './store'
 import { getLanguage, languageDirective, mt } from './i18n'
 import type { Lang } from './i18n'
 import { generateId } from '../../src/utils/uuid'
-import type { ValidationResult, ValidationVerdict, VerdictResult, OverallVerdict } from '../../src/contracts/ipc-types'
+import type { ValidationResult, ValidationVerdict, VerdictResult, OverallVerdict, TestCase, ReplayReport, ReplayResult } from '../../src/contracts/ipc-types'
 
 function loadPrompt(filename: string): string {
   const paths = [
@@ -405,4 +405,137 @@ function generateSkillMdFromCanvas(canvas: import('../../src/contracts/ipc-types
   if (canvas.concepts.length > 0) { md += '## Concepts\n'; for (const c of canvas.concepts) md += `### ${c.title}\n${c.content}\n\n` }
   if (canvas.relations.length > 0) { md += '## Relations\n'; for (const r of canvas.relations) md += `### ${r.title}\n${r.content}\n\n` }
   return md
+}
+
+export async function runReplay(sceneId: string, caseIds?: string[]): Promise<ReplayReport> {
+  const config = resolveAgentLLMConfig('validate')
+  if (!config) throw new Error(mt('configureLLMFirst'))
+
+  const allCases = listTestCases(sceneId)
+  const cases = caseIds && caseIds.length > 0
+    ? allCases.filter(c => caseIds.includes(c.id))
+    : allCases
+
+  if (cases.length === 0) throw new Error(mt('noCasesToReplay'))
+
+  const canvas = loadCanvas(sceneId)
+  const skillMd = generateSkillMdFromCanvas(canvas)
+  const scene = getScene(sceneId)
+  const skillName = scene?.name ?? 'Unnamed Skill'
+  const runAt = new Date().toISOString()
+  const lang = getLanguage()
+
+  const results: ReplayResult[] = []
+  for (const testCase of cases) {
+    const start = Date.now()
+    try {
+      const skillOut = await callLLMEx({
+        config,
+        systemPrompt: skillMd,
+        messages: [{ role: 'user', content: testCase.instruction }]
+      })
+      const actualAnswer = skillOut.content
+      const judgeOut = await judgeReplay(testCase, actualAnswer, config, lang)
+      results.push({
+        caseId: testCase.id,
+        instruction: testCase.instruction,
+        expectedAnswer: testCase.expectedAnswer,
+        actualAnswer,
+        hit: judgeOut.hit,
+        reason: judgeOut.reason,
+        judgeModel: config.model,
+        latencyMs: Date.now() - start,
+        tokens: skillOut.usage
+      })
+    } catch (err) {
+      log.error(`Replay case failed: ${testCase.id}`, err)
+      results.push({
+        caseId: testCase.id,
+        instruction: testCase.instruction,
+        expectedAnswer: testCase.expectedAnswer,
+        actualAnswer: '',
+        hit: false,
+        reason: `运行失败: ${err instanceof Error ? err.message : String(err)}`,
+        judgeModel: config.model,
+        latencyMs: Date.now() - start
+      })
+    }
+  }
+
+  return buildReplayReport(sceneId, skillName, runAt, results)
+}
+
+async function judgeReplay(
+  testCase: TestCase,
+  actualAnswer: string,
+  config: NonNullable<ReturnType<typeof resolveAgentLLMConfig>>,
+  lang: Lang
+): Promise<{ hit: boolean; reason: string }> {
+  if (!testCase.expectedAnswer || testCase.expectedAnswer.trim().length === 0) {
+    return { hit: false, reason: '未提供专家期望结论，跳过命中判断' }
+  }
+  const prompt = loadPrompt('replay-judge.md')
+    .replace('{instruction}', testCase.instruction)
+    .replace('{expected_answer}', testCase.expectedAnswer)
+    .replace('{actual_answer}', actualAnswer)
+    + languageDirective(lang)
+  const out = await callLLMEx({
+    config,
+    systemPrompt: '',
+    messages: [{ role: 'user', content: prompt }]
+  })
+  const parsed = parseJsonResponse(out.content) as { hit: boolean; reason: string } | null
+  return {
+    hit: parsed?.hit === true,
+    reason: parsed?.reason ?? '无裁判理由'
+  }
+}
+
+function buildReplayReport(
+  sceneId: string,
+  skillName: string,
+  runAt: string,
+  results: ReplayResult[]
+): ReplayReport {
+  const totalCases = results.length
+  const hitCount = results.filter(r => r.hit).length
+  const missCount = totalCases - hitCount
+  const hitRate = totalCases > 0 ? hitCount / totalCases : 0
+
+  const byDifficulty: ReplayReport['byDifficulty'] = {}
+  const byConfidence: ReplayReport['byConfidence'] = {}
+
+  for (const r of results) {
+    const tc = getTestCase(r.caseId)
+    const diff = tc?.difficulty ?? 'unspecified'
+    const conf = tc?.confidence ?? 'unspecified'
+    byDifficulty[diff] = byDifficulty[diff] ?? { total: 0, hit: 0, rate: 0 }
+    byDifficulty[diff].total += 1
+    if (r.hit) byDifficulty[diff].hit += 1
+    byConfidence[conf] = byConfidence[conf] ?? { total: 0, hit: 0, rate: 0 }
+    byConfidence[conf].total += 1
+    if (r.hit) byConfidence[conf].hit += 1
+  }
+
+  for (const k of Object.keys(byDifficulty)) {
+    const v = byDifficulty[k]
+    v.rate = v.total > 0 ? v.hit / v.total : 0
+  }
+  for (const k of Object.keys(byConfidence)) {
+    const v = byConfidence[k]
+    v.rate = v.total > 0 ? v.hit / v.total : 0
+  }
+
+  return {
+    sceneId,
+    skillName,
+    runAt,
+    totalCases,
+    hitCount,
+    missCount,
+    hitRate,
+    byDifficulty,
+    byConfidence,
+    results
+  }
 }
