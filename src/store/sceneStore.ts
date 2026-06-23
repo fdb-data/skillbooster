@@ -425,7 +425,8 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   loadReplayCases: async (sceneId: string) => {
     set({ replayLoading: true, replayError: null })
     try {
-      const cases = await handleIpc(window.api.validation.listCases(sceneId))
+      const result = await window.api.validation.listCases(sceneId)
+      const cases = handleIpc(result)
       set({ replayCases: cases, replayLoading: false })
     } catch (err) {
       set({ replayError: String(err), replayLoading: false })
@@ -435,7 +436,8 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   addReplayCase: async (sceneId: string, input: TestCaseInput) => {
     set({ replayLoading: true, replayError: null })
     try {
-      const c = await handleIpc(window.api.validation.addCase(sceneId, input))
+      const result = await window.api.validation.addCase(sceneId, input)
+      const c = handleIpc(result)
       set(state => ({ replayCases: [...state.replayCases, c], replayLoading: false }))
     } catch (err) {
       set({ replayError: String(err), replayLoading: false })
@@ -445,7 +447,8 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   updateReplayCase: async (sceneId: string, caseId: string, input: Partial<TestCaseInput>) => {
     set({ replayLoading: true, replayError: null })
     try {
-      const c = await handleIpc(window.api.validation.updateCase(sceneId, caseId, input))
+      const result = await window.api.validation.updateCase(sceneId, caseId, input)
+      const c = handleIpc(result)
       set(state => ({
         replayCases: state.replayCases.map(x => x.id === caseId ? c : x),
         replayLoading: false
@@ -458,7 +461,8 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   deleteReplayCase: async (sceneId: string, caseId: string) => {
     set({ replayLoading: true, replayError: null })
     try {
-      await handleIpc(window.api.validation.deleteCase(sceneId, caseId))
+      const result = await window.api.validation.deleteCase(sceneId, caseId)
+      handleIpc(result)
       set(state => ({
         replayCases: state.replayCases.filter(x => x.id !== caseId),
         replayLoading: false
@@ -471,7 +475,8 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   runReplay: async (sceneId: string, caseIds?: string[]) => {
     set({ replayLoading: true, replayError: null, replayReport: null })
     try {
-      const report = await handleIpc(window.api.validation.runReplay(sceneId, caseIds))
+      const result = await window.api.validation.runReplay(sceneId, caseIds)
+      const report = handleIpc(result)
       set({ replayReport: report, replayLoading: false })
     } catch (err) {
       set({ replayError: String(err), replayLoading: false })

@@ -5,6 +5,8 @@ import { generateId } from '../utils/uuid'
 import type { ValidationVerdict, ValidationResult, VerdictResult, OverallVerdict, TestCase, EvalCaseExport } from '../contracts/ipc-types'
 import PageNav from '../components/PageNav'
 import Markdown from '../components/Markdown'
+import { CaseEditor } from '../components/CaseEditor'
+import { ReplayReportView } from '../components/ReplayReportView'
 import { ArrowLeft, Close, ChevronDown, ChevronRight } from '../components/Icons'
 
 const MAX_CASES = 10
@@ -28,8 +30,24 @@ const Validate: React.FC = () => {
   const setCurrentPage = useSceneStore(s => s.setCurrentPage)
   const sceneId = currentScene?.id
 
-  const [tab, setTab] = useState<'compare' | 'report'>('compare')
+  const {
+    replayCases,
+    replayLoading,
+    replayReport,
+    loadReplayCases,
+    addReplayCase,
+    updateReplayCase,
+    deleteReplayCase,
+    runReplay
+  } = useSceneStore()
+
+  const [tab, setTab] = useState<'compare' | 'report' | 'replay'>('compare')
   const [subTab, setSubTab] = useState<'single' | 'testset'>('single')
+
+  // 验证回放（replay）本地状态
+  const [caseEditorOpen, setCaseEditorOpen] = useState(false)
+  const [editingCase, setEditingCase] = useState<TestCase | undefined>(undefined)
+  const [selectedCaseIds, setSelectedCaseIds] = useState<string[]>([])
 
   // 测试集（用例列表本身单独持久化，保留在组件本地）
   const [cases, setCases] = useState<TestCase[]>([])
@@ -62,7 +80,8 @@ const Validate: React.FC = () => {
     if (!sceneId) return
     window.api.validation.listCases(sceneId).then(r => { if (r.success && r.data) setCases(r.data) })
     valLoadResults(sceneId)
-  }, [sceneId, valLoadResults])
+    loadReplayCases(sceneId)
+  }, [sceneId, valLoadResults, loadReplayCases])
 
   // ---------- 测试集 CRUD（整集替换持久化） ----------
   const persist = async (next: TestCase[]): Promise<void> => {
@@ -216,7 +235,7 @@ const Validate: React.FC = () => {
     </div>
   )
 
-  const TabButton = ({ id, label }: { id: 'compare' | 'report'; label: string }): React.ReactElement => (
+  const TabButton = ({ id, label }: { id: 'compare' | 'report' | 'replay'; label: string }): React.ReactElement => (
     <button onClick={() => setTab(id)}
       className={`mr-5 cursor-pointer border-b-2 px-1 py-2 text-xs ${tab === id ? 'border-accent font-bold text-accent' : 'border-transparent font-medium text-sub hover:text-ink'}`}>{label}</button>
   )
@@ -245,6 +264,7 @@ const Validate: React.FC = () => {
         <span className="mr-4 text-xs font-bold text-ink">{t('validate.title')}</span>
         <TabButton id="compare" label={t('validate.tabCompare')} />
         <TabButton id="report" label={t('validate.tabReport')} />
+        <TabButton id="replay" label="验证回放" />
       </div>
 
       {tab === 'compare' ? (
@@ -326,7 +346,7 @@ const Validate: React.FC = () => {
             )}
           </div>
         </div>
-      ) : (
+      ) : tab === 'report' ? (
         /* ===== 验证报告 tab ===== */
         <div className="flex-1 overflow-auto px-7 py-4">
           {/* 汇总结果 */}
@@ -393,6 +413,97 @@ const Validate: React.FC = () => {
             </div>
           )}
         </div>
+      ) : (
+        /* ===== 验证回放 tab ===== */
+        currentScene && (
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="flex items-center justify-between border-b border-line px-7 py-3">
+              <div className="text-[13px] font-medium text-ink">案例库（{replayCases.length}）</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setEditingCase(undefined)
+                    setCaseEditorOpen(true)
+                  }}
+                  className="btn-primary px-3 py-1.5 text-[11px]"
+                >
+                  + 新增案例
+                </button>
+                <button
+                  onClick={() => runReplay(currentScene.id, selectedCaseIds.length > 0 ? selectedCaseIds : undefined)}
+                  disabled={replayCases.length === 0 || replayLoading}
+                  className="rounded bg-green-600 px-3 py-1.5 text-[11px] text-white hover:bg-green-700 disabled:opacity-50"
+                >
+                  {replayLoading ? '运行中...' : selectedCaseIds.length > 0 ? '运行选中' : '运行全部'}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-1 overflow-hidden">
+              <div className="w-1/3 overflow-y-auto border-r border-line p-3">
+                {replayCases.length === 0 && (
+                  <div className="text-[11px] text-tri">暂无案例，点击新增</div>
+                )}
+                {replayCases.map(c => (
+                  <div key={c.id} className="mb-2 flex items-start gap-2 rounded-lg border border-line bg-surface p-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedCaseIds.includes(c.id)}
+                      onChange={e => {
+                        setSelectedCaseIds(prev =>
+                          e.target.checked ? [...prev, c.id] : prev.filter(id => id !== c.id)
+                        )
+                      }}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] font-medium text-ink">{c.instruction}</div>
+                      <div className="mt-0.5 flex gap-2">
+                        {c.difficulty && <span className="text-[10px] text-sub">{c.difficulty}</span>}
+                        {c.confidence && <span className="text-[10px] text-sub">{c.confidence}</span>}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setEditingCase(c); setCaseEditorOpen(true) }}
+                        className="text-[10px] text-accent hover:underline"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => {
+                          deleteReplayCase(currentScene.id, c.id)
+                          setSelectedCaseIds(prev => prev.filter(id => id !== c.id))
+                        }}
+                        className="text-[10px] text-red-600 hover:underline"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex-1 overflow-y-auto bg-surface">
+                <ReplayReportView report={replayReport} loading={replayLoading} />
+              </div>
+            </div>
+
+            <CaseEditor
+              isOpen={caseEditorOpen}
+              onClose={() => setCaseEditorOpen(false)}
+              references={currentScene.references}
+              initialCase={editingCase}
+              onSave={input => {
+                if (editingCase) {
+                  updateReplayCase(currentScene.id, editingCase.id, input)
+                } else {
+                  addReplayCase(currentScene.id, input)
+                }
+              }}
+            />
+          </div>
+        )
       )}
 
       {/* 编辑测试指令弹窗 */}

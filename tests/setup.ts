@@ -73,6 +73,10 @@ const mockApi = {
     listCases: vi.fn().mockResolvedValue({ success: true, data: [] }),
     generateCases: vi.fn().mockResolvedValue({ success: true, data: [] }),
     saveCases: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    addCase: vi.fn(),
+    updateCase: vi.fn(),
+    deleteCase: vi.fn(),
+    runReplay: vi.fn(),
     getResults: vi.fn().mockResolvedValue({ success: true, data: { caseResults: {}, singleEntry: null } }),
     saveResults: vi.fn().mockResolvedValue({ success: true, data: { saved: true } }),
     exportResults: vi.fn().mockResolvedValue({ success: true, data: { filePath: '/tmp/eval.json' } })
