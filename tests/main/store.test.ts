@@ -181,6 +181,7 @@ vi.mock('fs', () => {
   }
 })
 
+import Database from 'better-sqlite3'
 import * as store from '../../electron/main/store'
 
 describe('Store - Scene CRUD', () => {
@@ -377,5 +378,16 @@ describe('Store - Test Cases CRUD', () => {
     expect(cases[0].instruction).toBe('A')
     expect(cases[0].expectedAnswer).toBe('ans-a')
     expect(cases[1].sourceReferenceIds).toEqual(['ref-2'])
+  })
+
+  it('should tolerate corrupted source_reference_ids', () => {
+    const c = store.addTestCase('scene-cases', { instruction: 'Corrupt refs', sourceReferenceIds: ['ref-1'] })
+    const rawDb = new Database()
+    rawDb.prepare('UPDATE test_cases SET source_reference_ids = ? WHERE id = ?').run('not-json', c.id)
+    const fetched = store.getTestCase(c.id)
+    expect(fetched?.sourceReferenceIds).toEqual([])
+    const listed = store.listTestCases('scene-cases')
+    const listedCase = listed.find(x => x.id === c.id)
+    expect(listedCase?.sourceReferenceIds).toEqual([])
   })
 })

@@ -109,6 +109,40 @@ describe('IPC Integration - Validation Agent', () => {
   })
 })
 
+describe('IPC Integration - Validation Replay Cases', () => {
+  it('should add a replay case', async () => {
+    const result = await window.api.validation.addCase('scene-1', { instruction: 'Test case' })
+    expect(result.success).toBe(true)
+    expect(result.data).toBeDefined()
+    expect(result.data!.instruction).toBe('Test case')
+  })
+
+  it('should update a replay case', async () => {
+    const result = await window.api.validation.updateCase('scene-1', 'case-1', { instruction: 'Updated case' })
+    expect(result.success).toBe(true)
+    expect(result.data!.instruction).toBe('Updated case')
+  })
+
+  it('should delete a replay case', async () => {
+    const result = await window.api.validation.deleteCase('scene-1', 'case-1')
+    expect(result.success).toBe(true)
+    expect(result.data!.success).toBe(true)
+  })
+
+  it('should run replay for all cases', async () => {
+    const result = await window.api.validation.runReplay('scene-1')
+    expect(result.success).toBe(true)
+    expect(result.data!.totalCases).toBeDefined()
+    expect(result.data!.hitRate).toBeDefined()
+  })
+
+  it('should run replay with caseIds filter', async () => {
+    const result = await window.api.validation.runReplay('scene-1', ['case-1'])
+    expect(result.success).toBe(true)
+    expect(result.data!.totalCases).toBeDefined()
+  })
+})
+
 describe('IPC Integration - Canvas', () => {
   it('should update canvas', async () => {
     const result = await window.api.canvas.update('scene-1', { flows: [], rules: [], insights: [], concepts: [], relations: [] })

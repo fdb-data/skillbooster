@@ -197,4 +197,27 @@ describe('replay cases', () => {
     expect(report.results[0].hit).toBe(false)
     expect(report.results[0].reason).toContain('未提供')
   })
+
+  it('should throw when no cases exist for replay', async () => {
+    await expect(runReplay('scene-empty')).rejects.toThrow('No cases available for replay in this scene')
+  })
+
+  it('should throw when filtered caseIds match no cases', async () => {
+    addTestCase('scene-filter-empty', { instruction: '案例', expectedAnswer: '是' })
+    await expect(runReplay('scene-filter-empty', ['non-existent-id'])).rejects.toThrow('No cases available for replay in this scene')
+  })
+
+  it('should handle LLM judge returning markdown code fence', async () => {
+    addTestCase('scene-fence', { instruction: '测试', expectedAnswer: '通过' })
+    vi.mocked(callLLMEx).mockImplementation(async (options: any) => {
+      if (options.systemPrompt === '') {
+        return { content: '```json\n{"hit": true, "reason": "markdown 包装"}\n```' }
+      }
+      return { content: '通过' }
+    })
+    const report = await runReplay('scene-fence')
+    expect(report.totalCases).toBe(1)
+    expect(report.hitCount).toBe(1)
+    expect(report.results[0].reason).toContain('markdown 包装')
+  })
 })
