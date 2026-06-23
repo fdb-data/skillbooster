@@ -225,7 +225,7 @@ export interface TestCase {
   sceneId: string
   instruction: string
   expectedAnswer?: string
-  sourceReferenceIds?: string[]
+  sourceReferenceIds: string[]
   difficulty?: 'easy' | 'medium' | 'hard'
   confidence?: 'high' | 'medium' | 'low'
   tags?: string
@@ -233,6 +233,41 @@ export interface TestCase {
   sortOrder: number
   createdAt: string
   updatedAt?: string
+}
+
+export interface TestCaseInput {
+  instruction: string
+  expectedAnswer?: string
+  sourceReferenceIds?: string[]
+  difficulty?: 'easy' | 'medium' | 'hard'
+  confidence?: 'high' | 'medium' | 'low'
+  tags?: string
+  notes?: string
+}
+
+export interface ReplayResult {
+  caseId: string
+  instruction: string
+  expectedAnswer?: string
+  actualAnswer: string
+  hit: boolean
+  reason: string
+  judgeModel: string
+  latencyMs: number
+  tokens?: TokenUsage
+}
+
+export interface ReplayReport {
+  sceneId: string
+  runAt: string
+  skillName: string
+  totalCases: number
+  hitCount: number
+  missCount: number
+  hitRate: number
+  byDifficulty: Record<string, { total: number; hit: number; rate: number }>
+  byConfidence: Record<string, { total: number; hit: number; rate: number }>
+  results: ReplayResult[]
 }
 
 /** 引导对话的一条消息（独立于萃取 conversations，保留选项/多选等 UI 元数据以便完整恢复） */

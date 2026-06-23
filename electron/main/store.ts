@@ -3,7 +3,7 @@ import path from 'path'
 import Database from 'better-sqlite3'
 import fs from 'fs'
 import log from 'electron-log'
-import type { ExperienceCard, LLMConfig, LLMProviderConfig, ConversationMessage, Reference, Attachment, AttachmentKind, TestCase, ValidationResultsBundle, GuideMessageRecord } from '../../src/contracts/ipc-types'
+import type { ExperienceCard, LLMConfig, LLMProviderConfig, ConversationMessage, Reference, Attachment, AttachmentKind, TestCase, TestCaseInput, ValidationResultsBundle, GuideMessageRecord } from '../../src/contracts/ipc-types'
 import { emptyExperienceCard } from '../../src/contracts/ipc-types'
 import { generateId } from '../../src/utils/uuid'
 
@@ -498,7 +498,7 @@ export function saveTestCases(sceneId: string, cases: TestCase[]): TestCase[] {
   return listTestCases(sceneId)
 }
 
-export function addTestCase(sceneId: string, input: Omit<TestCase, 'id' | 'sceneId' | 'createdAt' | 'updatedAt'>): TestCase {
+export function addTestCase(sceneId: string, input: TestCaseInput & { sortOrder?: number }): TestCase {
   const now = new Date().toISOString()
   const id = generateId()
   const sortOrder = input.sortOrder ?? 0

@@ -4,7 +4,7 @@ import type {
   Proposal, ProposalCard, KnowledgeType, KnowledgeEntry,
   CanvasUpdate, AppError, IpcResult,
   ValidationResult, ValidationVerdict, DimensionVerdict, VerdictResult, OverallVerdict, TokenUsage,
-  TestCase, EvalCaseExport, EvalExportPayload, ValidationResultsBundle, GuideMessageRecord
+  TestCase, TestCaseInput, ReplayResult, ReplayReport, EvalCaseExport, EvalExportPayload, ValidationResultsBundle, GuideMessageRecord
 } from './contracts/ipc-types'
 import type { AgentEvent } from './contracts/agent-events'
 
@@ -80,6 +80,10 @@ interface ElectronApi {
     listCases: (sceneId: string) => Promise<IpcResult<TestCase[]>>
     generateCases: (sceneId: string) => Promise<IpcResult<string[]>>
     saveCases: (sceneId: string, cases: TestCase[]) => Promise<IpcResult<TestCase[]>>
+    addCase: (sceneId: string, input: TestCaseInput) => Promise<IpcResult<TestCase>>
+    updateCase: (sceneId: string, caseId: string, input: Partial<TestCaseInput>) => Promise<IpcResult<TestCase>>
+    deleteCase: (sceneId: string, caseId: string) => Promise<IpcResult<{ success: boolean }>>
+    runReplay: (sceneId: string, caseIds?: string[]) => Promise<IpcResult<ReplayReport>>
     getResults: (sceneId: string) => Promise<IpcResult<ValidationResultsBundle>>
     saveResults: (sceneId: string, bundle: ValidationResultsBundle) => Promise<IpcResult<{ saved: boolean }>>
     exportResults: (sceneId: string, format: 'json' | 'markdown', payload: EvalExportPayload) => Promise<IpcResult<{ filePath: string }>>
@@ -119,6 +123,6 @@ export type {
   Proposal, ProposalCard, KnowledgeType, KnowledgeEntry,
   CanvasUpdate, AppError, IpcResult, ElectronApi,
   ValidationResult, ValidationVerdict, DimensionVerdict, VerdictResult, OverallVerdict, TokenUsage,
-  TestCase, EvalCaseExport, EvalExportPayload,
+  TestCase, TestCaseInput, ReplayResult, ReplayReport, EvalCaseExport, EvalExportPayload,
   GuideResult, GuideDraft, AgentConfig
 }
