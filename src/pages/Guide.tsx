@@ -4,6 +4,7 @@ import { useSceneStore } from '../store/sceneStore'
 import { isDefaultProjectName } from '../i18n'
 import Markdown from '../components/Markdown'
 import PageNav from '../components/PageNav'
+import ModelBadge from '../components/ModelBadge'
 import { ArrowLeft, Edit as EditIcon, ArrowRight, Paperclip, Send } from '../components/Icons'
 
 interface GuideMessage {
@@ -290,6 +291,10 @@ const Guide: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* 左侧：对话区 */}
         <div className="flex flex-1 flex-col border-r border-line">
+          <div className="flex shrink-0 items-center justify-between border-b border-line px-4 py-2">
+            <span className="text-[10px] font-semibold text-sub">{t('guide.agentLabel')}</span>
+            <ModelBadge agentKey="guide" />
+          </div>
           <div className="flex flex-1 flex-col items-center overflow-auto py-6">
             <div className="flex w-full max-w-[460px] flex-col gap-3 px-4">
               {messages.map((msg, i) => (

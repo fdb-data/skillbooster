@@ -103,6 +103,7 @@ interface ElectronApi {
     testConnection: (config: LLMConfig) => Promise<IpcResult<{ success: boolean; error?: string }>>
     getAgentConfigs: () => Promise<IpcResult<AgentConfig[]>>
     saveAgentConfig: (config: AgentConfig) => Promise<IpcResult<AgentConfig>>
+    resolveAgentLLMConfig: (agentKey: string) => Promise<IpcResult<{ provider: string; model: string } | null>>
     openPromptFile: (relativePath: string) => Promise<IpcResult<{ success: boolean; error?: string }>>
     getLanguage: () => Promise<IpcResult<'en' | 'zh'>>
     setLanguage: (lang: 'en' | 'zh') => Promise<IpcResult<'en' | 'zh'>>

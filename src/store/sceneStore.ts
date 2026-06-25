@@ -114,6 +114,7 @@ interface SceneStore {
   loadLLMProviders: () => Promise<void>
   saveLLMProviders: (providers: LLMProviderConfig[]) => Promise<void>
   testConnection: (config: LLMConfig) => Promise<{ success: boolean; error?: string }>
+  resolveAgentLLMConfig: (agentKey: AgentKey) => Promise<{ provider: string; model: string } | null>
 
   setCurrentPage: (page: Page) => void
   clearError: () => void
@@ -946,6 +947,15 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
       return { success: data.success, error: data.error }
     } catch (err) {
       return { success: false, error: (err as Error).message }
+    }
+  },
+
+  resolveAgentLLMConfig: async (agentKey: AgentKey) => {
+    try {
+      const result = await window.api.settings.resolveAgentLLMConfig(agentKey)
+      return handleIpc(result)
+    } catch (err) {
+      return null
     }
   },
 

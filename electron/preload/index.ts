@@ -74,6 +74,7 @@ const api = {
     testConnection: (config: unknown): Promise<unknown> => ipcRenderer.invoke('settings:testConnection', config),
     getAgentConfigs: (): Promise<unknown> => ipcRenderer.invoke('settings:getAgentConfigs'),
     saveAgentConfig: (config: unknown): Promise<unknown> => ipcRenderer.invoke('settings:saveAgentConfig', config),
+    resolveAgentLLMConfig: (agentKey: string): Promise<unknown> => ipcRenderer.invoke('settings:resolveAgentLLMConfig', agentKey),
     openPromptFile: (relativePath: string): Promise<unknown> => ipcRenderer.invoke('settings:openPromptFile', relativePath),
     getLanguage: (): Promise<unknown> => ipcRenderer.invoke('settings:getLanguage'),
     setLanguage: (lang: string): Promise<unknown> => ipcRenderer.invoke('settings:setLanguage', lang),

@@ -12,6 +12,9 @@
     "testing": "Testing...",
     "operationFailed": "Operation failed"
   },
+  "modelBadge": {
+    "title": "Current model: {{provider}} / {{model}}"
+  },
   "home": {
     "brand": "SkillBooster",
     "settings": "Settings",
@@ -46,6 +49,7 @@
     }
   },
   "guide": {
+    "agentLabel": "Guide Agent",
     "nameAutoHint": "(auto-named · click to edit)",
     "step": "Scene setup · {{step}} / 3",
     "multiSelectHint": "Multi-select",

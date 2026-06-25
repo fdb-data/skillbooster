@@ -5,6 +5,7 @@ import ReferencePanel from '../components/ReferencePanel'
 import FileAttachmentPanel from '../components/FileAttachmentPanel'
 import Conversation from '../components/Conversation'
 import PageNav from '../components/PageNav'
+import ModelBadge from '../components/ModelBadge'
 import { ArrowLeft, Edit as EditIcon, Close } from '../components/Icons'
 import FlowCanvas from '../components/FlowCanvas'
 
@@ -153,7 +154,10 @@ const Workbench: React.FC = () => {
 
         {/* 对话：聊天窄栏，固定宽度 */}
         <div style={{ width: 380, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 9, color: 'var(--tri)', marginBottom: 4 }}>{t('workbench.agentDriven')}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'var(--tri)' }}>{t('workbench.agentDriven')}</span>
+            <ModelBadge agentKey="extract" />
+          </div>
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <Conversation sceneId={currentScene.id} conversation={currentScene.conversation} />
           </div>

@@ -94,6 +94,7 @@ const mockApi = {
     testConnection: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
     getAgentConfigs: vi.fn().mockResolvedValue({ success: true, data: [] }),
     saveAgentConfig: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    resolveAgentLLMConfig: vi.fn().mockResolvedValue({ success: true, data: { provider: 'TestProvider', model: 'test-model' } }),
     openPromptFile: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
     getLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),
     setLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),

@@ -293,6 +293,21 @@ export function registerIpcHandlers(): void {
     return store.getAllAgentConfigs()
   }))
 
+  ipcMain.handle('settings:resolveAgentLLMConfig', wrapHandler(async (_e, agentKey: string) => {
+    const ac = store.getAgentConfig(agentKey)
+    if (ac && ac.model) {
+      return { provider: ac.provider, model: ac.model }
+    }
+    const global = store.getLLMConfig()
+    if (!global) return null
+    const providers = store.getAllLLMProviders()
+    const p = providers.find(pr => {
+      const type = pr.name.toLowerCase() === 'openai' ? 'openai' : pr.name.toLowerCase() === 'azure' ? 'azure' : 'custom'
+      return type === global.provider
+    })
+    return { provider: p?.name || global.provider, model: global.model }
+  }))
+
   ipcMain.handle('settings:saveAgentConfig', wrapHandler(async (_e, config: store.AgentConfig) => {
     store.saveAgentConfig(config)
     return config

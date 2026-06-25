@@ -12,6 +12,9 @@
     "testing": "Testing...",
     "operationFailed": "操作失败"
   },
+  "modelBadge": {
+    "title": "当前对话模型：{{provider}} / {{model}}"
+  },
   "home": {
     "brand": "SkillBooster 经验工作室",
     "settings": "设置",
@@ -46,6 +49,7 @@
     }
   },
   "guide": {
+    "agentLabel": "引导 Agent",
     "nameAutoHint": "（自动命名·点击可改）",
     "step": "场景引导 · {{step}} / 3",
     "multiSelectHint": "可多选",
