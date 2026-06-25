@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Scene, ExperienceCard, LLMConfig, LLMProviderConfig, HealthCheckResult, ProposalCard, ConversationMessage, AttachmentKind, KnowledgeKey, CanvasOp, CanvasPosition, ValidationResult, ValidationControl } from '../contracts/ipc-types'
+import type { Scene, ExperienceCard, LLMConfig, LLMProviderConfig, HealthCheckResult, ProposalCard, ConversationMessage, AttachmentKind, KnowledgeKey, CanvasOp, CanvasPosition, ValidationResult, ValidationControl, TestCase, TestCaseInput, ReplayReport } from '../contracts/ipc-types'
 import { EventType } from '../contracts/agent-events'
 import type { AgentEvent, AgentKey } from '../contracts/agent-events'
 import { generateId } from '../utils/uuid'
@@ -56,12 +56,24 @@ interface SceneStore {
   valRunningCaseId: string | null
   valRunAll: { done: number; total: number } | null
 
+  replayCases: TestCase[]
+  replayLoading: boolean
+  replayReport: ReplayReport | null
+  replayError: string | null
+
   valLoadResults: (sceneId: string) => Promise<void>
   valRunSingle: (sceneId: string, instruction: string) => Promise<void>
   valRunCase: (sceneId: string, caseId: string, instruction: string) => Promise<void>
   valRunAllCases: (sceneId: string, cases: ValidationCaseInput[]) => Promise<void>
   valDeleteCaseResult: (sceneId: string, caseId: string) => void
   valClearCaseResults: (sceneId: string) => void
+
+  loadReplayCases: (sceneId: string) => Promise<void>
+  addReplayCase: (sceneId: string, input: TestCaseInput) => Promise<void>
+  updateReplayCase: (sceneId: string, caseId: string, input: Partial<TestCaseInput>) => Promise<void>
+  deleteReplayCase: (sceneId: string, caseId: string) => Promise<void>
+  runReplay: (sceneId: string, caseIds?: string[]) => Promise<void>
+  clearReplayReport: () => void
 
   // 画布统一操作（用户编辑路径），带 undo/redo
   canUndo: boolean
@@ -102,6 +114,7 @@ interface SceneStore {
   loadLLMProviders: () => Promise<void>
   saveLLMProviders: (providers: LLMProviderConfig[]) => Promise<void>
   testConnection: (config: LLMConfig) => Promise<{ success: boolean; error?: string }>
+  resolveAgentLLMConfig: (agentKey: AgentKey) => Promise<{ provider: string; model: string } | null>
 
   setCurrentPage: (page: Page) => void
   clearError: () => void
@@ -216,6 +229,11 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   valAnalyzing: false,
   valRunningCaseId: null,
   valRunAll: null,
+
+  replayCases: [],
+  replayLoading: false,
+  replayReport: null,
+  replayError: null,
 
   initAgentEvents: () => {
     return window.api.agent.onEvent((event: AgentEvent) => {
@@ -403,6 +421,70 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
       return { valCaseResults: {} }
     })
   },
+
+  // ---------- 回放缓联机测试 ----------
+  loadReplayCases: async (sceneId: string) => {
+    set({ replayLoading: true, replayError: null })
+    try {
+      const result = await window.api.validation.listCases(sceneId)
+      const cases = handleIpc(result)
+      set({ replayCases: cases, replayLoading: false })
+    } catch (err) {
+      set({ replayError: String(err), replayLoading: false })
+    }
+  },
+
+  addReplayCase: async (sceneId: string, input: TestCaseInput) => {
+    set({ replayLoading: true, replayError: null })
+    try {
+      const result = await window.api.validation.addCase(sceneId, input)
+      const c = handleIpc(result)
+      set(state => ({ replayCases: [...state.replayCases, c], replayLoading: false }))
+    } catch (err) {
+      set({ replayError: String(err), replayLoading: false })
+    }
+  },
+
+  updateReplayCase: async (sceneId: string, caseId: string, input: Partial<TestCaseInput>) => {
+    set({ replayLoading: true, replayError: null })
+    try {
+      const result = await window.api.validation.updateCase(sceneId, caseId, input)
+      const c = handleIpc(result)
+      set(state => ({
+        replayCases: state.replayCases.map(x => x.id === caseId ? c : x),
+        replayLoading: false
+      }))
+    } catch (err) {
+      set({ replayError: String(err), replayLoading: false })
+    }
+  },
+
+  deleteReplayCase: async (sceneId: string, caseId: string) => {
+    set({ replayLoading: true, replayError: null })
+    try {
+      const result = await window.api.validation.deleteCase(sceneId, caseId)
+      handleIpc(result)
+      set(state => ({
+        replayCases: state.replayCases.filter(x => x.id !== caseId),
+        replayLoading: false
+      }))
+    } catch (err) {
+      set({ replayError: String(err), replayLoading: false })
+    }
+  },
+
+  runReplay: async (sceneId: string, caseIds?: string[]) => {
+    set({ replayLoading: true, replayError: null, replayReport: null })
+    try {
+      const result = await window.api.validation.runReplay(sceneId, caseIds)
+      const report = handleIpc(result)
+      set({ replayReport: report, replayLoading: false })
+    } catch (err) {
+      set({ replayError: String(err), replayLoading: false })
+    }
+  },
+
+  clearReplayReport: () => set({ replayReport: null, replayError: null }),
 
   canUndo: false,
   canRedo: false,
@@ -865,6 +947,15 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
       return { success: data.success, error: data.error }
     } catch (err) {
       return { success: false, error: (err as Error).message }
+    }
+  },
+
+  resolveAgentLLMConfig: async (agentKey: AgentKey) => {
+    try {
+      const result = await window.api.settings.resolveAgentLLMConfig(agentKey)
+      return handleIpc(result)
+    } catch (err) {
+      return null
     }
   },
 

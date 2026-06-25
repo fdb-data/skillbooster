@@ -33,7 +33,8 @@ const mockScene = {
 const mockStore = {
   currentScene: mockScene,
   setCurrentPage: vi.fn(),
-  isLoading: false
+  isLoading: false,
+  resolveAgentLLMConfig: vi.fn().mockResolvedValue({ provider: 'OpenAI', model: 'gpt-4' })
 }
 
 describe('Workbench Page', () => {

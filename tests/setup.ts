@@ -73,6 +73,10 @@ const mockApi = {
     listCases: vi.fn().mockResolvedValue({ success: true, data: [] }),
     generateCases: vi.fn().mockResolvedValue({ success: true, data: [] }),
     saveCases: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    addCase: vi.fn().mockResolvedValue({ success: true, data: { id: 'case-1', sceneId: 'scene-1', instruction: 'Test case', expectedAnswer: '', sourceReferenceIds: [], difficulty: 'easy', confidence: 'high', tags: '', notes: '', sortOrder: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } }),
+    updateCase: vi.fn().mockResolvedValue({ success: true, data: { id: 'case-1', sceneId: 'scene-1', instruction: 'Updated case', expectedAnswer: '', sourceReferenceIds: [], difficulty: 'easy', confidence: 'high', tags: '', notes: '', sortOrder: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } }),
+    deleteCase: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
+    runReplay: vi.fn().mockResolvedValue({ success: true, data: { sceneId: 'scene-1', skillName: 'Test Skill', runAt: new Date().toISOString(), totalCases: 1, hitCount: 1, missCount: 0, hitRate: 1, byDifficulty: {}, byConfidence: {}, results: [] } }),
     getResults: vi.fn().mockResolvedValue({ success: true, data: { caseResults: {}, singleEntry: null } }),
     saveResults: vi.fn().mockResolvedValue({ success: true, data: { saved: true } }),
     exportResults: vi.fn().mockResolvedValue({ success: true, data: { filePath: '/tmp/eval.json' } })
@@ -90,6 +94,7 @@ const mockApi = {
     testConnection: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
     getAgentConfigs: vi.fn().mockResolvedValue({ success: true, data: [] }),
     saveAgentConfig: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    resolveAgentLLMConfig: vi.fn().mockResolvedValue({ success: true, data: { provider: 'TestProvider', model: 'test-model' } }),
     openPromptFile: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
     getLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),
     setLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),

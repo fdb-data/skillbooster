@@ -34,7 +34,8 @@ const mockStore = {
   activeRunId: null,
   agentStatus: null,
   streamingText: null,
-  liveSceneDraft: null
+  liveSceneDraft: null,
+  resolveAgentLLMConfig: vi.fn().mockResolvedValue({ provider: 'OpenAI', model: 'gpt-4' })
 }
 
 ;(useSceneStore as any).getState = () => mockStore

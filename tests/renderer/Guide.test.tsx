@@ -21,7 +21,8 @@ const mockStore = {
   updateScene: vi.fn(),
   isLoading: false,
   guideInput: '',
-  setGuideInput: vi.fn()
+  setGuideInput: vi.fn(),
+  resolveAgentLLMConfig: vi.fn().mockResolvedValue({ provider: 'OpenAI', model: 'gpt-4' })
 }
 
 describe('Guide Page', () => {

@@ -2,12 +2,12 @@ import { ipcMain, dialog, shell } from 'electron'
 import log from 'electron-log'
 import fs from 'fs'
 import path from 'path'
-import type { LLMConfig, LLMProviderConfig, ExperienceCard, Reference, Attachment, AttachmentKind, TestCase, EvalExportPayload, ValidationResultsBundle } from '../../src/contracts/ipc-types'
+import type { LLMConfig, LLMProviderConfig, ExperienceCard, Reference, Attachment, AttachmentKind, TestCase, TestCaseInput, EvalExportPayload, ValidationResultsBundle } from '../../src/contracts/ipc-types'
 import { generateId } from '../../src/utils/uuid'
 import * as store from './store'
 import { runTurn, draftFromDocs } from './extraction'
 import { healthCheck, buildPackage } from './packager'
-import { guideRunTurn, getSceneDraft, validationRun, validationRunCase, generateTestCases } from './agents'
+import { guideRunTurn, getSceneDraft, validationRun, validationRunCase, generateTestCases, runReplay } from './agents'
 import { exportEvalResults } from './packager'
 import { abortAgentRun } from './agentLoop'
 import { parseDocument } from './docParser'
@@ -214,6 +214,23 @@ export function registerIpcHandlers(): void {
     return store.saveTestCases(sceneId, cases)
   }))
 
+  ipcMain.handle('validation:addCase', wrapHandler(async (_e, sceneId: string, input: TestCaseInput) => {
+    return store.addTestCase(sceneId, input)
+  }))
+
+  ipcMain.handle('validation:updateCase', wrapHandler(async (_e, sceneId: string, caseId: string, input: Partial<TestCaseInput>) => {
+    return store.updateTestCase(sceneId, caseId, input)
+  }))
+
+  ipcMain.handle('validation:deleteCase', wrapHandler(async (_e, sceneId: string, caseId: string) => {
+    store.deleteTestCase(sceneId, caseId)
+    return { success: true }
+  }))
+
+  ipcMain.handle('validation:runReplay', wrapHandler(async (_e, sceneId: string, caseIds?: string[]) => {
+    return await runReplay(sceneId, caseIds)
+  }))
+
   ipcMain.handle('validation:getResults', wrapHandler(async (_e, sceneId: string) => {
     return store.getValidationResults(sceneId)
   }))
@@ -224,7 +241,8 @@ export function registerIpcHandlers(): void {
   }))
 
   ipcMain.handle('validation:exportResults', wrapHandler(async (_e, sceneId: string, format: 'json' | 'markdown', payload: EvalExportPayload) => {
-    return await exportEvalResults(sceneId, format, payload)
+    const filePath = await exportEvalResults(sceneId, format, payload)
+    return { filePath }
   }))
 
   ipcMain.handle('extraction:draftFromDocs', wrapHandler(async (_e, sceneId: string) => {
@@ -273,6 +291,21 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('settings:getAgentConfigs', wrapHandler(async () => {
     return store.getAllAgentConfigs()
+  }))
+
+  ipcMain.handle('settings:resolveAgentLLMConfig', wrapHandler(async (_e, agentKey: string) => {
+    const ac = store.getAgentConfig(agentKey)
+    if (ac && ac.model) {
+      return { provider: ac.provider, model: ac.model }
+    }
+    const global = store.getLLMConfig()
+    if (!global) return null
+    const providers = store.getAllLLMProviders()
+    const p = providers.find(pr => {
+      const type = pr.name.toLowerCase() === 'openai' ? 'openai' : pr.name.toLowerCase() === 'azure' ? 'azure' : 'custom'
+      return type === global.provider
+    })
+    return { provider: p?.name || global.provider, model: global.model }
   }))
 
   ipcMain.handle('settings:saveAgentConfig', wrapHandler(async (_e, config: store.AgentConfig) => {
