@@ -21,6 +21,18 @@ function getReferencesDir(): string {
   return path.join(app.getPath('userData'), 'references')
 }
 
+function getNativeBinding(): string | undefined {
+  if (process.platform !== 'win32') return undefined
+  return path.join(
+    app.getAppPath(),
+    'node_modules',
+    'better-sqlite3',
+    'bin',
+    `win32-x64-${process.versions.modules}`,
+    'better-sqlite3.node'
+  )
+}
+
 /** 附件（脚本/资产）按 kind 分根目录：{userData}/scripts | {userData}/assets */
 function getAttachmentsRoot(kind: AttachmentKind): string {
   return path.join(app.getPath('userData'), kind === 'script' ? 'scripts' : 'assets')
@@ -52,7 +64,7 @@ export function initDatabase(): void {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
   }
 
-  db = new Database(dbPath)
+  db = new Database(dbPath, { nativeBinding: getNativeBinding() })
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')
 
