@@ -16,6 +16,7 @@ function createWindow(): void {
     minWidth: 1024,
     minHeight: 700,
     show: false,
+    icon: join(__dirname, '../../build/icon.svg'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,

@@ -53,9 +53,9 @@ describe('Canvas Component', () => {
 
   it('should render section headers with entries', () => {
     render(<Canvas sceneId="test-scene" canvas={canvasWithEntries} />)
-    expect(screen.getByText(/流程 · 怎么做/)).toBeDefined()
-    expect(screen.getByText(/规则 · 怎么判/)).toBeDefined()
-    expect(screen.getByText(/洞察 · 怎么看/)).toBeDefined()
+    expect(screen.getByText(/Flow/i)).toBeDefined()
+    expect(screen.getByText(/Rule/i)).toBeDefined()
+    expect(screen.getAllByText(/Insight/i).length).toBeGreaterThan(0)
   })
 
   it('should render entry titles', () => {
@@ -68,13 +68,13 @@ describe('Canvas Component', () => {
 
   it('should render add block buttons', () => {
     render(<Canvas sceneId="test-scene" canvas={emptyCanvas} />)
-    const addButtons = screen.getAllByText('+ 添加积木')
+    const addButtons = screen.getAllByText(/Add block/i)
     expect(addButtons.length).toBe(3)
   })
 
   it('should render evidence dots', () => {
     render(<Canvas sceneId="test-scene" canvas={canvasWithEntries} />)
-    expect(screen.getAllByText('待验证').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Unverified/i).length).toBeGreaterThan(0)
   })
 
   it('should show flow step numbers', () => {
@@ -90,7 +90,7 @@ describe('Canvas Component', () => {
 
   it('should add new entry on add button click', () => {
     render(<Canvas sceneId="test-scene" canvas={emptyCanvas} />)
-    const addButtons = screen.getAllByText('+ 添加积木')
+    const addButtons = screen.getAllByText(/Add block/i)
     fireEvent.click(addButtons[0])
     expect(mockStore.updateCanvas).toHaveBeenCalled()
   })
@@ -98,7 +98,7 @@ describe('Canvas Component', () => {
   it('should highlight new entries', () => {
     mockStore.highlightedEntries = ['f1']
     render(<Canvas sceneId="test-scene" canvas={canvasWithEntries} />)
-    expect(screen.getByText('刚长出')).toBeDefined()
+    expect(screen.getByText(/New/i)).toBeDefined()
     mockStore.highlightedEntries = []
   })
 })

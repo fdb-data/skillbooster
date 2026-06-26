@@ -36,6 +36,14 @@ interface AgentConfig {
   baseUrl?: string
 }
 
+type UpdateEvent =
+  | { state: 'checking' }
+  | { state: 'available'; version: string }
+  | { state: 'not-available' }
+  | { state: 'downloading'; percent: number }
+  | { state: 'downloaded'; version: string }
+  | { state: 'error'; message: string }
+
 interface ElectronApi {
   agent: {
     onEvent: (callback: (event: AgentEvent) => void) => () => void
@@ -105,6 +113,15 @@ interface ElectronApi {
     getTheme: () => Promise<IpcResult<'light' | 'dark' | 'system'>>
     setTheme: (theme: 'light' | 'dark' | 'system') => Promise<IpcResult<'light' | 'dark' | 'system'>>
   }
+  update: {
+    onEvent: (callback: (event: UpdateEvent) => void) => () => void
+    getAutoUpdate: () => Promise<IpcResult<boolean>>
+    setAutoUpdate: (enabled: boolean) => Promise<IpcResult<boolean>>
+    check: () => Promise<IpcResult<null>>
+    download: () => Promise<IpcResult<null>>
+    install: () => Promise<IpcResult<null>>
+    getVersion: () => Promise<IpcResult<string>>
+  }
 }
 
 declare global {
@@ -120,5 +137,5 @@ export type {
   CanvasUpdate, AppError, IpcResult, ElectronApi,
   ValidationResult, ValidationVerdict, DimensionVerdict, VerdictResult, OverallVerdict, TokenUsage,
   TestCase, EvalCaseExport, EvalExportPayload,
-  GuideResult, GuideDraft, AgentConfig
+  GuideResult, GuideDraft, AgentConfig, UpdateEvent
 }

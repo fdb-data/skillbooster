@@ -94,7 +94,7 @@ const Markdown: React.FC<{ text: string; style?: React.CSSProperties }> = ({ tex
     }
     i++
   }
-  return <div style={{ fontSize: 11, color: 'var(--ink)', lineHeight: 1.6, ...style }}>{blocks}</div>
+  return <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.6, ...style }}>{blocks}</div>
 }
 
 export default Markdown

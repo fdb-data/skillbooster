@@ -36,8 +36,8 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
       <div style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
         {conversation.length === 0 && proposals.length === 0 && (
           <div style={{ margin: '8px 8px 8px', padding: '12px 14px', background: 'var(--ai-bubble)', borderRadius: 10 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{t('conversation.welcomeTitle')}</p>
-            <p style={{ fontSize: 10, color: 'var(--sub)', lineHeight: 1.7, margin: '8px 0 0' }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{t('conversation.welcomeTitle')}</p>
+            <p style={{ fontSize: 12, color: 'var(--sub)', lineHeight: 1.7, margin: '8px 0 0' }}>
               {t('conversation.welcomeIntro')}<br />
               {t('conversation.welcomeStep1')}<br />
               {t('conversation.welcomeStep2')}<br />
@@ -63,7 +63,7 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
               maxWidth: '85%', padding: '8px 12px',
               borderRadius: msg.role === 'user' ? '10px 10px 2px 10px' : '10px 10px 10px 2px',
               background: msg.role === 'user' ? 'var(--user-bubble)' : 'var(--ai-bubble)',
-              color: 'var(--ink)', fontSize: 11, lineHeight: 1.65,
+              color: 'var(--ink)', fontSize: 13, lineHeight: 1.65,
               whiteSpace: msg.role === 'user' ? 'pre-wrap' : 'normal'
             }}>
               {msg.role === 'user' ? msg.content : <Markdown text={msg.content} />}
@@ -85,9 +85,9 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
                       <input autoFocus value={customText} onChange={e => setCustomText(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') sendMessage(customText) }}
                         placeholder={t('guide.customPlaceholder')}
-                        className="input-pill" style={{ flex: 1, fontSize: 10 }} />
+                        className="input-pill" style={{ flex: 1, fontSize: 12 }} />
                       <button onClick={() => sendMessage(customText)} disabled={!customText.trim()}
-                        className="btn-primary" style={{ padding: '4px 12px', fontSize: 10 }}>
+                        className="btn-primary" style={{ padding: '4px 12px', fontSize: 12 }}>
                         {t('common.send')}
                       </button>
                     </div>
@@ -104,7 +104,7 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
               maxWidth: '85%', padding: '8px 12px',
               borderRadius: '10px 10px 10px 2px',
               background: 'var(--ai-bubble)',
-              color: 'var(--ink)', fontSize: 11, lineHeight: 1.65
+              color: 'var(--ink)', fontSize: 13, lineHeight: 1.65
             }}>
               <Markdown text={streamingText} />
             </div>
@@ -117,15 +117,15 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
               <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--tri)', animation: 'pulse 1.2s ease-in-out 0.2s infinite' }} />
               <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--tri)', animation: 'pulse 1.2s ease-in-out 0.4s infinite' }} />
             </div>
-            <span style={{ fontSize: 10, color: 'var(--tri)' }}>{agentStatus || t('conversation.generating')}</span>
+            <span style={{ fontSize: 12, color: 'var(--tri)' }}>{agentStatus || t('conversation.generating')}</span>
             <button onClick={abortRun}
-              style={{ background: 'none', border: '1px solid var(--line)', borderRadius: 999, cursor: 'pointer', fontSize: 9, color: 'var(--tri)', padding: '2px 8px' }}>
+              style={{ background: 'none', border: '1px solid var(--line)', borderRadius: 999, cursor: 'pointer', fontSize: 11, color: 'var(--tri)', padding: '2px 8px' }}>
               {t('conversation.abort')}
             </button>
           </div>
         )}
         {proposals.length > 0 && (
-          <div style={{ margin: '0 8px 8px', padding: '6px 10px', background: 'var(--accent-soft)', borderRadius: 8, fontSize: 10, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ margin: '0 8px 8px', padding: '6px 10px', background: 'var(--accent-soft)', borderRadius: 8, fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span>🧩</span>
             <span>{t('conversation.proposalsHint', { count: proposals.length })}</span>
           </div>
@@ -139,7 +139,7 @@ const Conversation: React.FC<{ sceneId: string; conversation: ConversationMessag
           placeholder={isLoading ? t('conversation.thinkingPlaceholder') : t('conversation.inputPlaceholder')}
           disabled={isLoading}
           className="input-pill"
-          style={{ flex: 1, fontSize: 11 }} />
+          style={{ flex: 1, fontSize: 13 }} />
         <button onClick={handleSend} disabled={isLoading || !input.trim()}
           className="btn-primary" style={{ padding: '8px 14px', fontSize: 14, display: 'flex', alignItems: 'center' }}><Send size={14} /></button>
       </div>

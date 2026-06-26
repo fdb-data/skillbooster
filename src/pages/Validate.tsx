@@ -5,22 +5,38 @@ import { generateId } from '../utils/uuid'
 import type { ValidationVerdict, ValidationResult, VerdictResult, OverallVerdict, TestCase, EvalCaseExport } from '../contracts/ipc-types'
 import PageNav from '../components/PageNav'
 import Markdown from '../components/Markdown'
-import { ArrowLeft, Close, ChevronDown, ChevronRight } from '../components/Icons'
+import { ArrowLeft, Close, ChevronDown, ChevronRight, Copy, Check } from '../components/Icons'
+import PageHeader from '../components/ui/PageHeader'
+import Modal from '../components/Modal'
 
 const MAX_CASES = 10
 
 const RESULT_COLOR: Record<VerdictResult, { bg: string; fg: string }> = {
-  win: { bg: '#DCFCE7', fg: '#166534' },
-  tie: { bg: '#F1F5F9', fg: '#475569' },
-  loss: { bg: '#FEE2E2', fg: '#991B1B' }
+  win: { bg: 'var(--success-bg)', fg: 'var(--success-fg)' },
+  tie: { bg: 'var(--neutral-bg)', fg: 'var(--neutral-fg)' },
+  loss: { bg: 'var(--danger-bg)', fg: 'var(--danger-fg)' }
 }
 const VERDICT_COLOR: Record<OverallVerdict, { bg: string; fg: string }> = {
-  helpful: { bg: '#DCFCE7', fg: '#166534' },
-  no_difference: { bg: '#F1F5F9', fg: '#475569' },
-  worse: { bg: '#FEE2E2', fg: '#991B1B' }
+  helpful: { bg: 'var(--success-bg)', fg: 'var(--success-fg)' },
+  no_difference: { bg: 'var(--neutral-bg)', fg: 'var(--neutral-fg)' },
+  worse: { bg: 'var(--danger-bg)', fg: 'var(--danger-fg)' }
 }
 
 interface ReportEntry { id: string; instruction: string; result: ValidationResult }
+
+const CopyButton: React.FC<{ text: string }> = ({ text }) => {
+  const { t } = useTranslation()
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
+      className="flex cursor-pointer items-center gap-1 rounded-md border-none bg-none p-1 text-tri transition-colors hover:text-sub"
+      title={t('common.copy')}
+    >
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+    </button>
+  )
+}
 
 const Validate: React.FC = () => {
   const { t } = useTranslation()
@@ -181,9 +197,9 @@ const Validate: React.FC = () => {
       <div className="flex flex-col gap-1.5">
         {v.dimensions.map((d, i) => (
           <div key={i} className="flex items-start gap-2">
-            <span className="w-16 shrink-0 text-[10px] font-bold text-ink">{d.dimension}</span>
-            <span className="shrink-0 rounded-full px-2 py-px text-[9px] font-bold" style={{ color: RESULT_COLOR[d.result].fg, background: RESULT_COLOR[d.result].bg }}>{resultLabel(d.result)}</span>
-            <span className="text-[10px] leading-normal text-sub">{d.evidence}</span>
+            <span className="w-16 shrink-0 text-[12px] font-bold text-ink">{d.dimension}</span>
+            <span className="shrink-0 rounded-full px-2 py-px text-[11px] font-bold" style={{ color: RESULT_COLOR[d.result].fg, background: RESULT_COLOR[d.result].bg }}>{resultLabel(d.result)}</span>
+            <span className="text-[12px] leading-normal text-sub">{d.evidence}</span>
           </div>
         ))}
       </div>
@@ -192,7 +208,10 @@ const Validate: React.FC = () => {
 
   const ABPane = ({ title, accent, text }: { title: string; accent: boolean; text: string }): React.ReactElement => (
     <div className={`flex min-w-0 flex-1 flex-col rounded-card border ${accent ? 'border-accent-edge bg-accent-soft' : 'border-line bg-surface'}`}>
-      <div className={`border-b border-line px-3 py-2 text-[10px] font-bold ${accent ? 'text-accent' : 'text-sub'}`}>{title}</div>
+      <div className={`flex items-center justify-between border-b border-line px-3 py-2 text-[12px] font-bold ${accent ? 'text-accent' : 'text-sub'}`}>
+        <span>{title}</span>
+        {text && <CopyButton text={text} />}
+      </div>
       <div className="flex-1 overflow-auto p-3">
         {text
           ? <div className="text-[11px] leading-relaxed text-ink"><Markdown text={text} />{running && <span className="text-accent">▍</span>}</div>
@@ -206,11 +225,17 @@ const Validate: React.FC = () => {
   const ABStatic = ({ bare, withSkill }: { bare: string; withSkill: string }): React.ReactElement => (
     <div className="flex gap-3">
       <div className="min-w-0 flex-1 rounded-lg border border-line bg-surface p-2.5">
-        <div className="mb-1.5 text-[9px] font-bold text-sub">{t('validate.colA')}</div>
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-[11px] font-bold text-sub">{t('validate.colA')}</span>
+          {bare && <CopyButton text={bare} />}
+        </div>
         <div className="text-[11px] leading-relaxed text-ink"><Markdown text={bare} /></div>
       </div>
       <div className="min-w-0 flex-1 rounded-lg border border-accent-edge bg-accent-soft p-2.5">
-        <div className="mb-1.5 text-[9px] font-bold text-accent">{t('validate.colB')}</div>
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-[11px] font-bold text-accent">{t('validate.colB')}</span>
+          {withSkill && <CopyButton text={withSkill} />}
+        </div>
         <div className="text-[11px] leading-relaxed text-ink"><Markdown text={withSkill} /></div>
       </div>
     </div>
@@ -228,17 +253,15 @@ const Validate: React.FC = () => {
 
   return (
     <div className="flex h-full flex-col bg-surface">
-      {/* 统一主头部：返回图标 + 场景名 + 居中导航（grid 三栏稳健居中） */}
-      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-surface px-4">
-        <div className="flex items-center gap-2 justify-self-start">
-          <button onClick={() => setCurrentPage('workbench')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
-          <span className="text-[13px] font-bold text-ink">{currentScene?.name}</span>
-        </div>
-        <div className="justify-self-center">
-          <PageNav current="validate" />
-        </div>
-        <div />
-      </div>
+      <PageHeader
+        left={
+          <>
+            <button onClick={() => setCurrentPage('workbench')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
+            <span className="text-[13px] font-bold text-ink">{currentScene?.name}</span>
+          </>
+        }
+        center={<PageNav current="validate" />}
+      />
 
       {/* 第二行：验证标题 + 内部 tab（对比/报告） */}
       <div className="flex h-11 shrink-0 items-center gap-2 border-b border-line px-7">
@@ -250,7 +273,7 @@ const Validate: React.FC = () => {
       {tab === 'compare' ? (
         <div className="flex min-h-0 flex-1 flex-col px-7 pt-3.5">
           {/* 受控条件 */}
-          <div className="shrink-0 rounded-lg bg-canvas px-3 py-2 text-[10px] text-sub">
+          <div className="shrink-0 rounded-lg bg-canvas px-3 py-2 text-[12px] text-sub">
             <span className="font-bold text-ink">{t('validate.controlLabel')}</span>{' '}
             {control ? t('validate.controlBar', { model: control.model, temp: control.temperature }) : t('validate.controlBarPending')}
           </div>
@@ -261,7 +284,7 @@ const Validate: React.FC = () => {
             <ABPane title={t('validate.colB')} accent text={skillResult} />
           </div>
           {analyzing && (
-            <div className="mb-2 flex shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[10px]" style={{ background: '#EFF6FF', color: '#1E40AF' }}>
+            <div className="mb-2 flex shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[12px]" style={{ background: '#EFF6FF', color: '#1E40AF' }}>
               <span style={{ animation: 'pulse 1.2s ease-in-out infinite' }}>●</span> {t('validate.analyzing')}
             </div>
           )}
@@ -290,7 +313,7 @@ const Validate: React.FC = () => {
                     {generating ? t('validate.testset.generating') : t('validate.testset.generate')}
                   </button>
                   <button onClick={openAdd} disabled={busy || cases.length >= MAX_CASES} className="btn-soft px-3 py-1.5 text-[11px]">{t('validate.testset.add')}</button>
-                  <span className="text-[10px] text-tri">{t('validate.testset.counter', { count: cases.length, max: MAX_CASES })}</span>
+                  <span className="text-[12px] text-tri">{t('validate.testset.counter', { count: cases.length, max: MAX_CASES })}</span>
                   <span className="flex-1" />
                   <button onClick={runAllCases} disabled={busy || cases.filter(c => c.instruction.trim()).length === 0} className="btn-primary px-3.5 py-1.5 text-[11px]">
                     {runAll ? t('validate.testset.running', { done: runAll.done, total: runAll.total }) : t('validate.testset.runAll')}
@@ -306,14 +329,14 @@ const Validate: React.FC = () => {
                       const isRunning = runningCaseId === c.id
                       return (
                         <div key={c.id} className={`flex items-center gap-1.5 rounded-lg border border-line px-2 py-1.5 ${isRunning ? 'bg-accent-soft' : 'bg-surface'}`}>
-                          <span className="w-3.5 shrink-0 text-[10px] text-tri">{idx + 1}</span>
+                          <span className="w-3.5 shrink-0 text-[12px] text-tri">{idx + 1}</span>
                           <button onClick={() => openEdit(c)} title={t('validate.testset.edit')} className={`min-w-0 flex-1 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap border-none bg-none text-left text-[11px] ${c.instruction ? 'text-ink' : 'text-tri'}`}>
                             {c.instruction || t('validate.testset.modalPlaceholder')}
                           </button>
-                          {r?.verdict && <span className="shrink-0 rounded-full px-2 py-px text-[9px] font-bold" style={{ color: VERDICT_COLOR[r.verdict.verdict].fg, background: VERDICT_COLOR[r.verdict.verdict].bg }}>{verdictLabel(r.verdict.verdict)}</span>}
+                          {r?.verdict && <span className="shrink-0 rounded-full px-2 py-px text-[11px] font-bold" style={{ color: VERDICT_COLOR[r.verdict.verdict].fg, background: VERDICT_COLOR[r.verdict.verdict].bg }}>{verdictLabel(r.verdict.verdict)}</span>}
                           <button onClick={() => moveCase(c.id, -1)} disabled={idx === 0 || busy} title="↑" className="shrink-0 cursor-pointer border-none bg-none text-[11px] text-tri hover:text-sub">↑</button>
                           <button onClick={() => moveCase(c.id, 1)} disabled={idx === cases.length - 1 || busy} title="↓" className="shrink-0 cursor-pointer border-none bg-none text-[11px] text-tri hover:text-sub">↓</button>
-                          <button onClick={() => runOneCase(c)} disabled={busy || !c.instruction.trim()} className="btn-soft shrink-0 px-2.5 py-0.5 text-[9px]">
+                          <button onClick={() => runOneCase(c)} disabled={busy || !c.instruction.trim()} className="btn-soft shrink-0 px-2.5 py-0.5 text-[11px]">
                             {isRunning ? t('validate.running') : (r ? t('validate.testset.rerun') : t('validate.testset.run'))}
                           </button>
                           <button onClick={() => deleteCase(c.id)} disabled={busy} title={t('validate.testset.delete')} className="flex shrink-0 cursor-pointer items-center border-none bg-none text-tri hover:text-sub"><Close size={12} /></button>
@@ -334,8 +357,8 @@ const Validate: React.FC = () => {
             <div className="mb-2.5 flex items-center justify-between">
               <span className="text-xs font-extrabold text-ink">{t('validate.report.summaryTitle')}</span>
               <div className="flex gap-1.5">
-                <button onClick={() => handleExport('json')} disabled={agg.count === 0} className="btn-soft px-3 py-1 text-[9px]">{t('validate.export.json')}</button>
-                <button onClick={() => handleExport('markdown')} disabled={agg.count === 0} className="btn-soft px-3 py-1 text-[9px]">{t('validate.export.markdown')}</button>
+                <button onClick={() => handleExport('json')} disabled={agg.count === 0} className="btn-soft px-3 py-1 text-[11px]">{t('validate.export.json')}</button>
+                <button onClick={() => handleExport('markdown')} disabled={agg.count === 0} className="btn-soft px-3 py-1 text-[11px]">{t('validate.export.markdown')}</button>
               </div>
             </div>
             {agg.count > 0 ? (
@@ -344,7 +367,7 @@ const Validate: React.FC = () => {
                   <span className="rounded-md px-3 py-0.5 text-xs font-extrabold" style={{ color: VERDICT_COLOR[agg.verdict].fg, background: VERDICT_COLOR[agg.verdict].bg }}>{verdictLabel(agg.verdict)}</span>
                   <span className="text-xs font-bold text-ink">{t('validate.summary.winRate', { win: agg.win, tie: agg.tie, loss: agg.loss })}</span>
                 </div>
-                <div className="text-[10px] text-sub">
+                <div className="text-[12px] text-sub">
                   {t('validate.numbers.tokens', { bare: agg.bareTok, skill: agg.skillTok })}{' · '}
                   {t('validate.numbers.tokenDiff', { diff: agg.skillTok - agg.bareTok })}
                 </div>
@@ -368,21 +391,21 @@ const Validate: React.FC = () => {
                     <button onClick={() => setExpanded(prev => ({ ...prev, [e.id]: !open }))} className="flex w-full cursor-pointer items-center gap-2 border-none bg-none px-3 py-2.5 text-left">
                       <span className="flex items-center text-tri">{open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}</span>
                       <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-ink">{e.instruction}</span>
-                      {v && <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[9px] font-bold" style={{ color: VERDICT_COLOR[v.verdict].fg, background: VERDICT_COLOR[v.verdict].bg }}>{verdictLabel(v.verdict)}</span>}
+                      {v && <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: VERDICT_COLOR[v.verdict].fg, background: VERDICT_COLOR[v.verdict].bg }}>{verdictLabel(v.verdict)}</span>}
                     </button>
                     {open && (
                       <div className="px-3 pb-3">
-                        {v ? <VerdictView v={v} /> : e.result.diffSummary ? <div className="whitespace-pre-wrap text-[10px] text-sub">{e.result.diffSummary}</div> : null}
+                        {v ? <VerdictView v={v} /> : e.result.diffSummary ? <div className="whitespace-pre-wrap text-[12px] text-sub">{e.result.diffSummary}</div> : null}
                         <div className="mt-2.5"><ABStatic bare={e.result.bare} withSkill={e.result.withSkill} /></div>
                         {(e.result.bareTokens || e.result.skillTokens) && (
-                          <div className="mt-1.5 text-[9px] text-tri">
+                          <div className="mt-1.5 text-[11px] text-tri">
                             {t('validate.numbers.tokens', { bare: e.result.bareTokens?.totalTokens ?? 0, skill: e.result.skillTokens?.totalTokens ?? 0 })}
                             {e.result.bareLatencyMs != null && e.result.skillLatencyMs != null && ` · ${t('validate.numbers.latency', { a: e.result.bareLatencyMs, b: e.result.skillLatencyMs })}`}
                           </div>
                         )}
                         {e.id === 'single' && (
                           <div className="mt-2">
-                            <button onClick={handleSaveSingle} disabled={savedSingle} className="btn-soft px-3 py-1 text-[9px]">{savedSingle ? t('validate.saved') : t('validate.save')}</button>
+                            <button onClick={handleSaveSingle} disabled={savedSingle} className="btn-soft px-3 py-1 text-[11px]">{savedSingle ? t('validate.saved') : t('validate.save')}</button>
                           </div>
                         )}
                       </div>
@@ -395,20 +418,17 @@ const Validate: React.FC = () => {
         </div>
       )}
 
-      {/* 编辑测试指令弹窗 */}
       {editing && (
-        <div onClick={closeModal} className="fixed inset-0 z-50 flex items-center justify-center bg-black/35">
-          <div onClick={ev => ev.stopPropagation()} className="w-[560px] max-w-[90vw] rounded-xl bg-surface p-[18px] shadow-[0_10px_40px_rgba(0,0,0,0.2)]">
-            <div className="mb-3 text-[13px] font-bold text-ink">{t('validate.testset.editTitle')}</div>
-            <textarea value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })}
-              placeholder={t('validate.testset.modalPlaceholder')} autoFocus rows={7}
-              className="box-border w-full resize-y rounded-card border border-line px-3 py-2.5 font-[inherit] text-xs leading-normal outline-none focus:border-accent" />
-            <div className="mt-3.5 flex justify-end gap-2">
-              <button onClick={closeModal} className="btn-soft px-4 py-1.5 text-[11px]">{t('validate.testset.cancel')}</button>
-              <button onClick={saveModal} disabled={!editing.text.trim()} className="btn-primary px-4 py-1.5 text-[11px]">{t('validate.testset.saveCase')}</button>
-            </div>
+        <Modal onClose={closeModal} width={560}>
+          <div className="mb-3 text-[13px] font-bold text-ink">{t('validate.testset.editTitle')}</div>
+          <textarea value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })}
+            placeholder={t('validate.testset.modalPlaceholder')} autoFocus rows={7}
+            className="box-border w-full resize-y rounded-card border border-line px-3 py-2.5 font-[inherit] text-xs leading-normal outline-none focus:border-accent" />
+          <div className="mt-3.5 flex justify-end gap-2">
+            <button onClick={closeModal} className="btn-soft px-4 py-1.5 text-[11px]">{t('validate.testset.cancel')}</button>
+            <button onClick={saveModal} disabled={!editing.text.trim()} className="btn-primary px-4 py-1.5 text-[11px]">{t('validate.testset.saveCase')}</button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   )

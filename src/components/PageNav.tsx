@@ -20,11 +20,11 @@ const PageNav: React.FC<{ current: NavPage }> = ({ current }) => {
   ]
 
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <div className="flex items-center gap-2">
       {items.map(it => it.page === current ? (
-        <span key={it.page} className="btn-soft" style={{ padding: '6px 16px', fontSize: 11, cursor: 'default' }}>{it.label}</span>
+        <span key={it.page} className="btn-soft cursor-default px-4 py-1.5 text-[13px]">{it.label}</span>
       ) : (
-        <button key={it.page} onClick={() => setCurrentPage(it.page)} className="btn-ghost" style={{ padding: '6px 16px', fontSize: 11 }}>{it.label}</button>
+        <button key={it.page} onClick={() => setCurrentPage(it.page)} className="btn-ghost px-4 py-1.5 text-[13px]">{it.label}</button>
       ))}
     </div>
   )

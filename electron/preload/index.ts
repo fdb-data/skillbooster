@@ -75,6 +75,19 @@ const api = {
     setLanguage: (lang: string): Promise<unknown> => ipcRenderer.invoke('settings:setLanguage', lang),
     getTheme: (): Promise<unknown> => ipcRenderer.invoke('settings:getTheme'),
     setTheme: (theme: string): Promise<unknown> => ipcRenderer.invoke('settings:setTheme', theme)
+  },
+  update: {
+    onEvent: (callback: (event: unknown) => void): (() => void) => {
+      const listener = (_e: IpcRendererEvent, event: unknown): void => callback(event)
+      ipcRenderer.on('update:event', listener)
+      return () => ipcRenderer.removeListener('update:event', listener)
+    },
+    getAutoUpdate: (): Promise<unknown> => ipcRenderer.invoke('update:getAutoUpdate'),
+    setAutoUpdate: (enabled: boolean): Promise<unknown> => ipcRenderer.invoke('update:setAutoUpdate', enabled),
+    check: (): Promise<unknown> => ipcRenderer.invoke('update:check'),
+    download: (): Promise<unknown> => ipcRenderer.invoke('update:download'),
+    install: (): Promise<unknown> => ipcRenderer.invoke('update:install'),
+    getVersion: (): Promise<unknown> => ipcRenderer.invoke('update:getVersion')
   }
 }
 

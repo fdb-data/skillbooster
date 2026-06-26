@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { Close } from './Icons'
 
-/** 通用模态：固定遮罩 + 居中卡片。Esc 或点遮罩关闭 */
 const Modal: React.FC<{
   onClose: () => void
   title?: React.ReactNode
@@ -16,14 +15,17 @@ const Modal: React.FC<{
 
   return (
     <div onClick={onClose}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(26,26,46,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35 p-6">
       <div onClick={e => e.stopPropagation()}
-        style={{ background: 'var(--surface)', borderRadius: 12, width, maxWidth: '100%', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 16px 48px rgba(0,0,0,0.22)', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--surface)', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>{title}</div>
-          <button onClick={onClose} title="关闭" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tri)', display: 'flex', flexShrink: 0 }}><Close size={16} /></button>
-        </div>
-        <div style={{ padding: 18 }}>{children}</div>
+        className="flex max-h-[85vh] w-full flex-col overflow-auto rounded-xl bg-surface shadow-lg"
+        style={{ maxWidth: width }}>
+        {title && (
+          <div className="sticky top-0 z-1 flex shrink-0 items-center justify-between border-b border-line bg-surface px-[18px] py-3.5">
+            <div className="flex min-w-0 items-center gap-2">{title}</div>
+            <button onClick={onClose} className="flex shrink-0 cursor-pointer text-tri hover:text-ink"><Close size={16} /></button>
+          </div>
+        )}
+        <div className="p-[18px]">{children}</div>
       </div>
     </div>
   )

@@ -10,7 +10,9 @@
     "failed": "Failed",
     "unknown": "Unknown",
     "testing": "Testing...",
-    "operationFailed": "操作失败"
+    "operationFailed": "操作失败",
+    "copy": "复制",
+    "copied": "已复制"
   },
   "home": {
     "brand": "SkillBooster 经验工作室",
@@ -179,6 +181,21 @@
     "theme_light": "浅色",
     "theme_dark": "深色",
     "theme_system": "跟随系统",
+    "updateTitle": "版本更新",
+    "updateMode": "更新方式",
+    "updateModeDesc": "自动更新将在启动时后台检查并下载新版",
+    "updateAuto": "自动更新",
+    "updateManual": "手动更新",
+    "updateCheck": "检查更新",
+    "updateChecking": "检查中…",
+    "updateAvailable": "发现新版本 {{version}}",
+    "updateNotAvailable": "已是最新版本",
+    "updateDownloading": "下载中 {{percent}}%",
+    "updateDownloaded": "新版本 {{version}} 已下载完成",
+    "updateInstall": "下载并安装",
+    "updateRestart": "立即重启安装",
+    "updateError": "更新失败：{{message}}",
+    "currentVersion": "当前版本 {{version}}",
     "agents": {
       "guideLabel": "引导智能体",
       "guideDesc": "开场 2~4 轮补全场景信息并自动命名",
@@ -270,7 +287,8 @@
     "fieldSteps": "步骤",
     "fieldContent": "内容",
     "fieldEvidence": "证据级别",
-    "stepN": "步骤 {{n}}"
+    "stepN": "步骤 {{n}}",
+    "addBlock": "添加积木"
   },
   "status": {
     "addingEntry": "正在添加条目…",
@@ -281,5 +299,10 @@
     "preparingQuestion": "正在准备问题…",
     "runningTool": "正在执行 {{tool}}…",
     "thinking": "思考中…"
+  },
+  "conceptTree": {
+    "title": "概念树",
+    "empty": "从对话与文档中自动提取",
+    "hint": "从对话与文档中自动提取，点击可改"
   }
 }

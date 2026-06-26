@@ -29,24 +29,24 @@ const ReferencePanel: React.FC<{ sceneId: string; references: Reference[]; onCol
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <h4 style={{ margin: 0, fontSize: 11, fontWeight: 600, color: 'var(--sub)' }}>{t('reference.title')}</h4>
+        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--sub)' }}>{t('reference.title')}</h4>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <button onClick={handleUpload} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>{t('reference.upload')}</button>
+          <button onClick={handleUpload} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11 }}>{t('reference.upload')}</button>
           {onCollapse && (
             <button onClick={onCollapse} title={t('reference.collapse')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tri)', fontSize: 11, padding: '0 2px' }}>«</button>
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tri)', fontSize: 13, padding: '0 2px' }}>«</button>
           )}
         </div>
       </div>
 
       {references.length === 0 ? (
-        <p style={{ fontSize: 9, color: 'var(--tri)', margin: 0 }}>{t('reference.empty')}</p>
+        <p style={{ fontSize: 11, color: 'var(--tri)', margin: 0 }}>{t('reference.empty')}</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {references.map(ref => (
             <div key={ref.id} style={{
               display: 'flex', alignItems: 'center', gap: 4,
-              padding: '4px 6px', border: '1px solid var(--line)', borderRadius: 6, fontSize: 10
+              padding: '4px 6px', border: '1px solid var(--line)', borderRadius: 6, fontSize: 12
             }}>
               <input type="checkbox" checked={ref.includeInPackage}
                 onChange={() => setReferenceInclude(sceneId, ref.id, !ref.includeInPackage)}
@@ -63,7 +63,7 @@ const ReferencePanel: React.FC<{ sceneId: string; references: Reference[]; onCol
 
       {references.length > 0 && (
         <button onClick={() => draftFromDocs(sceneId)} disabled={isLoading}
-          className="btn-primary" style={{ width: '100%', marginTop: 8, padding: '6px', fontSize: 9 }}>
+          className="btn-primary" style={{ width: '100%', marginTop: 8, padding: '6px', fontSize: 11 }}>
           {isLoading ? t('reference.drafting') : t('reference.draftFromDocs')}
         </button>
       )}

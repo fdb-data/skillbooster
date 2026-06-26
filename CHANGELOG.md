@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.1.4 — 2026-06-26
+
+### 新增
+
+- **桌面级 UI 骨架**：全局 AppShell 顶栏（品牌 + 主题切换 + 设置入口），各页统一 PageHeader 三栏布局
+- **UI 基础组件**：Button / Card / Input / Select / Badge / PageHeader 原子组件
+- **语义色令牌**：success / warn / danger / neutral 四组 bg+fg 语义色，含深色模式
+- **复制按钮**：验证页 A/B 对比框（实时流式 + 静态报告）均加 Copy 按钮
+- **Toast 通知**：设置页 Agent 测试结果改用内联 Toast 替代 alert()
+- **Favicon**：SVG 图标 + BrowserWindow icon
+- **微交互**：按钮 active scale 反馈、hover border-color 过渡
+
+### 优化
+
+- **视觉密度**：全局字号提升（9→11 / 10→12 / 11→13px），滚动条 8px 细窄样式
+- **Workbench / PageNav / Modal**：inline style 全部迁移 Tailwind class
+- **硬编码颜色**：FlowCanvas / Canvas / Home / Validate / AppShell 中 hex 色值替换为 CSS 变量令牌
+- **i18n 完整**：ProposalCard / ConceptTree / Canvas 中硬编码中文替换为 i18n key
+- **Modal 统一**：Home 3 个 + Validate 1 个手写弹窗统一改用 Modal.tsx 组件
+- **自动更新**：默认关闭自动更新，设置页提供手动检查 + 自动开关
+
 ## v0.1.2 — 2026-06-19
 
 ### 新增

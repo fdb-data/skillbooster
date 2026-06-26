@@ -44,18 +44,18 @@ const FileAttachmentPanel: React.FC<{
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <h4 style={{ margin: 0, fontSize: 11, fontWeight: 600, color: 'var(--sub)' }}>{t(`${ns}.title`)}</h4>
-        <button onClick={handleUpload} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>{t(`${ns}.upload`)}</button>
+        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--sub)' }}>{t(`${ns}.title`)}</h4>
+        <button onClick={handleUpload} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11 }}>{t(`${ns}.upload`)}</button>
       </div>
 
       {items.length === 0 ? (
-        <p style={{ fontSize: 9, color: 'var(--tri)', margin: 0 }}>{t(`${ns}.empty`)}</p>
+        <p style={{ fontSize: 11, color: 'var(--tri)', margin: 0 }}>{t(`${ns}.empty`)}</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {items.map(item => (
             <div key={item.id} style={{
               display: 'flex', alignItems: 'center', gap: 4,
-              padding: '4px 6px', border: '1px solid var(--line)', borderRadius: 6, fontSize: 10
+              padding: '4px 6px', border: '1px solid var(--line)', borderRadius: 6, fontSize: 12
             }}>
               <input type="checkbox" checked={item.includeInPackage}
                 onChange={() => setAttachmentInclude(sceneId, kind, item.id, !item.includeInPackage)}

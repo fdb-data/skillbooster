@@ -10,7 +10,9 @@
     "failed": "Failed",
     "unknown": "Unknown",
     "testing": "Testing...",
-    "operationFailed": "Operation failed"
+    "operationFailed": "Operation failed",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "home": {
     "brand": "SkillBooster",
@@ -179,6 +181,21 @@
     "theme_light": "Light",
     "theme_dark": "Dark",
     "theme_system": "Follow system",
+    "updateTitle": "Version update",
+    "updateMode": "Update mode",
+    "updateModeDesc": "Auto-update checks and downloads new versions in the background on startup",
+    "updateAuto": "Automatic",
+    "updateManual": "Manual",
+    "updateCheck": "Check for updates",
+    "updateChecking": "Checking…",
+    "updateAvailable": "New version {{version}} available",
+    "updateNotAvailable": "Already up to date",
+    "updateDownloading": "Downloading {{percent}}%",
+    "updateDownloaded": "Version {{version}} downloaded",
+    "updateInstall": "Download & install",
+    "updateRestart": "Restart & install",
+    "updateError": "Update failed: {{message}}",
+    "currentVersion": "Current version {{version}}",
     "agents": {
       "guideLabel": "Guide agent",
       "guideDesc": "Completes scene info in 2–4 opening turns and auto-names the project",
@@ -270,7 +287,8 @@
     "fieldSteps": "Steps",
     "fieldContent": "Content",
     "fieldEvidence": "Evidence level",
-    "stepN": "Step {{n}}"
+    "stepN": "Step {{n}}",
+    "addBlock": "Add block"
   },
   "status": {
     "addingEntry": "Adding entry…",
@@ -281,5 +299,10 @@
     "preparingQuestion": "Preparing question…",
     "runningTool": "Running {{tool}}…",
     "thinking": "Thinking…"
+  },
+  "conceptTree": {
+    "title": "Concept Tree",
+    "empty": "Auto-extracted from conversations and documents",
+    "hint": "Auto-extracted from conversations and documents, click to edit"
   }
 }

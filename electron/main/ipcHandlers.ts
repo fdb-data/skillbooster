@@ -15,6 +15,7 @@ import { importSkill } from './skillImporter'
 import { testConnection } from './llm'
 import { mt } from './i18n'
 import { wrapHandler } from './errorHandler'
+import { setUpdaterAutoMode, checkForUpdatesManual, downloadUpdate, installUpdate, getAppVersion } from './updater'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('scenes:list', wrapHandler(async () => {
@@ -310,6 +311,35 @@ export function registerIpcHandlers(): void {
       return { success: true }
     }
     return { success: false, error: 'File not found' }
+  }))
+
+  ipcMain.handle('update:getAutoUpdate', wrapHandler(async () => {
+    return store.getPreference('autoUpdate') === 'true'
+  }))
+
+  ipcMain.handle('update:setAutoUpdate', wrapHandler(async (_e, enabled: boolean) => {
+    store.setPreference('autoUpdate', enabled ? 'true' : 'false')
+    setUpdaterAutoMode(enabled)
+    return enabled
+  }))
+
+  ipcMain.handle('update:check', wrapHandler(async () => {
+    await checkForUpdatesManual()
+    return null
+  }))
+
+  ipcMain.handle('update:download', wrapHandler(async () => {
+    await downloadUpdate()
+    return null
+  }))
+
+  ipcMain.handle('update:install', wrapHandler(async () => {
+    installUpdate()
+    return null
+  }))
+
+  ipcMain.handle('update:getVersion', wrapHandler(async () => {
+    return getAppVersion()
   }))
 
   log.info('All IPC handlers registered')

@@ -52,10 +52,10 @@ const KNOWLEDGE_TYPES: KnowledgeType[] = ['flow', 'rule', 'insight', 'concept', 
 const PALETTE_TYPES: KnowledgeType[] = ['flow', 'rule', 'insight']
 
 const EVIDENCE_OPTIONS: Array<{ value: NonNullable<KnowledgeEntry['evidenceLevel']>; labelKey: string; color: string }> = [
-  { value: 'institutional', labelKey: 'canvas.evidenceInstitutional', color: '#2E9E6B' },
-  { value: 'validated', labelKey: 'canvas.evidenceValidated', color: '#3B82F6' },
-  { value: 'sample', labelKey: 'canvas.evidenceSample', color: '#E0A93B' },
-  { value: 'exploratory', labelKey: 'canvas.evidenceExploratory', color: '#E05D5D' }
+  { value: 'institutional', labelKey: 'canvas.evidenceInstitutional', color: 'var(--evidence-institutional)' },
+  { value: 'validated', labelKey: 'canvas.evidenceValidated', color: 'var(--evidence-validated)' },
+  { value: 'sample', labelKey: 'canvas.evidenceSample', color: 'var(--evidence-sample)' },
+  { value: 'exploratory', labelKey: 'canvas.evidenceExploratory', color: 'var(--evidence-exploratory)' }
 ]
 
 const evidenceColor = (level?: string): string =>
@@ -107,19 +107,19 @@ const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: 
 
   const editRow = (n: number) => (
     <div className="nodrag" style={{ display: 'flex', gap: 8, padding: '3px 0' }}>
-      <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>{n}</div>
+      <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>{n}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <input value={draftTitle} autoFocus onChange={e => setDraftTitle(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') cancel() }}
           placeholder={t('canvas.stepTitlePlaceholder')}
-          style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 11, marginBottom: 3, boxSizing: 'border-box', outline: 'none' }} />
+          style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 13, marginBottom: 3, boxSizing: 'border-box', outline: 'none' }} />
         <input value={draftDesc} onChange={e => setDraftDesc(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') cancel() }}
           placeholder={t('canvas.stepDescPlaceholder')}
-          style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 10, boxSizing: 'border-box', outline: 'none' }} />
+          style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
         <div style={{ display: 'flex', gap: 4, marginTop: 3 }}>
-          <button onClick={commit} className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>{t('common.save')}</button>
-          <button onClick={cancel} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>{t('common.cancel')}</button>
+          <button onClick={commit} className="btn-soft" style={{ padding: '2px 8px', fontSize: 11 }}>{t('common.save')}</button>
+          <button onClick={cancel} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11 }}>{t('common.cancel')}</button>
         </div>
       </div>
     </div>
@@ -136,19 +136,19 @@ const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: 
           className={onOpenStep ? 'nodrag' : undefined}
           title={onOpenStep ? t('canvas.dblToOpen') : undefined}
           style={{ display: 'flex', gap: 9, alignItems: 'flex-start', padding: '7px 0', position: 'relative', cursor: onOpenStep ? 'pointer' : undefined }}>
-          <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1, boxShadow: `0 0 0 3px var(--surface)` }}>{i + 1}</div>
+          <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1, boxShadow: `0 0 0 3px var(--surface)` }}>{i + 1}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.4 }}>{s.title}</div>
-            {s.desc && <div style={{ fontSize: 10, color: 'var(--tri)', lineHeight: 1.65, marginTop: 3 }}>{s.desc}</div>}
+            {s.desc && <div style={{ fontSize: 12, color: 'var(--tri)', lineHeight: 1.65, marginTop: 3 }}>{s.desc}</div>}
           </div>
           {hoverIndex === i && (
             <div className="nodrag" style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
               <button title={t('canvas.moveStepUp')} disabled={i === 0} onClick={() => move(i, -1)}
-                style={{ background: 'none', border: 'none', color: i === 0 ? 'var(--line)' : 'var(--tri)', cursor: i === 0 ? 'default' : 'pointer', fontSize: 10, padding: 0 }}>↑</button>
+                style={{ background: 'none', border: 'none', color: i === 0 ? 'var(--line)' : 'var(--tri)', cursor: i === 0 ? 'default' : 'pointer', fontSize: 12, padding: 0 }}>↑</button>
               <button title={t('canvas.moveStepDown')} disabled={i === steps.length - 1} onClick={() => move(i, 1)}
-                style={{ background: 'none', border: 'none', color: i === steps.length - 1 ? 'var(--line)' : 'var(--tri)', cursor: i === steps.length - 1 ? 'default' : 'pointer', fontSize: 10, padding: 0 }}>↓</button>
-              <button onClick={() => beginEdit(i)} style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 10, padding: 0 }}>✎</button>
-              <button onClick={() => remove(i)} style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 10, padding: 0 }}>🗑</button>
+                style={{ background: 'none', border: 'none', color: i === steps.length - 1 ? 'var(--line)' : 'var(--tri)', cursor: i === steps.length - 1 ? 'default' : 'pointer', fontSize: 12, padding: 0 }}>↓</button>
+              <button onClick={() => beginEdit(i)} style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 12, padding: 0 }}>✎</button>
+              <button onClick={() => remove(i)} style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 12, padding: 0 }}>🗑</button>
             </div>
           )}
         </div>
@@ -156,7 +156,7 @@ const FlowSteps: React.FC<{ steps: FlowStep[]; color: string; onChange: (steps: 
       {editIndex === steps.length && editRow(steps.length + 1)}
       {editIndex !== steps.length && (
         <button className="nodrag" onClick={beginAdd}
-          style={{ background: 'none', border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--tri)', cursor: 'pointer', fontSize: 9, padding: '2px 10px', marginTop: 6, marginLeft: 24 }}>
+          style={{ background: 'none', border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--tri)', cursor: 'pointer', fontSize: 11, padding: '2px 10px', marginTop: 6, marginLeft: 24 }}>
           {t('canvas.addStep')}
         </button>
       )}
@@ -190,7 +190,7 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
       style={{
         width: isFlow && expanded ? 340 : 240, background: highlighted ? 'var(--accent-soft)' : 'var(--surface)',
         border: '1px solid var(--line)', borderLeft: `6px solid ${config.color}`,
-        borderRadius: 10, padding: '11px 13px', fontSize: 11,
+        borderRadius: 10, padding: '11px 13px', fontSize: 13,
         boxShadow: '0 1px 3px rgba(26,26,46,0.04), 0 6px 16px rgba(26,26,46,0.08)'
       }}>
       <Handle type="target" position={Position.Top} style={{ background: config.color, width: 7, height: 7 }} />
@@ -198,12 +198,12 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
         <div className="nodrag">
           <input value={title} onChange={e => setTitle(e.target.value)} autoFocus
             placeholder={t('canvas.titlePlaceholder')}
-            style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 11, marginBottom: 4, boxSizing: 'border-box', outline: 'none' }} />
+            style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 13, marginBottom: 4, boxSizing: 'border-box', outline: 'none' }} />
           {/* 流程节点内容由步骤拼接，content 不在此直接编辑 */}
           {!isFlow && (
             <textarea value={content} onChange={e => setContent(e.target.value)}
               placeholder={t('canvas.contentPlaceholder')}
-              style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 10, minHeight: 48, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+              style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 12, minHeight: 48, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
           )}
           <div style={{ display: 'flex', gap: 3, margin: '4px 0', flexWrap: 'wrap' }}>
             {EVIDENCE_OPTIONS.map(o => (
@@ -218,15 +218,15 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => data.onSave(entry.id, { title, content, evidenceLevel: evidence })}
-              className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>{t('common.save')}</button>
-            <button onClick={() => data.onCancelEdit()} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>{t('common.cancel')}</button>
+              className="btn-soft" style={{ padding: '2px 8px', fontSize: 11 }}>{t('common.save')}</button>
+            <button onClick={() => data.onCancelEdit()} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11 }}>{t('common.cancel')}</button>
           </div>
         </div>
       ) : (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 5, background: config.color, flexShrink: 0 }}><Icon size={11} color="#fff" /></span>
-            <span style={{ fontSize: 9, fontWeight: 700, color: config.color, letterSpacing: 0.3, flex: 1 }}>{t(config.labelKey)}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: config.color, letterSpacing: 0.3, flex: 1 }}>{t(config.labelKey)}</span>
             {entry.evidenceLevel && (
               <div title={entry.evidenceLevel} style={{ width: 7, height: 7, borderRadius: '50%', background: evidenceColor(entry.evidenceLevel), flexShrink: 0 }} />
             )}
@@ -236,23 +236,23 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
             expanded ? (
               <div>
                 <button className="nodrag" onClick={() => setExpanded(false)}
-                  style={{ display: 'block', marginLeft: 'auto', background: 'none', border: 'none', color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '2px 4px', margin: '4px 0 2px auto' }}>
+                  style={{ display: 'block', marginLeft: 'auto', background: 'none', border: 'none', color: config.color, cursor: 'pointer', fontSize: 12, fontWeight: 600, padding: '2px 4px', margin: '4px 0 2px auto' }}>
                   ▴ {t('canvas.collapseSteps')}
                 </button>
                 {flowSteps.length === 0 && (
-                  <div style={{ fontSize: 9, color: 'var(--tri)', textAlign: 'center', margin: '4px 0' }}>{t('canvas.noSteps')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--tri)', textAlign: 'center', margin: '4px 0' }}>{t('canvas.noSteps')}</div>
                 )}
                 <FlowSteps steps={flowSteps} color={config.color} onChange={s => data.onSaveSteps(entry.id, s)} onOpenStep={i => data.onOpenStep(entry.id, i)} />
               </div>
             ) : (
               <div>
                 {flowSteps.length > 0 && (
-                  <p style={{ margin: '5px 0 0', fontSize: 11, color: 'var(--sub)', lineHeight: 1.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ margin: '5px 0 0', fontSize: 13, color: 'var(--sub)', lineHeight: 1.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {flowSteps.map(s => s.title).join('，')}
                   </p>
                 )}
                 <button className="nodrag" onClick={() => setExpanded(true)}
-                  style={{ width: '100%', textAlign: 'center', background: 'var(--accent-soft)', border: '1px solid var(--accent-edge)', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 10, fontWeight: 600, padding: '4px 0', marginTop: 6 }}>
+                  style={{ width: '100%', textAlign: 'center', background: 'var(--accent-soft)', border: '1px solid var(--accent-edge)', borderRadius: 6, color: config.color, cursor: 'pointer', fontSize: 12, fontWeight: 600, padding: '4px 0', marginTop: 6 }}>
                   ▾ {flowSteps.length > 0 ? t('canvas.expandSteps', { count: flowSteps.length }) : t('canvas.expandStepsEmpty')}
                 </button>
               </div>
@@ -260,19 +260,19 @@ const KnowledgeNode: React.FC<NodeProps<KnowledgeFlowNode>> = ({ data }) => {
           ) : (
             entry.content && (
               <p style={{
-                margin: '5px 0 0', fontSize: 11, color: 'var(--sub)', lineHeight: 1.6,
+                margin: '5px 0 0', fontSize: 13, color: 'var(--sub)', lineHeight: 1.6,
                 display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'
               }}>{entry.content}</p>
             )
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 5 }}>
-            {highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3 }}>{t('canvas.justGrown')}</span>}
-            {!entry.verified && !highlighted && <span style={{ fontSize: 9, padding: '1px 5px', background: 'var(--anchor-bg)', color: 'var(--anchor-text)', borderRadius: 3 }}>{t('canvas.toVerify')}</span>}
+            {highlighted && <span style={{ fontSize: 11, padding: '1px 5px', background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3 }}>{t('canvas.justGrown')}</span>}
+            {!entry.verified && !highlighted && <span style={{ fontSize: 11, padding: '1px 5px', background: 'var(--anchor-bg)', color: 'var(--anchor-text)', borderRadius: 3 }}>{t('canvas.toVerify')}</span>}
             <span style={{ flex: 1 }} />
             <button className="nodrag" onClick={() => data.onStartEdit(entry.id)}
-              style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 10, padding: 0 }}>✎</button>
+              style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 12, padding: 0 }}>✎</button>
             <button className="nodrag" onClick={() => data.onDelete(entry.id)}
-              style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 10, padding: 0 }}>🗑</button>
+              style={{ background: 'none', border: 'none', color: 'var(--tri)', cursor: 'pointer', fontSize: 12, padding: 0 }}>🗑</button>
           </div>
         </div>
       )}
@@ -306,41 +306,41 @@ const GhostNode: React.FC<NodeProps<GhostFlowNode>> = ({ data }) => {
       className="ghost-block"
       style={{
         width: 240, background: 'rgba(255,255,255,0.82)',
-        border: `1.5px dashed ${config.color}`, borderRadius: 10, padding: '11px 13px', fontSize: 11,
+        border: `1.5px dashed ${config.color}`, borderRadius: 10, padding: '11px 13px', fontSize: 13,
         boxShadow: '0 2px 8px rgba(26,26,46,0.04)'
       }}>
       {editing ? (
         <div className="nodrag">
           <input value={title} onChange={e => setTitle(e.target.value)} autoFocus
-            style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 11, marginBottom: 4, boxSizing: 'border-box', outline: 'none' }} />
+            style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 13, marginBottom: 4, boxSizing: 'border-box', outline: 'none' }} />
           <textarea value={content} onChange={e => setContent(e.target.value)}
-            style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 10, minHeight: 48, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            style={{ width: '100%', padding: 3, border: '1px solid var(--accent-edge)', borderRadius: 4, fontSize: 12, minHeight: 48, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
           <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
             <button onClick={() => data.onAccept(proposal.id, { title, content })}
-              className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>{t('canvas.acceptEdited')}</button>
-            <button onClick={() => setEditing(false)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>{t('common.cancel')}</button>
+              className="btn-soft" style={{ padding: '2px 8px', fontSize: 11 }}>{t('canvas.acceptEdited')}</button>
+            <button onClick={() => setEditing(false)} className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11 }}>{t('common.cancel')}</button>
           </div>
         </div>
       ) : (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 5, background: config.color, flexShrink: 0 }}><Icon size={11} color="#fff" /></span>
-            <span style={{ fontSize: 9, fontWeight: 700, color: config.color, letterSpacing: 0.3, flex: 1 }}>{t(config.labelKey)}·{t('canvas.proposalSuffix')}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: config.color, letterSpacing: 0.3, flex: 1 }}>{t(config.labelKey)}·{t('canvas.proposalSuffix')}</span>
           </div>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sub)', lineHeight: 1.35, margin: '3px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{proposal.title}</div>
           {proposal.content && (
             <p style={{
-              margin: '5px 0 0', fontSize: 11, color: 'var(--tri)', lineHeight: 1.6,
+              margin: '5px 0 0', fontSize: 13, color: 'var(--tri)', lineHeight: 1.6,
               display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'
             }}>{proposal.content}</p>
           )}
           <div className="nodrag" style={{ display: 'flex', gap: 4, marginTop: 6 }}>
             <button onClick={() => data.onAccept(proposal.id)}
-              className="btn-soft" style={{ padding: '2px 8px', fontSize: 9 }}>{t('canvas.accept')}</button>
+              className="btn-soft" style={{ padding: '2px 8px', fontSize: 11 }}>{t('canvas.accept')}</button>
             <button onClick={() => setEditing(true)}
-              className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9 }}>{t('canvas.edit')}</button>
+              className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11 }}>{t('canvas.edit')}</button>
             <button onClick={() => data.onReject(proposal.id)}
-              className="btn-ghost" style={{ padding: '2px 8px', fontSize: 9, color: '#E05D5D' }}>{t('canvas.reject')}</button>
+              className="btn-ghost" style={{ padding: '2px 8px', fontSize: 11, color: 'var(--evidence-exploratory)' }}>{t('canvas.reject')}</button>
           </div>
         </div>
       )}
@@ -352,7 +352,7 @@ type AppNode = KnowledgeFlowNode | GhostFlowNode
 
 const nodeTypes = { knowledge: KnowledgeNode, ghost: GhostNode }
 
-const modalLabelStyle: React.CSSProperties = { display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--sub)', margin: '16px 0 5px' }
+const modalLabelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--sub)', margin: '16px 0 5px' }
 const modalInputStyle: React.CSSProperties = { width: '100%', padding: '8px 10px', border: '1px solid var(--accent-edge)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box', outline: 'none' }
 
 /** 双击节点弹出的查看/编辑模态 */
@@ -400,7 +400,7 @@ const NodeEditModal: React.FC<{
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         {EVIDENCE_OPTIONS.map(o => (
           <button key={o.value} onClick={() => setEvidence(o.value)}
-            style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, cursor: 'pointer',
+            style={{ fontSize: 13, padding: '4px 10px', borderRadius: 999, cursor: 'pointer',
               border: `1px solid ${evidence === o.value ? o.color : 'var(--line)'}`,
               background: evidence === o.value ? o.color : 'var(--surface)',
               color: evidence === o.value ? '#fff' : 'var(--sub)' }}>{t(o.labelKey)}</button>
@@ -410,7 +410,7 @@ const NodeEditModal: React.FC<{
         <button onClick={save} className="btn-primary" style={{ padding: '7px 18px', fontSize: 12 }}>{t('common.save')}</button>
         <button onClick={onClose} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12 }}>{t('common.cancel')}</button>
         <span style={{ flex: 1 }} />
-        <button onClick={() => { onDelete(entry.id); onClose() }} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12, color: '#E05D5D' }}>{t('common.delete')}</button>
+        <button onClick={() => { onDelete(entry.id); onClose() }} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12, color: 'var(--evidence-exploratory)' }}>{t('common.delete')}</button>
       </div>
     </Modal>
   )
@@ -453,7 +453,7 @@ const StepEditModal: React.FC<{
         <button onClick={save} className="btn-primary" style={{ padding: '7px 18px', fontSize: 12 }}>{t('common.save')}</button>
         <button onClick={onClose} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12 }}>{t('common.cancel')}</button>
         <span style={{ flex: 1 }} />
-        <button onClick={remove} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12, color: '#E05D5D' }}>{t('common.delete')}</button>
+        <button onClick={remove} className="btn-ghost" style={{ padding: '7px 16px', fontSize: 12, color: 'var(--evidence-exploratory)' }}>{t('common.delete')}</button>
       </div>
     </Modal>
   )
@@ -585,7 +585,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
       target: e.target,
       animated: e.kind === 'flow-order',
       label: e.label,
-      style: { stroke: e.kind === 'flow-order' ? '#4C6EF5' : '#A6ABB5', strokeWidth: 1.5 }
+      style: { stroke: e.kind === 'flow-order' ? '#4C6EF5' : 'var(--tri)', strokeWidth: 1.5 }
     })))
   }, [canvas, proposals, highlightedEntries, editingId, handleSave, handleSaveSteps, handleDelete, handleOpenStep, handleAcceptProposal, handleRejectProposal, setNodes, setEdges])
 
@@ -650,7 +650,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
               onDragStart={e => { e.dataTransfer.setData('application/skillbooster-block', type); e.dataTransfer.effectAllowed = 'copy' }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', width: '100%', border: '1px solid var(--line)', borderTop: `3px solid ${c.color}`, borderRadius: 8, cursor: 'grab', background: '#fff', userSelect: 'none' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: 6, background: c.color, flexShrink: 0 }}><PIcon size={14} color="#fff" /></span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--ink)' }}>{t(c.labelKey)}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{t(c.labelKey)}</span>
             </div>
           )
         })}
@@ -673,7 +673,7 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
-        <Background gap={16} size={1} color="#ECECF1" />
+        <Background gap={16} size={1} color="var(--line)" />
         <Controls position="bottom-right" showInteractive={false} />
         <MiniMap position="bottom-left" pannable zoomable style={{ width: 120, height: 80 }}
           nodeColor={(n) => TYPE_CONFIG[(n.data as { ktype?: KnowledgeType })?.ktype as KnowledgeType]?.color ?? '#ddd'} />
@@ -688,14 +688,14 @@ const FlowCanvasInner: React.FC<{ sceneId: string; canvas: ExperienceCard }> = (
                 <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: i <= filledDots ? 'var(--accent)' : 'var(--line)' }} />
               ))}
             </div>
-            <span style={{ fontSize: 9, color: 'var(--tri)' }}>{t('canvas.blocksCount', { count: totalEntries })}</span>
+            <span style={{ fontSize: 11, color: 'var(--tri)' }}>{t('canvas.blocksCount', { count: totalEntries })}</span>
             <button onClick={handleRelayout} title={t('canvas.relayout')}
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--sub)', padding: 0, lineHeight: 1 }}>▦</button>
             <span style={{ width: 1, height: 12, background: 'var(--line)' }} />
             <button onClick={() => undoCanvas(sceneId)} disabled={!canUndo} title={t('canvas.undo')}
-              style={{ background: 'none', border: 'none', cursor: canUndo ? 'pointer' : 'default', fontSize: 11, color: canUndo ? 'var(--ink)' : 'var(--line)', padding: 0 }}>↩</button>
+              style={{ background: 'none', border: 'none', cursor: canUndo ? 'pointer' : 'default', fontSize: 13, color: canUndo ? 'var(--ink)' : 'var(--line)', padding: 0 }}>↩</button>
             <button onClick={() => redoCanvas(sceneId)} disabled={!canRedo} title={t('canvas.redo')}
-              style={{ background: 'none', border: 'none', cursor: canRedo ? 'pointer' : 'default', fontSize: 11, color: canRedo ? 'var(--ink)' : 'var(--line)', padding: 0 }}>↪</button>
+              style={{ background: 'none', border: 'none', cursor: canRedo ? 'pointer' : 'default', fontSize: 13, color: canRedo ? 'var(--ink)' : 'var(--line)', padding: 0 }}>↪</button>
           </div>
         </Panel>
       </ReactFlow>

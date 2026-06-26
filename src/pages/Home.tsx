@@ -2,12 +2,13 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSceneStore } from '../store/sceneStore'
 import type { Scene } from '../contracts/ipc-types'
-import { MindLogo, Settings as SettingsIcon, Paperclip, Close, ArrowRight } from '../components/Icons'
+import { Paperclip, Close, ArrowRight } from '../components/Icons'
+import Modal from '../components/Modal'
 
 const statusColors: Record<string, string> = {
-  active: '#A6ABB5',
-  validating: '#E0A93B',
-  completed: '#2E9E6B'
+  active: 'var(--tri)',
+  validating: 'var(--evidence-sample)',
+  completed: 'var(--evidence-institutional)'
 }
 
 const Home: React.FC = () => {
@@ -148,16 +149,6 @@ const Home: React.FC = () => {
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[460px]"
         style={{ background: 'radial-gradient(58% 70% at 50% -8%, rgba(79,70,229,0.10), rgba(79,70,229,0.03) 42%, transparent 72%)' }} />
 
-      <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line/70 bg-surface/75 px-7 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <MindLogo size={18} />
-          <span className="text-[13px] font-bold tracking-tight text-ink">{t('home.brand')}</span>
-        </div>
-        <button onClick={() => setCurrentPage('settings')} className="flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] text-tri transition-colors hover:bg-canvas hover:text-sub">
-          <SettingsIcon size={14} /> {t('home.settings')}
-        </button>
-      </div>
-
       <div className="relative pb-6 pt-16 text-center">
         <h1 className="mx-auto mb-3 max-w-[720px] px-6 text-[30px] font-bold leading-tight tracking-tight text-ink">{t('home.heroTitle')}</h1>
         <p className="mx-auto max-w-[560px] px-6 text-[13px] leading-relaxed text-sub">{t('home.heroSubtitle')}</p>
@@ -173,7 +164,7 @@ const Home: React.FC = () => {
           {attachedFiles.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {attachedFiles.map(f => (
-                <div key={f.path} className="flex max-w-[220px] items-center gap-1 rounded-full border border-line bg-canvas px-2 py-[3px] text-[10px] text-ink">
+                <div key={f.path} className="flex max-w-[220px] items-center gap-1 rounded-full border border-line bg-canvas px-2 py-[3px] text-[12px] text-ink">
                   <Paperclip size={11} />
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap">{f.name}</span>
                   <button onClick={() => setAttachedFiles(prev => prev.filter(p => p.path !== f.path))}
@@ -185,7 +176,7 @@ const Home: React.FC = () => {
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <button onClick={handleFileAttach} title={t('home.dropHint')} className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-tri transition-colors hover:bg-canvas hover:text-accent"><Paperclip size={15} /></button>
-              <span className="text-[9px] text-tri">{t('home.dropHint')}</span>
+              <span className="text-[11px] text-tri">{t('home.dropHint')}</span>
             </div>
             <button onClick={handleStart} disabled={!input.trim() && attachedFiles.length === 0}
               className="btn-primary flex items-center gap-1.5 px-5 py-2.5 text-[12px] shadow-[0_4px_14px_-2px_rgba(79,70,229,0.45)] transition-all hover:-translate-y-px disabled:shadow-none">{t('home.startProject')} <ArrowRight size={13} /></button>
@@ -201,54 +192,44 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="mb-0.5 text-xs font-semibold text-ink">{t('home.importSkill')}</div>
-              <div className="text-[10px] text-sub">{t('home.importSectionHint')}</div>
+              <div className="text-[12px] text-sub">{t('home.importSectionHint')}</div>
             </div>
             <div className="flex shrink-0 gap-2">
-              <button onClick={() => pickImport('file')} disabled={importing} className="btn-primary whitespace-nowrap px-3.5 py-1.5 text-[10px]">{t('home.importPickFile')}</button>
-              <button onClick={() => pickImport('folder')} disabled={importing} className="btn-ghost whitespace-nowrap px-3.5 py-1.5 text-[10px]">{t('home.importPickFolder')}</button>
+              <button onClick={() => pickImport('file')} disabled={importing} className="btn-primary whitespace-nowrap px-3.5 py-1.5 text-[12px]">{t('home.importPickFile')}</button>
+              <button onClick={() => pickImport('folder')} disabled={importing} className="btn-ghost whitespace-nowrap px-3.5 py-1.5 text-[12px]">{t('home.importPickFolder')}</button>
             </div>
           </div>
-          <div className="mt-2 text-[9px] text-tri">{importing ? t('home.importing') : t('home.importDropHint')}</div>
+          <div className="mt-2 text-[11px] text-tri">{importing ? t('home.importing') : t('home.importDropHint')}</div>
         </div>
       </div>
 
       {pendingImport && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35"
-          onClick={() => setPendingImport(null)}>
-          <div onClick={e => e.stopPropagation()}
-            className="mx-4 max-w-[380px] rounded-xl bg-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
-            <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.importConfirmText')}</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setPendingImport(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.importConfirmCancel')}</button>
-              <button onClick={confirmImport} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
-            </div>
+        <Modal onClose={() => setPendingImport(null)} width={380}>
+          <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.importConfirmText')}</p>
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setPendingImport(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.importConfirmCancel')}</button>
+            <button onClick={confirmImport} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {scriptHint && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35">
-          <div className="mx-4 max-w-[380px] rounded-xl bg-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
-            <p className="mb-5 text-[13px] leading-relaxed text-ink">{scriptHint.message}</p>
-            <div className="flex justify-end">
-              <button onClick={() => { const id = scriptHint.sceneId; setScriptHint(null); enterWorkbench(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
-            </div>
+        <Modal onClose={() => setScriptHint(null)} width={380}>
+          <p className="mb-5 text-[13px] leading-relaxed text-ink">{scriptHint.message}</p>
+          <div className="flex justify-end">
+            <button onClick={() => { const id = scriptHint.sceneId; setScriptHint(null); enterWorkbench(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.importConfirmOk')}</button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {pendingDelete && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35"
-          onClick={() => setPendingDelete(null)}>
-          <div onClick={e => e.stopPropagation()}
-            className="mx-4 max-w-[380px] rounded-xl bg-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
-            <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.deleteConfirmText', { name: pendingDelete.name })}</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setPendingDelete(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.deleteConfirmCancel')}</button>
-              <button onClick={() => { const id = pendingDelete.id; setPendingDelete(null); void deleteScene(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.deleteConfirmOk')}</button>
-            </div>
+        <Modal onClose={() => setPendingDelete(null)} width={380}>
+          <p className="mb-5 text-[13px] leading-relaxed text-ink">{t('home.deleteConfirmText', { name: pendingDelete.name })}</p>
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setPendingDelete(null)} className="btn-ghost px-4 py-1.5 text-[11px]">{t('home.deleteConfirmCancel')}</button>
+            <button onClick={() => { const id = pendingDelete.id; setPendingDelete(null); void deleteScene(id) }} className="btn-primary px-4 py-1.5 text-[11px]">{t('home.deleteConfirmOk')}</button>
           </div>
-        </div>
+        </Modal>
       )}
 
       <div className="relative mx-auto mt-12 w-full max-w-[920px] px-6">
@@ -271,7 +252,7 @@ const Home: React.FC = () => {
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <div className="h-[6px] w-[6px] rounded-full" style={{ background: stColor }} />
-                    <span className="text-[10px] text-sub">{stText}</span>
+                    <span className="text-[12px] text-sub">{stText}</span>
                   </div>
                   {evidenceBar(scene)}
                 </div>
@@ -285,7 +266,7 @@ const Home: React.FC = () => {
           </button>
         </div>
       </div>
-      <p className="relative mb-12 mt-12 text-center text-[9px] text-tri">{t('home.communityComingSoon')}</p>
+      <p className="relative mb-12 mt-12 text-center text-[11px] text-tri">{t('home.communityComingSoon')}</p>
     </div>
   )
 }

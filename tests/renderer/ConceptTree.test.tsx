@@ -30,11 +30,11 @@ describe('ConceptTree Component', () => {
 
   it('should show empty state when no concepts', () => {
     render(<ConceptTree concepts={[]} relations={[]} />)
-    expect(screen.getAllByText(/从对话与文档中自动提取/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/auto-extracted|从对话与文档中自动提取/i).length).toBeGreaterThan(0)
   })
 
   it('should render section header', () => {
     render(<ConceptTree concepts={concepts} relations={relations} />)
-    expect(screen.getByText(/概念树/)).toBeDefined()
+    expect(screen.getByText(/concept tree|概念树/i)).toBeDefined()
   })
 })

@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { KnowledgeEntry } from '../contracts/ipc-types'
 
 const ConceptTree: React.FC<{ concepts: KnowledgeEntry[]; relations: KnowledgeEntry[] }> = ({ concepts, relations }) => {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState<Set<string>>(new Set(concepts.slice(0, 3).map(c => c.id)))
 
   const toggle = (id: string) => {
@@ -21,9 +23,9 @@ const ConceptTree: React.FC<{ concepts: KnowledgeEntry[]; relations: KnowledgeEn
 
   return (
     <div>
-      <h4 style={{ fontSize: 11, fontWeight: 600, color: 'var(--sub)', marginBottom: 8 }}>概念树</h4>
+      <h4 style={{ fontSize: 13, fontWeight: 600, color: 'var(--sub)', marginBottom: 8 }}>{t('conceptTree.title')}</h4>
       {concepts.length === 0 ? (
-        <p style={{ fontSize: 9, color: 'var(--tri)' }}>从对话与文档中自动提取</p>
+        <p style={{ fontSize: 11, color: 'var(--tri)' }}>{t('conceptTree.empty')}</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {concepts.map(concept => {
@@ -35,7 +37,7 @@ const ConceptTree: React.FC<{ concepts: KnowledgeEntry[]; relations: KnowledgeEn
                   onClick={() => toggle(concept.id)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 4, padding: '3px 4px',
-                    borderRadius: 4, cursor: 'pointer', fontSize: 10,
+                    borderRadius: 4, cursor: 'pointer', fontSize: 12,
                     color: isExpanded ? 'var(--ink)' : 'var(--sub)',
                     transition: 'background 0.1s'
                   }}
@@ -48,7 +50,7 @@ const ConceptTree: React.FC<{ concepts: KnowledgeEntry[]; relations: KnowledgeEn
                 {isExpanded && children.length > 0 && (
                   <div style={{ marginLeft: 16 }}>
                     {children.map(child => (
-                      <div key={child.id} style={{ padding: '2px 4px', fontSize: 10, color: 'var(--sub)' }}>
+                      <div key={child.id} style={{ padding: '2px 4px', fontSize: 12, color: 'var(--sub)' }}>
                         {child.title}
                       </div>
                     ))}
@@ -59,7 +61,7 @@ const ConceptTree: React.FC<{ concepts: KnowledgeEntry[]; relations: KnowledgeEn
           })}
         </div>
       )}
-      <p style={{ fontSize: 8, color: 'var(--tri)', marginTop: 8 }}>从对话与文档中自动提取，点击可改</p>
+      <p style={{ fontSize: 8, color: 'var(--tri)', marginTop: 8 }}>{t('conceptTree.hint')}</p>
     </div>
   )
 }

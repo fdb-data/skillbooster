@@ -5,6 +5,7 @@ import { isDefaultProjectName } from '../i18n'
 import Markdown from '../components/Markdown'
 import PageNav from '../components/PageNav'
 import { ArrowLeft, Edit as EditIcon, ArrowRight, Paperclip, Send } from '../components/Icons'
+import PageHeader from '../components/ui/PageHeader'
 
 interface GuideMessage {
   role: 'user' | 'assistant'
@@ -263,29 +264,28 @@ const Guide: React.FC = () => {
 
   return (
     <div className="flex h-full flex-col bg-surface">
-      <div className="grid h-14 shrink-0 grid-cols-3 items-center border-b border-line bg-surface px-4">
-        <div className="flex items-center gap-2 justify-self-start">
-          <button onClick={() => setCurrentPage('home')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
-          {editingField === 'projectName' ? (
-            <div className="flex items-center gap-1">
-              <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
-                onKeyDown={e => { if (e.key === 'Enter') saveEdit('projectName'); else if (e.key === 'Escape') setEditingField(null) }}
-                className="rounded-md border border-line px-2 py-0.5 text-[13px] font-bold text-ink outline-none focus:border-accent" />
-              <button onClick={() => saveEdit('projectName')} className="btn-soft px-2 py-0.5 text-[9px]">✓</button>
-              <button onClick={() => setEditingField(null)} className="btn-ghost px-2 py-0.5 text-[9px]">✕</button>
-            </div>
-          ) : (
-            <>
-              <span className="text-[13px] font-bold text-ink">{projectName}</span>
-              <button onClick={() => startEdit('projectName', projectName)} className="flex cursor-pointer items-center text-tri hover:text-accent"><EditIcon size={13} /></button>
-            </>
-          )}
-        </div>
-        <div className="justify-self-center">
-          <PageNav current="guide" />
-        </div>
-        <div />
-      </div>
+      <PageHeader
+        left={
+          <>
+            <button onClick={() => setCurrentPage('home')} className="flex cursor-pointer items-center text-ink hover:text-accent"><ArrowLeft size={16} /></button>
+            {editingField === 'projectName' ? (
+              <div className="flex items-center gap-1">
+                <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
+                  onKeyDown={e => { if (e.key === 'Enter') saveEdit('projectName'); else if (e.key === 'Escape') setEditingField(null) }}
+                  className="rounded-md border border-line px-2 py-0.5 text-[13px] font-bold text-ink outline-none focus:border-accent" />
+                <button onClick={() => saveEdit('projectName')} className="btn-soft px-2 py-0.5 text-[11px]">✓</button>
+                <button onClick={() => setEditingField(null)} className="btn-ghost px-2 py-0.5 text-[11px]">✕</button>
+              </div>
+            ) : (
+              <>
+                <span className="text-[13px] font-bold text-ink">{projectName}</span>
+                <button onClick={() => startEdit('projectName', projectName)} className="flex cursor-pointer items-center text-tri hover:text-accent"><EditIcon size={13} /></button>
+              </>
+            )}
+          </>
+        }
+        center={<PageNav current="guide" />}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         {/* 左侧：对话区 */}
@@ -321,9 +321,9 @@ const Guide: React.FC = () => {
                             )}
                             {msg.optionsMultiSelect && i === messages.length - 1 && (
                               <>
-                                <span className="text-[9px] text-tri">{t('guide.multiSelectHint')}</span>
+                                <span className="text-[11px] text-tri">{t('guide.multiSelectHint')}</span>
                                 {(selectedOptions.length > 0 || customText.trim() !== '') && (
-                                  <button onClick={confirmMultiSelect} className="btn-primary px-3 py-1 text-[10px]">
+                                  <button onClick={confirmMultiSelect} className="btn-primary px-3 py-1 text-[12px]">
                                     {t('guide.confirmCount', { count: selectedOptions.length + (customText.trim() ? 1 : 0) })}
                                   </button>
                                 )}
@@ -335,10 +335,10 @@ const Guide: React.FC = () => {
                               <input autoFocus value={customText} onChange={e => setCustomText(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') submitCustom(!!msg.optionsMultiSelect) }}
                                 placeholder={t('guide.customPlaceholder')}
-                                className="input-pill flex-1 text-[10px]" />
+                                className="input-pill flex-1 text-[12px]" />
                               <button onClick={() => submitCustom(!!msg.optionsMultiSelect)}
                                 disabled={!customText.trim() && selectedOptions.length === 0}
-                                className="btn-primary px-3 py-1 text-[10px]">
+                                className="btn-primary px-3 py-1 text-[12px]">
                                 {msg.optionsMultiSelect ? t('common.confirm') : t('common.send')}
                               </button>
                             </div>
@@ -366,7 +366,7 @@ const Guide: React.FC = () => {
                       <span className="thinking-dot h-[5px] w-[5px] rounded-full bg-tri" style={{ animation: 'pulse 1.2s ease-in-out 0.2s infinite' }} />
                       <span className="thinking-dot h-[5px] w-[5px] rounded-full bg-tri" style={{ animation: 'pulse 1.2s ease-in-out 0.4s infinite' }} />
                     </div>
-                    <span className="text-[10px] text-tri">{agentStatus || t('guide.thinking')}</span>
+                    <span className="text-[12px] text-tri">{agentStatus || t('guide.thinking')}</span>
                   </div>
                 </div>
               )}
@@ -393,21 +393,21 @@ const Guide: React.FC = () => {
         <div className="flex w-[300px] shrink-0 flex-col bg-canvas">
           <div className="border-b border-line px-5 py-4">
             <span className="text-xs font-bold text-ink">{t('guide.sceneProps')}</span>
-            <span className="ml-2 text-[9px] text-tri">{t('guide.realtimeExtract')}</span>
+            <span className="ml-2 text-[11px] text-tri">{t('guide.realtimeExtract')}</span>
           </div>
 
           <div className="flex-1 overflow-auto px-5 py-3">
             {draftFields.map(({ key, label, type }) => (
               <div key={key} className="mb-3.5">
-                <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.5px] text-tri">{label}</div>
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.5px] text-tri">{label}</div>
                 {editingField === key ? (
                   <div className="flex gap-1">
                     <input value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
-                      className="input-pill flex-1 px-2 py-1 text-[10px]"
+                      className="input-pill flex-1 px-2 py-1 text-[12px]"
                       placeholder={type === 'list' ? t('guide.listEditHint') : undefined}
                       onKeyDown={e => { if (e.key === 'Enter') saveEdit(key); else if (e.key === 'Escape') setEditingField(null) }} />
-                    <button onClick={() => saveEdit(key)} className="btn-soft px-2 py-0.5 text-[9px]">✓</button>
-                    <button onClick={() => setEditingField(null)} className="btn-ghost px-2 py-0.5 text-[9px]">✕</button>
+                    <button onClick={() => saveEdit(key)} className="btn-soft px-2 py-0.5 text-[11px]">✓</button>
+                    <button onClick={() => setEditingField(null)} className="btn-ghost px-2 py-0.5 text-[11px]">✕</button>
                   </div>
                 ) : (
                   <div
@@ -432,7 +432,7 @@ const Guide: React.FC = () => {
               {t('guide.enterWorkbench')} <ArrowRight size={14} />
             </button>
             {!canEnterWorkbench && (
-              <p className="mt-1.5 text-center text-[9px] text-tri">
+              <p className="mt-1.5 text-center text-[11px] text-tri">
                 {t('guide.enterWorkbenchHint')}
               </p>
             )}

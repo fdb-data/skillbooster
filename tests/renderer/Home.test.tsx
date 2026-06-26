@@ -66,9 +66,9 @@ describe('Home Page', () => {
     mockStore.scenes = []
   })
 
-  it('should show settings button', () => {
+  it('should show hero title', () => {
     render(<Home />)
-    expect(screen.getByText(/Settings/)).toBeDefined()
+    expect(screen.getByText(/Teach your expertise/)).toBeDefined()
   })
 
   it('should have file attach button', () => {

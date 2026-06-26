@@ -27,9 +27,11 @@
   --radius-block: 8px;
 
   --font-title: 24px;
-  --font-page: 13px;
-  --font-body: 11px;
-  --font-hint: 9px;
+  --font-page: 14px;
+  --font-body: 13px;
+  --font-hint: 11px;
+
+  --font-mono: "Cascadia Code", "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
 
   --ai-bubble: #F5F5F8;
   --user-bubble: #EEEDFC;
@@ -37,6 +39,20 @@
   /* 表面色：应用底色 / 卡片输入框底色（深色模式会翻转） */
   --bg: #FFFFFF;
   --surface: #FFFFFF;
+
+  /* 阴影：三档 elevation，桌面端层级感 */
+  --shadow-sm: 0 1px 2px rgba(26,26,46,0.05);
+  --shadow-md: 0 4px 16px -6px rgba(26,26,46,0.10);
+  --shadow-lg: 0 12px 40px -10px rgba(26,26,46,0.16);
+
+  --success-bg: #DCFCE7;
+  --success-fg: #166534;
+  --warn-bg: #FEF3C7;
+  --warn-fg: #92400E;
+  --danger-bg: #FEE2E2;
+  --danger-fg: #991B1B;
+  --neutral-bg: #F1F5F9;
+  --neutral-fg: #475569;
 }
 
 /* 深色模式：只覆盖基础令牌，Tailwind 工具类（bg-canvas/text-ink 等）经 var 间接引用自动跟随 */
@@ -59,4 +75,17 @@
 
   --bg: #0F0F16;
   --surface: #1B1B26;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.20);
+  --shadow-md: 0 4px 16px -6px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 40px -10px rgba(0,0,0,0.50);
+
+  --success-bg: #052E16;
+  --success-fg: #BBF7D0;
+  --warn-bg: #422006;
+  --warn-fg: #FDE68A;
+  --danger-bg: #450A0A;
+  --danger-fg: #FECACA;
+  --neutral-bg: #1E293B;
+  --neutral-fg: #CBD5E1;
 }

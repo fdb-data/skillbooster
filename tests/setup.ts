@@ -95,6 +95,15 @@ const mockApi = {
     setLanguage: vi.fn().mockResolvedValue({ success: true, data: 'en' }),
     getTheme: vi.fn().mockResolvedValue({ success: true, data: 'system' }),
     setTheme: vi.fn().mockResolvedValue({ success: true, data: 'system' })
+  },
+  update: {
+    onEvent: vi.fn().mockReturnValue(() => {}),
+    getAutoUpdate: vi.fn().mockResolvedValue({ success: true, data: false }),
+    setAutoUpdate: vi.fn().mockResolvedValue({ success: true, data: false }),
+    check: vi.fn().mockResolvedValue({ success: true, data: null }),
+    download: vi.fn().mockResolvedValue({ success: true, data: null }),
+    install: vi.fn().mockResolvedValue({ success: true, data: null }),
+    getVersion: vi.fn().mockResolvedValue({ success: true, data: '0.0.0' })
   }
 }
 
