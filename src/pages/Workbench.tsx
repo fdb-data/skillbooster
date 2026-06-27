@@ -5,17 +5,22 @@ import ReferencePanel from '../components/ReferencePanel'
 import FileAttachmentPanel from '../components/FileAttachmentPanel'
 import Conversation from '../components/Conversation'
 import PageNav from '../components/PageNav'
-import { ArrowLeft, Edit as EditIcon, Close } from '../components/Icons'
+import { ArrowLeft, Edit as EditIcon, Close, Shield } from '../components/Icons'
 import FlowCanvas from '../components/FlowCanvas'
 import PageHeader from '../components/ui/PageHeader'
+import SecurityCheckPanel from '../components/SecurityCheckPanel'
+import type { SecurityFinding } from '../contracts/ipc-types'
 
 const Workbench: React.FC = () => {
   const { t } = useTranslation()
   const currentScene = useSceneStore(s => s.currentScene)
   const setCurrentPage = useSceneStore(s => s.setCurrentPage)
   const updateScene = useSceneStore(s => s.updateScene)
+  const runSecurityCheck = useSceneStore(s => s.runSecurityCheck)
+  const remediateFindings = useSceneStore(s => s.remediateFindings)
   const [exporting, setExporting] = useState(false)
   const [exportResult, setExportResult] = useState<string | null>(null)
+  const [securityOpen, setSecurityOpen] = useState(false)
   const [refsCollapsed, setRefsCollapsed] = useState(true)
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
@@ -39,6 +44,16 @@ const Workbench: React.FC = () => {
     if (currentScene && name && name !== currentScene.name) {
       await updateScene(currentScene.id, { name })
     }
+  }
+
+  const runSecurity = async (): Promise<void> => {
+    if (!currentScene) return
+    await runSecurityCheck(currentScene.id)
+  }
+
+  const remediateSecurity = async (findings: SecurityFinding[]): Promise<void> => {
+    if (!currentScene || findings.length === 0) return
+    await remediateFindings(currentScene.id, findings)
   }
 
   if (!currentScene) {
@@ -77,36 +92,45 @@ const Workbench: React.FC = () => {
         }
         center={<PageNav current="workbench" />}
         right={
-          <button
-            onClick={async () => {
-              if (!currentScene) return
-              setExporting(true)
-              setExportResult(null)
-              try {
-                const health = await window.api.export.healthCheck(currentScene.id)
-                if (health.success && health.data && !health.data.passed) {
-                  const warnings = health.data.warnings.map((w: { message: string }) => w.message).join('\n')
-                  setExportResult(t('workbench.healthWarnings', { warnings }))
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSecurityOpen(o => !o)}
+              className="flex cursor-pointer items-center gap-1.5 rounded-md border border-line bg-canvas px-3 py-1.5 text-[13px] text-ink hover:bg-surface"
+            >
+              <Shield size={14} />
+              {t('workbench.securityCheck')}
+            </button>
+            <button
+              onClick={async () => {
+                if (!currentScene) return
+                setExporting(true)
+                setExportResult(null)
+                try {
+                  const health = await window.api.export.healthCheck(currentScene.id)
+                  if (health.success && health.data && !health.data.passed) {
+                    const warnings = health.data.warnings.map((w: { message: string }) => w.message).join('\n')
+                    setExportResult(t('workbench.healthWarnings', { warnings }))
+                    setExporting(false)
+                    return
+                  }
+                  const result = await window.api.export.buildPackage(currentScene.id)
+                  if (result.success && result.data) {
+                    setExportResult(t('workbench.packageExported', { path: result.data.filePath }))
+                  } else {
+                    setExportResult(t('workbench.exportFailed'))
+                  }
+                } catch (err) {
+                  setExportResult(t('workbench.errorPrefix', { message: (err as Error).message }))
+                } finally {
                   setExporting(false)
-                  return
                 }
-                const result = await window.api.export.buildPackage(currentScene.id)
-                if (result.success && result.data) {
-                  setExportResult(t('workbench.packageExported', { path: result.data.filePath }))
-                } else {
-                  setExportResult(t('workbench.exportFailed'))
-                }
-              } catch (err) {
-                setExportResult(t('workbench.errorPrefix', { message: (err as Error).message }))
-              } finally {
-                setExporting(false)
-              }
-            }}
-            disabled={exporting}
-            className="btn-primary px-4 py-1.5 text-[13px]"
-          >
-            {exporting ? t('workbench.exporting') : t('workbench.export')}
-          </button>
+              }}
+              disabled={exporting}
+              className="btn-primary px-4 py-1.5 text-[13px]"
+            >
+              {exporting ? t('workbench.exporting') : t('workbench.export')}
+            </button>
+          </div>
         }
       />
 
@@ -115,6 +139,16 @@ const Workbench: React.FC = () => {
           <span className="whitespace-pre-wrap">{exportResult}</span>
           <button onClick={() => setExportResult(null)} className="flex cursor-pointer items-center text-tri hover:text-sub"><Close size={12} /></button>
         </div>
+      )}
+
+      {securityOpen && (
+        <SecurityCheckPanel
+          sceneId={currentScene.id}
+          onStart={runSecurity}
+          onRerun={runSecurity}
+          onRemediate={remediateSecurity}
+          onClose={() => setSecurityOpen(false)}
+        />
       )}
 
       <div className="relative flex flex-1 gap-5 overflow-hidden px-[18px] pt-[18px]">

@@ -12,6 +12,15 @@ const api = {
     },
     abort: (runId: string): Promise<unknown> => ipcRenderer.invoke('agent:abort', runId)
   },
+  security: {
+    onProgress: (callback: (data: unknown) => void): (() => void) => {
+      const listener = (_e: IpcRendererEvent, data: unknown): void => callback(data)
+      ipcRenderer.on('security:progress', listener)
+      return () => ipcRenderer.removeListener('security:progress', listener)
+    },
+    getResults: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('security:getResults', sceneId),
+    saveResults: (sceneId: string, result: unknown): Promise<unknown> => ipcRenderer.invoke('security:saveResults', sceneId, result)
+  },
   scenes: {
     list: (): Promise<unknown> => ipcRenderer.invoke('scenes:list'),
     get: (id: string): Promise<unknown> => ipcRenderer.invoke('scenes:get', id),
@@ -23,7 +32,8 @@ const api = {
     add: (sceneId: string, filePath: string): Promise<unknown> => ipcRenderer.invoke('references:add', sceneId, filePath),
     remove: (sceneId: string, refId: string): Promise<unknown> => ipcRenderer.invoke('references:remove', sceneId, refId),
     list: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('references:list', sceneId),
-    setInclude: (sceneId: string, refId: string, include: boolean): Promise<unknown> => ipcRenderer.invoke('references:setInclude', sceneId, refId, include)
+    setInclude: (sceneId: string, refId: string, include: boolean): Promise<unknown> => ipcRenderer.invoke('references:setInclude', sceneId, refId, include),
+    fixText: (sceneId: string, refId: string): Promise<unknown> => ipcRenderer.invoke('references:fixText', sceneId, refId)
   },
   attachments: {
     add: (sceneId: string, kind: string, filePath: string): Promise<unknown> => ipcRenderer.invoke('attachments:add', sceneId, kind, filePath),
@@ -43,7 +53,8 @@ const api = {
   },
   extraction: {
     runTurn: (sceneId: string, message: string): Promise<unknown> => ipcRenderer.invoke('extraction:runTurn', sceneId, message),
-    draftFromDocs: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('extraction:draftFromDocs', sceneId)
+    draftFromDocs: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('extraction:draftFromDocs', sceneId),
+    remediateFindings: (sceneId: string, findings: unknown): Promise<unknown> => ipcRenderer.invoke('extraction:remediateFindings', sceneId, findings)
   },
   validation: {
     run: (sceneId: string, instruction: string): Promise<unknown> => ipcRenderer.invoke('validation:run', sceneId, instruction),
@@ -60,7 +71,9 @@ const api = {
   },
   export: {
     buildPackage: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('export:buildPackage', sceneId),
-    healthCheck: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('export:healthCheck', sceneId)
+    healthCheck: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('export:healthCheck', sceneId),
+    securityCheck: (sceneId: string): Promise<unknown> => ipcRenderer.invoke('export:securityCheck', sceneId),
+    exportSecurityReport: (sceneId: string, result: unknown): Promise<unknown> => ipcRenderer.invoke('export:exportSecurityReport', sceneId, result)
   },
   settings: {
     getLLM: (): Promise<unknown> => ipcRenderer.invoke('settings:getLLM'),

@@ -176,6 +176,61 @@ export interface HealthCheckResult {
   warnings: HealthWarning[]
 }
 
+/** 安全检测发现的类别 */
+export type SecurityCategory =
+  | 'poisoning'          // 投毒：提示词注入、隐藏 Unicode、覆盖性指令
+  | 'suspiciousLink'     // 异常链接：危险协议、裸 IP、短链、可疑 TLD
+  | 'suspiciousScript'   // 异常脚本：eval/child_process、混淆、PowerShell 一句话、挖矿
+  | 'sensitiveData'      // 敏感信息泄露：API key、token、私钥、硬编码凭据
+  | 'abnormalContent'    // 异常内容：超长、二进制/控制字符、重复填充
+  | 'attachmentIssue'    // 附件完整性：缺失、空、超大
+
+export type SecuritySeverity = 'critical' | 'high' | 'medium' | 'low'
+
+export interface SecurityFindingLocation {
+  entryId?: string
+  entryType?: KnowledgeType
+  field?: string
+  referenceId?: string
+  attachmentId?: string
+}
+
+export interface SecurityFinding {
+  id: string
+  category: SecurityCategory
+  severity: SecuritySeverity
+  title: string
+  detail: string
+  location?: SecurityFindingLocation
+  /** 命中的证据片段（已截断） */
+  evidence?: string
+  suggestion?: string
+  /** 来源：rule = 规则扫描，llm = 智能体语义审查 */
+  source: 'rule' | 'llm'
+}
+
+export interface SecurityCheckResult {
+  /** 无 critical/high 级别发现时为 true */
+  passed: boolean
+  findings: SecurityFinding[]
+  stats: { rulesChecked: number; contentsScanned: number; llmReviewed: boolean }
+  checkedAt: string
+}
+
+/** 单个条目的消除修订结果 */
+export interface RemediateUpdate {
+  id: string
+  title: string
+  content: string
+}
+
+/** 风险消除结果：已修订条目 + 无法自动消除的发现 + 对话总结 */
+export interface RemediateResult {
+  updates: RemediateUpdate[]
+  skipped: SecurityFinding[]
+  summary: string
+}
+
 /** 单侧 LLM 调用的 token 用量（来自 API usage） */
 export interface TokenUsage {
   promptTokens: number

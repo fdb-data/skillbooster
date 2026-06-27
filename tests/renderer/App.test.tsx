@@ -30,6 +30,7 @@ const mockStore = {
   loadScenes: vi.fn(),
   loadCanvas: vi.fn(),
   initAgentEvents: vi.fn().mockReturnValue(() => {}),
+  initSecurityEvents: vi.fn().mockReturnValue(() => {}),
   abortRun: vi.fn(),
   activeRunId: null,
   agentStatus: null,

@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const currentPage = useSceneStore(s => s.currentPage)
   const loadScenes = useSceneStore(s => s.loadScenes)
   const initAgentEvents = useSceneStore(s => s.initAgentEvents)
+  const initSecurityEvents = useSceneStore(s => s.initSecurityEvents)
 
   useEffect(() => { loadScenes() }, [loadScenes])
 
@@ -18,6 +19,11 @@ const App: React.FC = () => {
     const unsubscribe = initAgentEvents()
     return unsubscribe
   }, [initAgentEvents])
+
+  useEffect(() => {
+    const unsubscribe = initSecurityEvents()
+    return unsubscribe
+  }, [initSecurityEvents])
 
   const renderPage = () => {
     switch (currentPage) {

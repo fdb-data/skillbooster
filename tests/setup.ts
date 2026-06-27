@@ -34,6 +34,11 @@ const mockApi = {
     onEvent: vi.fn().mockReturnValue(() => {}),
     abort: vi.fn().mockResolvedValue({ success: true, data: { aborted: true } })
   },
+  security: {
+    onProgress: vi.fn().mockReturnValue(() => {}),
+    getResults: vi.fn().mockResolvedValue({ success: true, data: null }),
+    saveResults: vi.fn().mockResolvedValue({ success: true, data: { success: true } })
+  },
   scenes: {
     list: vi.fn().mockResolvedValue({ success: true, data: [] }),
     get: vi.fn().mockResolvedValue({ success: true, data: null }),
@@ -45,7 +50,8 @@ const mockApi = {
     add: vi.fn().mockResolvedValue({ success: true, data: { id: 'ref-1', filename: 'test.txt', storedPath: '/tmp/test.txt', extractedText: 'test content', includeInPackage: true } }),
     remove: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
     list: vi.fn().mockResolvedValue({ success: true, data: [] }),
-    setInclude: vi.fn().mockResolvedValue({ success: true, data: { success: true } })
+    setInclude: vi.fn().mockResolvedValue({ success: true, data: { success: true } }),
+    fixText: vi.fn().mockResolvedValue({ success: true, data: { success: true } })
   },
   attachments: {
     add: vi.fn().mockResolvedValue({ success: true, data: { id: 'att-1', kind: 'script', filename: 'test.py', storedPath: '/tmp/test.py', includeInPackage: true } }),
@@ -65,7 +71,8 @@ const mockApi = {
   },
   extraction: {
     runTurn: vi.fn().mockResolvedValue({ success: true, data: { reply: 'Extraction reply', canvasUpdates: [], proposals: [] } }),
-    draftFromDocs: vi.fn().mockResolvedValue({ success: true, data: { openingMessage: 'Draft ready', canvasUpdates: [] } })
+    draftFromDocs: vi.fn().mockResolvedValue({ success: true, data: { openingMessage: 'Draft ready', canvasUpdates: [] } }),
+    remediateFindings: vi.fn().mockResolvedValue({ success: true, data: { updates: [], skipped: [], summary: '🧹 已消除' } })
   },
   validation: {
     run: vi.fn().mockResolvedValue({ success: true, data: { bare: 'bare result', withSkill: 'skill result', verdict: null, diffSummary: 'diff summary', control: { model: 'test-model', temperature: 0.7 } } }),
@@ -82,7 +89,9 @@ const mockApi = {
   },
   export: {
     buildPackage: vi.fn().mockResolvedValue({ success: true, data: { filePath: '/tmp/package.zip' } }),
-    healthCheck: vi.fn().mockResolvedValue({ success: true, data: { passed: true, warnings: [] } })
+    healthCheck: vi.fn().mockResolvedValue({ success: true, data: { passed: true, warnings: [] } }),
+    securityCheck: vi.fn().mockResolvedValue({ success: true, data: { passed: true, findings: [], stats: { rulesChecked: 6, contentsScanned: 0, llmReviewed: false }, checkedAt: new Date().toISOString() } }),
+    exportSecurityReport: vi.fn().mockResolvedValue({ success: true, data: { filePath: '/tmp/security-report.md' } })
   },
   settings: {
     getLLM: vi.fn().mockResolvedValue({ success: true, data: { provider: 'custom', apiKey: 'test-key', model: 'test-model', baseUrl: 'https://api.test.com/v1' } }),

@@ -54,6 +54,15 @@ export function abortAgentRun(runId: string): boolean {
   return true
 }
 
+/** 供非 agentLoop 的 run（如安全检测）注册中断控制器，复用统一的 abort 通道 */
+export function registerAgentRun(runId: string, controller: AbortController): void {
+  activeRuns.set(runId, controller)
+}
+
+export function unregisterAgentRun(runId: string): void {
+  activeRuns.delete(runId)
+}
+
 function isToolUnsupportedError(err: unknown): boolean {
   if (!(err instanceof LLMError)) return false
   if (err.code !== 'API_ERROR') return false

@@ -4,7 +4,8 @@ import type {
   Proposal, ProposalCard, KnowledgeType, KnowledgeEntry,
   CanvasUpdate, AppError, IpcResult,
   ValidationResult, ValidationVerdict, DimensionVerdict, VerdictResult, OverallVerdict, TokenUsage,
-  TestCase, EvalCaseExport, EvalExportPayload, ValidationResultsBundle, GuideMessageRecord
+  TestCase, EvalCaseExport, EvalExportPayload, ValidationResultsBundle, GuideMessageRecord,
+  SecurityCheckResult, SecurityFinding, RemediateResult
 } from './contracts/ipc-types'
 import type { AgentEvent } from './contracts/agent-events'
 
@@ -49,6 +50,11 @@ interface ElectronApi {
     onEvent: (callback: (event: AgentEvent) => void) => () => void
     abort: (runId: string) => Promise<IpcResult<{ aborted: boolean }>>
   }
+  security: {
+    onProgress: (callback: (data: { delta: string; phase: 'running' | 'done' | 'error'; runId?: string }) => void) => () => void
+    getResults: (sceneId: string) => Promise<IpcResult<SecurityCheckResult | null>>
+    saveResults: (sceneId: string, result: SecurityCheckResult) => Promise<IpcResult<{ success: boolean }>>
+  }
   scenes: {
     list: () => Promise<IpcResult<Scene[]>>
     get: (id: string) => Promise<IpcResult<Scene>>
@@ -61,6 +67,7 @@ interface ElectronApi {
     remove: (sceneId: string, refId: string) => Promise<IpcResult<{ success: boolean }>>
     list: (sceneId: string) => Promise<IpcResult<Reference[]>>
     setInclude: (sceneId: string, refId: string, include: boolean) => Promise<IpcResult<{ success: boolean }>>
+    fixText: (sceneId: string, refId: string) => Promise<IpcResult<{ success: boolean }>>
   }
   attachments: {
     add: (sceneId: string, kind: AttachmentKind, filePath: string) => Promise<IpcResult<Attachment>>
@@ -81,6 +88,7 @@ interface ElectronApi {
   extraction: {
     runTurn: (sceneId: string, message: string) => Promise<IpcResult<RunTurnResult>>
     draftFromDocs: (sceneId: string) => Promise<IpcResult<DraftResult>>
+    remediateFindings: (sceneId: string, findings: SecurityFinding[]) => Promise<IpcResult<RemediateResult>>
   }
   validation: {
     run: (sceneId: string, instruction: string) => Promise<IpcResult<ValidationResult>>
@@ -98,6 +106,8 @@ interface ElectronApi {
   export: {
     buildPackage: (sceneId: string) => Promise<IpcResult<{ filePath: string }>>
     healthCheck: (sceneId: string) => Promise<IpcResult<HealthCheckResult>>
+    securityCheck: (sceneId: string) => Promise<IpcResult<SecurityCheckResult>>
+    exportSecurityReport: (sceneId: string, result: SecurityCheckResult) => Promise<IpcResult<{ filePath: string }>>
   }
   settings: {
     getLLM: () => Promise<IpcResult<LLMConfig | null>>
@@ -137,5 +147,6 @@ export type {
   CanvasUpdate, AppError, IpcResult, ElectronApi,
   ValidationResult, ValidationVerdict, DimensionVerdict, VerdictResult, OverallVerdict, TokenUsage,
   TestCase, EvalCaseExport, EvalExportPayload,
-  GuideResult, GuideDraft, AgentConfig, UpdateEvent
+  GuideResult, GuideDraft, AgentConfig, UpdateEvent,
+  SecurityCheckResult, SecurityFinding, RemediateResult
 }

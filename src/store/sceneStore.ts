@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Scene, ExperienceCard, LLMConfig, LLMProviderConfig, HealthCheckResult, ProposalCard, ConversationMessage, AttachmentKind, KnowledgeKey, CanvasOp, CanvasPosition, ValidationResult, ValidationControl } from '../contracts/ipc-types'
+import type { Scene, ExperienceCard, LLMConfig, LLMProviderConfig, HealthCheckResult, ProposalCard, ConversationMessage, AttachmentKind, KnowledgeKey, CanvasOp, CanvasPosition, ValidationResult, ValidationControl, SecurityCheckResult, SecurityFinding, RemediateResult } from '../contracts/ipc-types'
 import { EventType } from '../contracts/agent-events'
 import type { AgentEvent, AgentKey } from '../contracts/agent-events'
 import { generateId } from '../utils/uuid'
@@ -39,7 +39,14 @@ interface SceneStore {
   streamingText: string | null
   liveSceneDraft: LiveSceneDraft | null
 
+  // 安全检测独立面板状态（不进对话流）
+  securityResult: SecurityCheckResult | null
+  securityProgress: string
+  securityPhase: 'idle' | 'running' | 'done' | 'error'
+  securityRunId: string | null
+
   initAgentEvents: () => () => void
+  initSecurityEvents: () => () => void
   abortRun: () => Promise<void>
 
   // 验证（A/B 对比）状态 —— 提到 store 以脱离 Validate 页生命周期，切页不丢
@@ -96,6 +103,9 @@ interface SceneStore {
 
   healthCheck: (sceneId: string) => Promise<HealthCheckResult>
   buildPackage: (sceneId: string) => Promise<string>
+  runSecurityCheck: (sceneId: string) => Promise<SecurityCheckResult | null>
+  loadSecurityResult: (sceneId: string) => Promise<void>
+  remediateFindings: (sceneId: string, findings: SecurityFinding[]) => Promise<RemediateResult | null>
 
   loadLLMConfig: () => Promise<void>
   saveLLMConfig: (config: LLMConfig) => Promise<void>
@@ -204,6 +214,11 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
   streamingText: null,
   liveSceneDraft: null,
 
+  securityResult: null,
+  securityProgress: '',
+  securityPhase: 'idle',
+  securityRunId: null,
+
   valLoadedSceneId: null,
   valCaseResults: {},
   valSingleEntry: null,
@@ -304,6 +319,15 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     } catch {
       // 中断失败不打扰用户
     }
+  },
+
+  initSecurityEvents: () => {
+    return window.api.security.onProgress((data) => {
+      set(s => ({
+        securityProgress: data.delta ? s.securityProgress + data.delta : s.securityProgress,
+        securityRunId: data.runId ?? s.securityRunId
+      }))
+    })
   },
 
   // ---------- 验证（A/B 对比） ----------
@@ -497,7 +521,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
       const scene = handleIpc(result)
       undoStack = []
       redoStack = []
-      set({ currentScene: scene, proposals: [], highlightedEntries: [], canUndo: false, canRedo: false })
+      set({ currentScene: scene, proposals: [], highlightedEntries: [], canUndo: false, canRedo: false, securityResult: null, securityPhase: 'idle', securityProgress: '', securityRunId: null })
     } catch (err) {
       set({ error: (err as Error).message })
     }
@@ -810,6 +834,59 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     const result = await window.api.export.buildPackage(sceneId)
     const data = handleIpc(result)
     return data.filePath
+  },
+
+  runSecurityCheck: async (sceneId: string) => {
+    set({ error: null, securityPhase: 'running', securityProgress: '', securityResult: null })
+    try {
+      const result = await window.api.export.securityCheck(sceneId)
+      const data = handleIpc(result)
+      set({ securityResult: data, securityPhase: 'done' })
+      try { await window.api.security.saveResults(sceneId, data) } catch (e) { console.error('[security] save failed:', e) }
+      return data
+    } catch (err) {
+      const msg = (err as Error).message
+      set({ securityPhase: 'error', error: msg === '已中断' ? null : msg })
+      return null
+    }
+  },
+
+  loadSecurityResult: async (sceneId: string) => {
+    try {
+      const result = await window.api.security.getResults(sceneId)
+      console.log('[security] load result:', sceneId, result)
+      if (result.success && result.data) {
+        set({ securityResult: result.data, securityPhase: 'done' })
+      }
+    } catch (e) { console.error('[security] load failed:', e) }
+  },
+
+  remediateFindings: async (sceneId: string, findings: SecurityFinding[]) => {
+    set({ error: null, securityPhase: 'running', securityProgress: '' })
+    try {
+      const result = await window.api.extraction.remediateFindings(sceneId, findings)
+      const data = handleIpc(result)
+      for (const u of data.updates) {
+        get().applyCanvasOp(sceneId, { kind: 'update', id: u.id, patch: { title: u.title, content: u.content } })
+      }
+      const remediatedIds = new Set(findings.filter(f => data.updates.some(u => u.id === f.location?.entryId)).map(f => f.id))
+      set(s => {
+        if (!s.securityResult) return { securityPhase: 'done' }
+        const remaining = s.securityResult.findings.filter(f => !remediatedIds.has(f.id))
+        const updated: SecurityCheckResult = {
+          ...s.securityResult,
+          findings: remaining,
+          passed: !remaining.some(f => f.severity === 'critical' || f.severity === 'high')
+        }
+        return { securityPhase: 'done', securityResult: updated }
+      })
+      try { await window.api.security.saveResults(sceneId, get().securityResult!) } catch (e) { console.error('[security] save after remediate failed:', e) }
+      return data
+    } catch (err) {
+      const msg = (err as Error).message
+      set({ securityPhase: 'error', error: msg === '已中断' ? null : msg })
+      return null
+    }
   },
 
   loadLLMConfig: async () => {

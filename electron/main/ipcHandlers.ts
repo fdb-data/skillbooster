@@ -7,6 +7,7 @@ import { generateId } from '../../src/utils/uuid'
 import * as store from './store'
 import { runTurn, draftFromDocs } from './extraction'
 import { healthCheck, buildPackage } from './packager'
+import { securityCheck, exportSecurityReport, remediateFindings, applyDeterministicFix } from './securityCheck'
 import { guideRunTurn, getSceneDraft, validationRun, validationRunCase, generateTestCases } from './agents'
 import { exportEvalResults } from './packager'
 import { abortAgentRun } from './agentLoop'
@@ -124,6 +125,16 @@ export function registerIpcHandlers(): void {
     return { success: true }
   }))
 
+  ipcMain.handle('references:fixText', wrapHandler(async (_e, sceneId: string, refId: string) => {
+    const refs = store.listReferences(sceneId)
+    const ref = refs.find(r => r.id === refId)
+    if (!ref) throw new Error('Reference not found')
+    let fixed = applyDeterministicFix(ref.extractedText)
+    if (fixed.length > 10000) fixed = fixed.slice(0, 10000) + '\n…[truncated]'
+    store.updateReferenceText(sceneId, refId, fixed)
+    return { success: true }
+  }))
+
   ipcMain.handle('attachments:add', wrapHandler(async (_e, sceneId: string, kind: AttachmentKind, filePath: string) => {
     const attId = generateId()
     const sceneDir = store.getAttachmentSceneDir(sceneId, kind)
@@ -232,6 +243,10 @@ export function registerIpcHandlers(): void {
     return await draftFromDocs(sceneId)
   }))
 
+  ipcMain.handle('extraction:remediateFindings', wrapHandler(async (_e, sceneId: string, findings: import('../../src/contracts/ipc-types').SecurityFinding[]) => {
+    return await remediateFindings(sceneId, findings)
+  }))
+
   ipcMain.handle('agent:abort', wrapHandler(async (_e, runId: string) => {
     return { aborted: abortAgentRun(runId) }
   }))
@@ -248,6 +263,24 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('export:healthCheck', wrapHandler(async (_e, sceneId: string) => {
     return healthCheck(sceneId)
+  }))
+
+  ipcMain.handle('export:securityCheck', wrapHandler(async (_e, sceneId: string) => {
+    return await securityCheck(sceneId)
+  }))
+
+  ipcMain.handle('security:getResults', wrapHandler(async (_e, sceneId: string) => {
+    return store.getSecurityResults(sceneId)
+  }))
+
+  ipcMain.handle('security:saveResults', wrapHandler(async (_e, sceneId: string, result: import('../../src/contracts/ipc-types').SecurityCheckResult) => {
+    store.saveSecurityResults(sceneId, result)
+    return { success: true }
+  }))
+
+  ipcMain.handle('export:exportSecurityReport', wrapHandler(async (_e, sceneId: string, result: import('../../src/contracts/ipc-types').SecurityCheckResult) => {
+    const filePath = await exportSecurityReport(sceneId, result)
+    return { filePath }
   }))
 
   ipcMain.handle('settings:getLLM', wrapHandler(async () => {

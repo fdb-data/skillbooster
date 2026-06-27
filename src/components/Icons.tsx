@@ -151,6 +151,20 @@ export const Download: React.FC<IconProps> = ({ size = defaults.size, color = de
   </svg>
 )
 
+export const Refresh: React.FC<IconProps> = ({ size = defaults.size, color = defaults.color, style, className }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+    <path d="M23 4v6h-6M1 20v-6h6" />
+    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+  </svg>
+)
+
+export const Eraser: React.FC<IconProps> = ({ size = defaults.size, color = defaults.color, style, className }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+    <path d="M20 20H7L3 16a2 2 0 010-2.83l9.17-9.17a2 2 0 012.83 0l5 5a2 2 0 010 2.83L13 20" />
+    <path d="M18 13L9 4" />
+  </svg>
+)
+
 export const Copy: React.FC<IconProps> = ({ size = defaults.size, color = defaults.color, style, className }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />

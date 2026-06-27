@@ -3,7 +3,7 @@ import path from 'path'
 import Database from 'better-sqlite3'
 import fs from 'fs'
 import log from 'electron-log'
-import type { ExperienceCard, LLMConfig, LLMProviderConfig, ConversationMessage, Reference, Attachment, AttachmentKind, TestCase, ValidationResultsBundle, GuideMessageRecord } from '../../src/contracts/ipc-types'
+import type { ExperienceCard, LLMConfig, LLMProviderConfig, ConversationMessage, Reference, Attachment, AttachmentKind, TestCase, ValidationResultsBundle, GuideMessageRecord, SecurityCheckResult } from '../../src/contracts/ipc-types'
 import { emptyExperienceCard } from '../../src/contracts/ipc-types'
 
 let db: Database.Database | null = null
@@ -152,6 +152,13 @@ export function initDatabase(): void {
       FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS security_results (
+      scene_id   TEXT PRIMARY KEY,
+      data       TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_references_scene ON "references"(scene_id);
     CREATE INDEX IF NOT EXISTS idx_attachments_scene ON attachments(scene_id, kind);
     CREATE INDEX IF NOT EXISTS idx_conversations_scene ON conversations(scene_id);
@@ -252,6 +259,10 @@ export function removeReference(sceneId: string, refId: string): void {
 
 export function setReferenceInclude(sceneId: string, refId: string, include: boolean): void {
   getDb().prepare('UPDATE "references" SET include_in_package = ? WHERE id = ? AND scene_id = ?').run(include ? 1 : 0, refId, sceneId)
+}
+
+export function updateReferenceText(sceneId: string, refId: string, text: string): void {
+  getDb().prepare('UPDATE "references" SET extracted_text = ? WHERE id = ? AND scene_id = ?').run(text, refId, sceneId)
 }
 
 /** 附件目录：{userData}/{scripts|assets}/{sceneId}，按需创建 */
@@ -454,6 +465,24 @@ export function saveGuideMessages(sceneId: string, messages: GuideMessageRecord[
   const now = new Date().toISOString()
   getDb().prepare('INSERT INTO guide_messages (scene_id, data, updated_at) VALUES (?, ?, ?) ON CONFLICT(scene_id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at')
     .run(sceneId, JSON.stringify(messages), now)
+}
+
+export function getSecurityResults(sceneId: string): SecurityCheckResult | null {
+  const row = getDb().prepare('SELECT data FROM security_results WHERE scene_id = ?').get(sceneId) as { data: string } | undefined
+  log.info(`[security] getSecurityResults sceneId=${sceneId} found=${!!row}`)
+  if (!row) return null
+  try {
+    return JSON.parse(row.data) as SecurityCheckResult
+  } catch {
+    return null
+  }
+}
+
+export function saveSecurityResults(sceneId: string, result: SecurityCheckResult): void {
+  const now = new Date().toISOString()
+  log.info(`[security] saveSecurityResults sceneId=${sceneId} findings=${result.findings?.length ?? 0}`)
+  getDb().prepare('INSERT INTO security_results (scene_id, data, updated_at) VALUES (?, ?, ?) ON CONFLICT(scene_id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at')
+    .run(sceneId, JSON.stringify(result), now)
 }
 
 export function getPreference(key: string): string | null {
